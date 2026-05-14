@@ -1,0 +1,43 @@
+site_name: Profile Generator — Architekturdokumentation
+site_author: Robert Risch
+site_description: MDA-basierter Profil-Generator — Principal-Level Architektur-Showcase
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.tabs
+    - navigation.expand
+    - navigation.top
+    - toc.integrate
+    - search.highlight
+
+plugins:
+  - search
+  - mermaid2
+
+nav:
+  - Übersicht: README.md
+  - Kernkompetenzen: COMPETENCIES.md
+  - Methodik: docs/methodology.md
+  - Architektur (ARC42):
+    - Einführung & Ziele: docs/arc42/01_einfuehrung_und_ziele.md
+    - Randbedingungen: docs/arc42/02_randbedingungen.md
+    - Kontextabgrenzung: docs/arc42/03_kontextabgrenzung.md
+    - Lösungsstrategie: docs/arc42/04_loesungsstrategie.md
+    - Bausteinsicht: docs/arc42/05_bausteinsicht.md
+    - Laufzeitsicht: docs/arc42/06_laufzeitsicht.md
+    - Verteilungssicht: docs/arc42/07_verteilungssicht.md
+    - Qualitätsszenarien: docs/arc42/08_qualitaetsszenarien.md
+  - Entscheidungen (ADR):
+    - ADR-001 Python: docs/adr/ADR-001-python.md
+    - ADR-002 MDA-Ansatz: docs/adr/ADR-002-mda-ansatz.md
+    - ADR-003 Zwei DSLs: docs/adr/ADR-003-zwei-dsls.md
+    - ADR-004 Hybrid-KI: docs/adr/ADR-004-hybrid-ki.md
+    - ADR-005 FastAPI: docs/adr/ADR-005-fastapi.md
+    - ADR-006 AISE: docs/adr/ADR-006-aise-ansatz.md
+    - ADR-007 DDD: docs/adr/ADR-007-ddd-ansatz.md
+    - ADR-008 Meta-Programm: docs/adr/ADR-008-meta-programm.md
+    - ADR-009 Autorenschaft: docs/adr/ADR-009-autorenschaft.md

@@ -1,0 +1,26 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff mypy bandit pydantic
+      - run: ruff check src/ web/ codegen/ scripts/ --ignore E501
+      - run: mypy src/ web/ codegen/ --ignore-missing-imports
+      - run: bandit -r src/ web/ -q
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: pytest tests/ -m "not integration and not eval" -v --tb=short

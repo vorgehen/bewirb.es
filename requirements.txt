@@ -1,0 +1,32 @@
+# Kern
+anthropic>=0.30
+python-docx>=1.1
+docx2pdf>=0.1.8
+textx>=3.1
+networkx>=3.3
+jinja2>=3.1
+python-dotenv>=1.0
+
+# Web (Phase 7)
+fastapi>=0.111
+uvicorn>=0.29
+httpx>=0.27
+
+# Dokumentation
+mkdocs>=1.6
+mkdocs-material>=9.5
+mkdocs-mermaid2-plugin>=1.1
+pypandoc>=1.13
+
+# Tests & Qualität
+pytest>=8.0
+pytest-mock>=3.14
+syrupy>=4.0
+hypothesis>=6.100
+
+# Statische Analyse
+ruff>=0.4
+mypy>=1.10
+bandit>=1.7
+pre-commit>=3.7
+pydantic>=2.0

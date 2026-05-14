@@ -1,0 +1,33 @@
+# Persönliche Profil-Daten — nie ins Repo
+data/*.profile
+data/*.req
+data/**/*.profile
+data/**/*.req
+!data/example/
+
+# Generierte Ausgaben
+output/
+site/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Umgebungsvariablen
+.env
+
+# VS Code (außer projektspezifische Einstellungen)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Windows
+Thumbs.db
+desktop.ini
