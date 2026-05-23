@@ -6,6 +6,8 @@ requires-python = ">=3.12"
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.format]
@@ -15,6 +17,7 @@ quote-style = "double"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
+
 
 [tool.bandit]
 skips = ["B101"]
