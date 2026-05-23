@@ -1,0 +1,62 @@
+# serializer version: 1
+# name: test_markdown_snapshot
+  '''
+  # Profil: Senior Software Ingenieur & Architekt
+  
+  **Zielrolle:** Senior Java Architekt
+  
+  **Kontakt:** profil@beispiel.de
+  **Standort:** Deutschland
+  **LinkedIn:** linkedin.com/in/beispiel
+  
+  ## Schluessel-Kompetenzen (Treffer)
+  - Java
+  - REST
+  - Microservices
+  
+  ## Technologiekompetenz
+  - **Java** ✓ — Experte, 15 Jahre (Programmiersprache)
+  - **REST** ✓ — Experte, 10 Jahre (Protokoll)
+  - **ARC42** — Experte, 8 Jahre (Methodik)
+  - **Microservices** ✓ — Fortgeschritten, 7 Jahre (Methodik)
+  - **Python** — Fortgeschritten, 5 Jahre (Programmiersprache)
+  
+  ## Projekterfahrung
+  
+  ### Modernisierung einer Kernbankanwendung
+  **Zeitraum:** 2022-01 – 2024-06
+  **Auftraggeber:** Grossbank AG
+  **Rolle:** Senior Java Architekt
+  **Technologien:** Java, REST, Microservices, ARC42
+  
+  Migration einer monolithischen Kernbankanwendung auf eine Microservices-Architektur.
+  
+  **Ergebnisse:**
+  - Latenz um 40% reduziert
+  - Deploymentfrequenz von monatlich auf taeglich erhoeht
+  
+  ### Logistikplattform fuer Supply-Chain-Management
+  **Zeitraum:** 2020-03 – 2021-12
+  **Auftraggeber:** Logistik GmbH
+  **Rolle:** Lead Developer und Architekt
+  **Technologien:** Java, REST
+  
+  Entwicklung einer zentralen Integrationsplattform fuer die Lieferkette.
+  
+  ### Architektur-Review und Dokumentation
+  **Zeitraum:** 2019-06 – 2020-02
+  **Auftraggeber:** IT-Beratung AG
+  **Rolle:** Architekt
+  **Technologien:** ARC42, REST
+  
+  Durchfuehrung eines Architektur-Reviews und Erstellung vollstaendiger ARC42-Dokumentation.
+  
+  ## Ausbildung
+  
+  ### Informatik (M.Sc.)
+  **Institution:** Technische Universitaet Beispielstadt
+  **Zeitraum:** 2005-10 – 2010-09
+  **Abschluss:** Master of Science
+  
+  '''
+# ---

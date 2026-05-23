@@ -9,7 +9,11 @@ data/**/*.req
 
 # Generierte Ausgaben
 output/
+output_test.md
+*.md.bak
 site/
+coverage.xml
+.coverage
 
 # Python
 .venv/
