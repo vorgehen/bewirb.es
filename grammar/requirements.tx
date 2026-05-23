@@ -1,0 +1,19 @@
+// requirements.tx — Anforderungs-Metamodell (M2)
+// Instanzen werden aus Ausschreibungstexten via KI generiert oder manuell erstellt.
+// Technologienamen als Strings — Matching gegen profile.tx-Instanzen erfolgt in pim_to_psm.py.
+
+Anforderungen:
+    'requirements' name=ID '{'
+        'rolle:' rolle=STRING
+        ('branchen:' '[' branchen+=STRING[','] ']')?
+        ('must_have:' '[' must_have+=STRING[','] ']')?
+        ('nice_to_have:' '[' nice_to_have+=STRING[','] ']')?
+        ('keywords:' '[' keywords+=STRING[','] ']')?
+        ('context:' context=STRING)?
+        ('expires:' expires=YearMonthDay)?
+    '}'
+;
+
+YearMonthDay:
+    /\d{4}-\d{2}-\d{2}/
+;

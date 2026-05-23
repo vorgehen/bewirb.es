@@ -1,0 +1,9 @@
+requirements Beispiel_Senior_Architekt_2026 {
+    rolle: "Senior Java Architekt"
+    branchen: ["Finanzsektor"]
+    must_have: ["Java", "Microservices", "REST"]
+    nice_to_have: ["Kubernetes", "ARC42", "Python"]
+    keywords: ["Banking", "Integration", "Modernisierung", "API"]
+    context: "Modernisierung einer bestehenden Bankanwendung auf Microservices-Basis im regulierten Umfeld."
+    expires: 2026-08-01
+}

@@ -1,0 +1,90 @@
+// profile.tx — Profil-Metamodell (M2)
+// Ubiquitous Language: Profil, Projekterfahrung, Technologiekompetenz, Auftraggeber, Branche
+
+Profil:
+    elements+=ProfilElement
+;
+
+ProfilElement:
+    Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung | Ausbildung
+;
+
+Person:
+    'person' name=ID '{'
+        'title:' title=STRING
+        contact=Kontakt
+    '}'
+;
+
+Kontakt:
+    'contact' '{'
+        'email:' email=STRING
+        ('phone:' phone=STRING)?
+        ('location:' location=STRING)?
+        ('website:' website=STRING)?
+        ('linkedin:' linkedin=STRING)?
+        ('github:' github=STRING)?
+    '}'
+;
+
+Technologiekompetenz:
+    'technology' name=ID '{'
+        'category:' category=Kategorie
+        'proficiency:' proficiency=Proficiency
+        'years:' years=INT
+        ('keywords:' '[' keywords+=STRING[','] ']')?
+    '}'
+;
+
+Kategorie:
+    'Programmiersprache' | 'Framework' | 'Datenbank' | 'Cloud' |
+    'Werkzeug' | 'Methodik' | 'Plattform' | 'Protokoll'
+;
+
+Proficiency:
+    'Experte' | 'Fortgeschritten' | 'Grundkenntnisse'
+;
+
+Branche:
+    'branche' name=ID '{'
+        'label:' label=STRING
+    '}'
+;
+
+Auftraggeber:
+    'auftraggeber' name=ID '{'
+        'label:' label=STRING
+        ('location:' location=STRING)?
+    '}'
+;
+
+Projekterfahrung:
+    'projekt' name=ID '{'
+        'title:' title=STRING
+        'auftraggeber:' auftraggeber=[Auftraggeber]
+        'branche:' branche=[Branche]
+        'periode:' start=YearMonth 'to' end=YearMonthOrToday
+        'rolle:' rolle=STRING
+        ('uses:' '[' uses+=[Technologiekompetenz][','] ']')?
+        ('keywords:' '[' keywords+=STRING[','] ']')?
+        ('description:' description=STRING)?
+        ('achievements:' '[' achievements+=STRING[','] ']')?
+    '}'
+;
+
+YearMonth:
+    /\d{4}-\d{2}/
+;
+
+YearMonthOrToday:
+    /(\d{4}-\d{2}|today)/
+;
+
+Ausbildung:
+    'ausbildung' name=ID '{'
+        'title:' title=STRING
+        'institution:' institution=STRING
+        'periode:' start=YearMonth 'to' end=YearMonthOrToday
+        ('abschluss:' abschluss=STRING)?
+    '}'
+;

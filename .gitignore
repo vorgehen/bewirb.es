@@ -4,6 +4,8 @@ data/*.req
 data/**/*.profile
 data/**/*.req
 !data/example/
+!data/example/*.profile
+!data/example/*.req
 
 # Generierte Ausgaben
 output/
