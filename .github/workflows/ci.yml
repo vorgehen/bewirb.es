@@ -11,9 +11,15 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install ruff mypy bandit pydantic
-      - run: ruff check src/ web/ codegen/ scripts/ --ignore E501
-      - run: mypy src/ web/ codegen/ --ignore-missing-imports
-      - run: bandit -r src/ web/ -q
+      - name: Lint (skip if no Python files yet)
+        run: |
+          if find src/ web/ codegen/ scripts/ -name "*.py" 2>/dev/null | grep -q .; then
+            ruff check src/ web/ codegen/ scripts/ --ignore E501
+            mypy src/ web/ codegen/ --ignore-missing-imports
+            bandit -r src/ web/ -q
+          else
+            echo "No Python files yet, skipping lint"
+          fi
 
   test:
     runs-on: ubuntu-latest
@@ -23,4 +29,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: pytest tests/ -m "not integration and not eval" -v --tb=short
+      - name: Test (skip if no test files yet)
+        run: |
+          if find tests/ -name "test_*.py" 2>/dev/null | grep -q .; then
+            pytest tests/ -m "not integration and not eval" -v --tb=short
+          else
+            echo "No tests yet, skipping"
+          fi
