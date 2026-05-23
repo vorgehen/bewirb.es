@@ -10,16 +10,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install ruff mypy bandit pydantic
-      - name: Lint (skip if no Python files yet)
-        run: |
-          if find src/ web/ codegen/ scripts/ -name "*.py" 2>/dev/null | grep -q .; then
-            ruff check src/ web/ codegen/ scripts/ --ignore E501
-            mypy src/ web/ codegen/ --ignore-missing-imports
-            bandit -r src/ web/ -q
-          else
-            echo "No Python files yet, skipping lint"
-          fi
+      - run: pip install ruff mypy bandit pydantic textx
+      - run: pip install -e . --no-deps -q
+      - run: ruff check src/ web/ codegen/ scripts/
+      - run: mypy src/ web/ codegen/ --ignore-missing-imports
+      - run: bandit -r src/ web/ -q
 
   test:
     runs-on: ubuntu-latest
@@ -29,10 +24,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - name: Test (skip if no test files yet)
+      - run: pip install -e . --no-deps -q
+      - name: Run tests with coverage
         run: |
-          if find tests/ -name "test_*.py" 2>/dev/null | grep -q .; then
-            pytest tests/ -m "not integration and not eval" -v --tb=short
-          else
-            echo "No tests yet, skipping"
-          fi
+          pytest tests/ -m "not integration and not eval" \
+            --cov=src --cov-report=term-missing --cov-report=xml \
+            -v --tb=short
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
