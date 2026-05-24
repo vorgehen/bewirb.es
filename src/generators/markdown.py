@@ -9,7 +9,8 @@ def generate_markdown(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) 
     lines: list[str] = []
 
     lines.append(f"# Profil: {profil.person.title}")
-    lines.append(f"\n**Zielrolle:** {anf.rolle}\n")
+    if anf.rolle:
+        lines.append(f"\n**Zielrolle:** {anf.rolle}\n")
 
     c = profil.person.contact
     if c.email:
