@@ -26,6 +26,10 @@ python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
 
+[[tool.mypy.overrides]]
+module = ["docx.*", "docxtpl"]
+ignore_missing_imports = true
+
 
 [tool.bandit]
 skips = ["B101"]
