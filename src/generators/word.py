@@ -43,9 +43,9 @@ def create_default_template(output: Path) -> None:
 
     # Technologiekompetenz: header / loop-start / data / loop-end
     doc.add_heading("Technologiekompetenz", level=2)
-    tech_table = doc.add_table(rows=4, cols=4)
+    tech_table = doc.add_table(rows=4, cols=3)
     tech_table.style = "Table Grid"
-    for i, label in enumerate(["Technologie", "Kategorie", "Level", "Jahre"]):
+    for i, label in enumerate(["Technologie", "Kategorie", "Level"]):
         cell = tech_table.rows[0].cells[i]
         _clear_and_set(cell, label)
         cell.paragraphs[0].runs[0].bold = True
@@ -54,26 +54,25 @@ def create_default_template(output: Path) -> None:
     _clear_and_set(dr.cells[0], "{{ tech.name }}")
     _clear_and_set(dr.cells[1], "{{ tech.category }}")
     _clear_and_set(dr.cells[2], "{{ tech.proficiency }}")
-    _clear_and_set(dr.cells[3], "{{ tech.years }} J.")
     _clear_and_set(tech_table.rows[3].cells[0], "{%tr endfor %}")
 
     # Projekterfahrung: header / loop-start / data / loop-end
     doc.add_heading("Projekterfahrung", level=2)
-    proj_table = doc.add_table(rows=4, cols=4)
+    proj_table = doc.add_table(rows=4, cols=3)
     proj_table.style = "Table Grid"
-    for i, label in enumerate(["Zeitraum / Rolle", "Projekt", "Auftraggeber", "Technologien"]):
+    for i, label in enumerate(["Zeitraum / Auftraggeber / Rolle", "Projekt", "Technologien"]):
         cell = proj_table.rows[0].cells[i]
         _clear_and_set(cell, label)
         cell.paragraphs[0].runs[0].bold = True
     _clear_and_set(proj_table.rows[1].cells[0], "{%tr for p in projekte %}")
     pr = proj_table.rows[2]
     _clear_and_set(pr.cells[0], "{{ p.start }}–{{ p.end }}")
+    pr.cells[0].add_paragraph("{{ p.auftraggeber_label }}")
     pr.cells[0].add_paragraph("{{ p.rolle }}")
     _clear_and_set(pr.cells[1], "{{ p.title }}")
     pr.cells[1].add_paragraph("{{ p.description }}")
     pr.cells[1].add_paragraph("{{ p.achievements_str }}")
-    _clear_and_set(pr.cells[2], "{{ p.auftraggeber_label }}")
-    _clear_and_set(pr.cells[3], "{{ p.tech_str }}")
+    _clear_and_set(pr.cells[2], "{{ p.tech_str }}")
     _clear_and_set(proj_table.rows[3].cells[0], "{%tr endfor %}")
 
     # Ausbildung: header / loop-start / data / loop-end
