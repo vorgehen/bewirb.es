@@ -6,6 +6,12 @@ person Profil_Inhaber {
         linkedin: "linkedin.com/in/beispiel"
         github: "github.com/beispiel"
     }
+    kurzprofil: "Senior-Architekt mit langjähriger Erfahrung in Enterprise-Java, Microservices und modellgetriebener Softwareentwicklung — von der Anforderungsanalyse bis zur Inbetriebnahme."
+    persoenlicheDaten {
+        geburtsdatum: "1980-01-01"
+        staatsangehoerigkeit: "Deutsch"
+        familienstand: "Verheiratet"
+    }
 }
 
 branche Finanzsektor {
@@ -109,4 +115,48 @@ ausbildung Studium {
     institution: "Technische Universitaet Beispielstadt"
     periode: 2005-10 to 2010-09
     abschluss: "Master of Science"
+}
+
+sprache deutsch {
+    bezeichnung: "Deutsch"
+    level: Muttersprache
+}
+
+sprache englisch {
+    bezeichnung: "Englisch"
+    level: Verhandlungssicher
+}
+
+zertifikat zertifikat_arch {
+    titel: "Certified Software Architecture Professional"
+    aussteller: "iSAQB"
+    jahr: 2018
+}
+
+zertifikat zertifikat_scrum {
+    titel: "Professional Scrum Master I"
+    aussteller: "Scrum.org"
+    jahr: 2020
+}
+
+werdegang anstellung_a {
+    titel: "Senior Software Engineer"
+    arbeitgeber: "Beispiel IT-Beratung GmbH"
+    periode: 2010-10 to 2015-09
+    beschreibung: "Festanstellung mit Schwerpunkt JEE-Architektur und Mentoring."
+}
+
+werdegang anstellung_b {
+    titel: "Software Engineer"
+    arbeitgeber: "Frueherer Arbeitgeber AG"
+    periode: 2000-04 to 2010-09
+    beschreibung: "Einstieg in die kommerzielle Softwareentwicklung; Schwerpunkt Java/JEE."
+}
+
+schluesselkompetenzen {
+    methodenkompetenz: ["Modellgetriebene Entwicklung", "TDD", "Domain-Driven Design"]
+    fachkompetenz: ["Finanzsektor", "Logistik"]
+    technologie: ["Java", "Spring", "REST"]
+    spezialgebiet: ["DSL-Design", "Legacy-Modernisierung"]
+    fuehrungkompetenz: ["Mentoring", "Stakeholder-Management"]
 }

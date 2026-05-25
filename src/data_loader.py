@@ -11,9 +11,14 @@ from src.models import (
     Ausbildung,
     Branche,
     Kontakt,
+    PersoenlicheDaten,
     Person,
     Projekterfahrung,
+    Schluesselkompetenzen,
+    Sprache,
     Technologiekompetenz,
+    Werdegang,
+    Zertifikat,
 )
 
 GRAMMAR_DIR = Path(__file__).parent.parent / "grammar"
@@ -26,11 +31,16 @@ class Profil(BaseModel):
     ausbildungen: list[Ausbildung] = []
     branchen: list[Branche] = []
     auftraggeber_liste: list[Auftraggeber] = []
+    sprachen: list[Sprache] = []
+    zertifikate: list[Zertifikat] = []
+    werdegang: list[Werdegang] = []
+    schluesselkompetenzen: Schluesselkompetenzen | None = None
 
 
 class Anforderungen(BaseModel):
     name: str = ""
     rolle: str = ""
+    zielgruppe: str = ""
     branchen: list[str] = []
     must_have: list[str] = []
     nice_to_have: list[str] = []
@@ -41,6 +51,16 @@ class Anforderungen(BaseModel):
 
 def _to_person(obj: Any) -> Person:
     c = obj.contact
+    pd_obj = obj.persoenlicheDaten
+    persoenliche_daten: PersoenlicheDaten | None = None
+    if pd_obj is not None:
+        persoenliche_daten = PersoenlicheDaten(
+            geburtsdatum=pd_obj.geburtsdatum or "",
+            geburtsort=pd_obj.geburtsort or "",
+            staatsangehoerigkeit=pd_obj.staatsangehoerigkeit or "",
+            familienstand=pd_obj.familienstand or "",
+            kinder=pd_obj.kinder or "",
+        )
     return Person(
         name=obj.name or "",
         title=obj.title or "",
@@ -52,6 +72,47 @@ def _to_person(obj: Any) -> Person:
             linkedin=c.linkedin or "",
             github=c.github or "",
         ),
+        kurzprofil=obj.kurzprofil or "",
+        persoenlicheDaten=persoenliche_daten,
+    )
+
+
+def _to_sprache(obj: Any) -> Sprache:
+    return Sprache(
+        name=obj.name or "",
+        bezeichnung=obj.bezeichnung or "",
+        level=obj.level or "",
+    )
+
+
+def _to_zertifikat(obj: Any) -> Zertifikat:
+    return Zertifikat(
+        name=obj.name or "",
+        titel=obj.titel or "",
+        aussteller=obj.aussteller or "",
+        jahr=obj.jahr or 0,
+        url=obj.url or "",
+    )
+
+
+def _to_werdegang(obj: Any) -> Werdegang:
+    return Werdegang(
+        name=obj.name or "",
+        titel=obj.titel or "",
+        arbeitgeber=obj.arbeitgeber or "",
+        start=obj.start or "",
+        end=obj.end or "",
+        beschreibung=obj.beschreibung or "",
+    )
+
+
+def _to_schluesselkompetenzen(obj: Any) -> Schluesselkompetenzen:
+    return Schluesselkompetenzen(
+        methodenkompetenz=list(obj.methodenkompetenz),
+        fachkompetenz=list(obj.fachkompetenz),
+        technologie=list(obj.technologie),
+        spezialgebiet=list(obj.spezialgebiet),
+        fuehrungkompetenz=list(obj.fuehrungkompetenz),
     )
 
 
@@ -117,6 +178,10 @@ def load_profile(path: Path) -> Profil:
     tech_map: dict[str, Technologiekompetenz] = {}
     person: Person | None = None
     ausbildungen: list[Ausbildung] = []
+    sprachen: list[Sprache] = []
+    zertifikate: list[Zertifikat] = []
+    werdegang: list[Werdegang] = []
+    schluesselkompetenzen: Schluesselkompetenzen | None = None
 
     for elem in model.elements:
         cls_name = elem.__class__.__name__
@@ -133,6 +198,14 @@ def load_profile(path: Path) -> Profil:
             person = _to_person(elem)
         elif cls_name == "Ausbildung":
             ausbildungen.append(_to_ausbildung(elem))
+        elif cls_name == "Sprache":
+            sprachen.append(_to_sprache(elem))
+        elif cls_name == "Zertifikat":
+            zertifikate.append(_to_zertifikat(elem))
+        elif cls_name == "Werdegang":
+            werdegang.append(_to_werdegang(elem))
+        elif cls_name == "Schluesselkompetenzen":
+            schluesselkompetenzen = _to_schluesselkompetenzen(elem)
 
     projekte: list[Projekterfahrung] = [
         _to_projekterfahrung(elem, branchen_map, auftraggeber_map, tech_map)
@@ -150,6 +223,10 @@ def load_profile(path: Path) -> Profil:
         ausbildungen=ausbildungen,
         branchen=list(branchen_map.values()),
         auftraggeber_liste=list(auftraggeber_map.values()),
+        sprachen=sprachen,
+        zertifikate=zertifikate,
+        werdegang=werdegang,
+        schluesselkompetenzen=schluesselkompetenzen,
     )
 
 
@@ -163,6 +240,7 @@ def load_requirements(path: Path) -> Anforderungen:
     return Anforderungen(
         name=model.name or "",
         rolle=model.rolle or "",
+        zielgruppe=model.zielgruppe or "",
         branchen=list(model.branchen),
         must_have=list(model.must_have),
         nice_to_have=list(model.nice_to_have),
