@@ -9,6 +9,16 @@ class PersonResponse(BaseModel):
     name: str = ""
     title: str = ""
     contact: KontaktResponse
+    kurzprofil: str = ""
+    persoenlicheDaten: PersoenlicheDatenResponse | None = None
+
+
+class PersoenlicheDatenResponse(BaseModel):
+    geburtsdatum: str = ""
+    geburtsort: str = ""
+    staatsangehoerigkeit: str = ""
+    familienstand: str = ""
+    kinder: str = ""
 
 
 class KontaktResponse(BaseModel):
@@ -60,6 +70,37 @@ class AusbildungResponse(BaseModel):
     start: str = ""
     end: str = ""
     abschluss: str = ""
+
+
+class SpracheResponse(BaseModel):
+    name: str = ""
+    bezeichnung: str = ""
+    level: str = ""
+
+
+class ZertifikatResponse(BaseModel):
+    name: str = ""
+    titel: str = ""
+    aussteller: str = ""
+    jahr: int
+    url: str = ""
+
+
+class WerdegangResponse(BaseModel):
+    name: str = ""
+    titel: str = ""
+    arbeitgeber: str = ""
+    start: str = ""
+    end: str = ""
+    beschreibung: str = ""
+
+
+class SchluesselkompetenzenResponse(BaseModel):
+    methodenkompetenz: list[str] = []
+    fachkompetenz: list[str] = []
+    technologie: list[str] = []
+    spezialgebiet: list[str] = []
+    fuehrungkompetenz: list[str] = []
 
 
 class TechnologyResponse(BaseModel):

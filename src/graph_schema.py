@@ -3,12 +3,17 @@
 
 NODE_TYPES: list[str] = [
     "Person",
+    "PersoenlicheDaten",
     "Kontakt",
     "Technologiekompetenz",
     "Branche",
     "Auftraggeber",
     "Projekterfahrung",
     "Ausbildung",
+    "Sprache",
+    "Zertifikat",
+    "Werdegang",
+    "Schluesselkompetenzen",
     "Technology",
     "SfiaLevel",
     "TechnologyRelation",
@@ -24,6 +29,15 @@ PERSON_ATTRS: list[str] = [
     "name",
     "title",
     "contact",
+    "kurzprofil",
+    "persoenlicheDaten",
+]
+PERSOENLICHEDATEN_ATTRS: list[str] = [
+    "geburtsdatum",
+    "geburtsort",
+    "staatsangehoerigkeit",
+    "familienstand",
+    "kinder",
 ]
 KONTAKT_ATTRS: list[str] = [
     "email",
@@ -69,6 +83,33 @@ AUSBILDUNG_ATTRS: list[str] = [
     "start",
     "end",
     "abschluss",
+]
+SPRACHE_ATTRS: list[str] = [
+    "name",
+    "bezeichnung",
+    "level",
+]
+ZERTIFIKAT_ATTRS: list[str] = [
+    "name",
+    "titel",
+    "aussteller",
+    "jahr",
+    "url",
+]
+WERDEGANG_ATTRS: list[str] = [
+    "name",
+    "titel",
+    "arbeitgeber",
+    "start",
+    "end",
+    "beschreibung",
+]
+SCHLUESSELKOMPETENZEN_ATTRS: list[str] = [
+    "methodenkompetenz",
+    "fachkompetenz",
+    "technologie",
+    "spezialgebiet",
+    "fuehrungkompetenz",
 ]
 TECHNOLOGY_ATTRS: list[str] = [
     "name",

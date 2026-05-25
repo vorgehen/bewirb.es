@@ -10,6 +10,7 @@ Aufruf: python codegen/codegen.py
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -29,10 +30,12 @@ _SKIP = frozenset(
         "ProfilElement",
         "Kategorie",
         "Proficiency",
+        "SprachenLevel",
         "YearMonth",
         "YearMonthOrToday",
         # requirements.tx (Wurzel-/Choice-Regeln)
         "Anforderungen",
+        "Angebotsstil",
         # knowledge.tx
         "Knowledge",
         "KnowledgeElement",
@@ -61,8 +64,17 @@ def _base_type(attr_cls: Any) -> str:
     return name
 
 
-def _py_annotation(attr: Any, response_suffix: bool = False) -> tuple[str, str]:
-    """Gibt (Typ-Annotation, Standard-Wert) zurueck."""
+def _py_annotation(
+    attr: Any,
+    response_suffix: bool = False,
+    is_optional: bool = False,
+) -> tuple[str, str]:
+    """Gibt (Typ-Annotation, Standard-Wert) zurueck.
+
+    Hinweis: TextX unterscheidet auf Attribut-Ebene nicht zwischen `x=Y` und
+    `(x=Y)?`. Optionalität wird aus der Grammatik-Quelle gelesen
+    (siehe _scan_optional_attrs).
+    """
     base = _base_type(attr.cls) if attr.cls is not None else "str"
     if response_suffix and attr.ref and base not in ("str", "int", "float", "bool"):
         base = f"{base}Response"
@@ -70,10 +82,43 @@ def _py_annotation(attr: Any, response_suffix: bool = False) -> tuple[str, str]:
     if is_list:
         return f"list[{base}]", " = []"
     if attr.ref:
+        if is_optional:
+            return f"{base} | None", " = None"
         return base, ""
     if base == "int":
         return "int", ""
     return "str", ' = ""'
+
+
+# Pattern: (name=...)? in einem Klassen-Body. Greift Attribut-Name vor dem Gleichheitszeichen.
+_OPTIONAL_ATTR_RE = re.compile(r"\(\s*'[^']*'?\s*(\w+)\s*=")
+
+
+def _scan_optional_attrs(grammar_files: list[Path]) -> dict[str, set[str]]:
+    """Scannt Grammatik-Quellen und erkennt optionale Attribute pro Klasse.
+
+    Findet Patterns wie `('keyword:' name=Type)?` und sammelt den Attribut-Namen.
+    Gibt {ClassName: {attr_name, ...}} zurück.
+    """
+    result: dict[str, set[str]] = {}
+    class_def_re = re.compile(r"^(\w+):\s*$", re.MULTILINE)
+
+    for gf in grammar_files:
+        text = gf.read_text(encoding="utf-8")
+        # Splitten an Class-Defs (Regelbeginn am Zeilenanfang mit `Name:`)
+        positions = [(m.start(), m.group(1)) for m in class_def_re.finditer(text)]
+        for i, (start, cls_name) in enumerate(positions):
+            end = positions[i + 1][0] if i + 1 < len(positions) else len(text)
+            body = text[start:end]
+            # `(... attr_name=Foo ...)?` finden
+            optional_attrs = result.setdefault(cls_name, set())
+            for m in re.finditer(r"\(([^()]*?)\)\s*\?", body):
+                inner = m.group(1)
+                # In dem optionalen Block Attribut-Zuweisungen suchen:
+                #   name=Type oder name+=Type oder name=[Type] etc.
+                for am in re.finditer(r"(\w+)\s*[+*]?=", inner):
+                    optional_attrs.add(am.group(1))
+    return result
 
 
 def _common_classes(mm: Any) -> list[tuple[str, Any]]:
@@ -109,6 +154,7 @@ def _source_comment(grammar_files: list[Path]) -> str:
 
 
 def generate_models(metamodels: list[Any], grammar_files: list[Path]) -> str:
+    optional_map = _scan_optional_attrs(grammar_files)
     lines = [
         "# AUTO-GENERATED -- nicht manuell bearbeiten.",
         _source_comment(grammar_files),
@@ -121,7 +167,8 @@ def generate_models(metamodels: list[Any], grammar_files: list[Path]) -> str:
         lines.append("")
         lines.append(f"class {name}(BaseModel):")
         for attr_name, attr in cls._tx_attrs.items():
-            ann, default = _py_annotation(attr)
+            is_opt = attr_name in optional_map.get(name, set())
+            ann, default = _py_annotation(attr, is_optional=is_opt)
             lines.append(f"    {attr_name}: {ann}{default}")
     lines.append("")
     return "\n".join(lines)
@@ -148,6 +195,7 @@ def generate_graph_schema(metamodels: list[Any], grammar_files: list[Path]) -> s
 
 
 def generate_web_schemas(metamodels: list[Any], grammar_files: list[Path]) -> str:
+    optional_map = _scan_optional_attrs(grammar_files)
     lines = [
         "# AUTO-GENERATED -- nicht manuell bearbeiten.",
         _source_comment(grammar_files),
@@ -160,7 +208,8 @@ def generate_web_schemas(metamodels: list[Any], grammar_files: list[Path]) -> st
         lines.append("")
         lines.append(f"class {name}Response(BaseModel):")
         for attr_name, attr in cls._tx_attrs.items():
-            ann, default = _py_annotation(attr, response_suffix=True)
+            is_opt = attr_name in optional_map.get(name, set())
+            ann, default = _py_annotation(attr, response_suffix=True, is_optional=is_opt)
             lines.append(f"    {attr_name}: {ann}{default}")
     lines.append("")
     return "\n".join(lines)

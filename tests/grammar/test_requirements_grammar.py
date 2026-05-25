@@ -72,3 +72,46 @@ def test_invalid_date_format_rejected(requirements_mm: Any, tmp_path: Path) -> N
     f.write_text(content, encoding="utf-8")
     with pytest.raises(TextXSyntaxError):
         requirements_mm.model_from_file(str(f))
+
+
+# ─── Phase 8: Zielgruppe (Angebotsstil) ─────────────────────────────────────
+
+
+def test_zielgruppe_optional(requirements_mm: Any, tmp_path: Path) -> None:
+    """Ohne Zielgruppe parst weiterhin (Rückwärtskompatibilität)."""
+    content = """
+    requirements R { rolle: "Entwickler" }
+    """
+    f = tmp_path / "no_zg.req"
+    f.write_text(content, encoding="utf-8")
+    model = requirements_mm.model_from_file(str(f))
+    # Optionale Choice-Felder sind in TextX None, wenn nicht gesetzt
+    assert not model.zielgruppe
+
+
+def test_zielgruppe_alle_werte(requirements_mm: Any, tmp_path: Path) -> None:
+    stile = ("Behoerde", "Consultant", "StartUp", "Wissenschaftlich", "Standard", "AIGovernance")
+    for stil in stile:
+        content = f"""
+        requirements R {{
+            rolle: "Test"
+            zielgruppe: {stil}
+        }}
+        """
+        f = tmp_path / f"zg_{stil}.req"
+        f.write_text(content, encoding="utf-8")
+        model = requirements_mm.model_from_file(str(f))
+        assert model.zielgruppe == stil
+
+
+def test_zielgruppe_unbekannter_wert_abgelehnt(requirements_mm: Any, tmp_path: Path) -> None:
+    content = """
+    requirements R {
+        rolle: "Test"
+        zielgruppe: Lifestyle
+    }
+    """
+    f = tmp_path / "bad_zg.req"
+    f.write_text(content, encoding="utf-8")
+    with pytest.raises(TextXSyntaxError):
+        requirements_mm.model_from_file(str(f))

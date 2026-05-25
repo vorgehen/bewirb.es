@@ -1,18 +1,32 @@
 // profile.tx — Profil-Metamodell (M2)
-// Ubiquitous Language: Profil, Projekterfahrung, Technologiekompetenz, Auftraggeber, Branche
+// Ubiquitous Language: Profil, Projekterfahrung, Technologiekompetenz, Auftraggeber, Branche,
+//                      Sprache, Zertifikat, Werdegang, Schluesselkompetenzen, PersoenlicheDaten
 
 Profil:
     elements+=ProfilElement
 ;
 
 ProfilElement:
-    Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung | Ausbildung
+    Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung |
+    Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen
 ;
 
 Person:
     'person' name=ID '{'
         'title:' title=STRING
         contact=Kontakt
+        ('kurzprofil:' kurzprofil=STRING)?
+        (persoenlicheDaten=PersoenlicheDaten)?
+    '}'
+;
+
+PersoenlicheDaten:
+    'persoenlicheDaten' '{'
+        ('geburtsdatum:'         geburtsdatum=STRING)?
+        ('geburtsort:'           geburtsort=STRING)?
+        ('staatsangehoerigkeit:' staatsangehoerigkeit=STRING)?
+        ('familienstand:'        familienstand=STRING)?
+        ('kinder:'               kinder=STRING)?
     '}'
 ;
 
@@ -86,5 +100,46 @@ Ausbildung:
         'institution:' institution=STRING
         'periode:' start=YearMonth 'to' end=YearMonthOrToday
         ('abschluss:' abschluss=STRING)?
+    '}'
+;
+
+Sprache:
+    'sprache' name=ID '{'
+        'bezeichnung:' bezeichnung=STRING
+        'level:' level=SprachenLevel
+    '}'
+;
+
+SprachenLevel:
+    'Muttersprache' | 'Verhandlungssicher' | 'Gut' | 'Grundkenntnisse'
+;
+
+Zertifikat:
+    'zertifikat' name=ID '{'
+        'titel:'      titel=STRING
+        'aussteller:' aussteller=STRING
+        'jahr:'       jahr=INT
+        ('url:'       url=STRING)?
+    '}'
+;
+
+Werdegang:
+    'werdegang' name=ID '{'
+        'titel:'       titel=STRING
+        'arbeitgeber:' arbeitgeber=STRING
+        'periode:'     start=YearMonth 'to' end=YearMonthOrToday
+        ('beschreibung:' beschreibung=STRING)?
+    '}'
+;
+
+// Schluesselkompetenzen: fünf Kategorien, alle optional.
+// pim_to_psm wählt aus, gewichtet, benennt je Zielgruppe (Phase 8 Pipeline).
+Schluesselkompetenzen:
+    'schluesselkompetenzen' '{'
+        ('methodenkompetenz:'  '[' methodenkompetenz+=STRING[','] ']')?
+        ('fachkompetenz:'      '[' fachkompetenz+=STRING[','] ']')?
+        ('technologie:'        '[' technologie+=STRING[','] ']')?
+        ('spezialgebiet:'      '[' spezialgebiet+=STRING[','] ']')?
+        ('fuehrungkompetenz:'  '[' fuehrungkompetenz+=STRING[','] ']')?
     '}'
 ;

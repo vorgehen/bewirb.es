@@ -118,3 +118,127 @@ def test_ausbildung_parses(profile_mm: Any, tmp_path: Path) -> None:
     assert len(ausb) == 1
     assert ausb[0].start == "2005-10"
     assert ausb[0].end == "2010-09"
+
+
+# ─── Phase 8: neue Entitäten ────────────────────────────────────────────────
+
+
+def test_person_with_kurzprofil_and_persoenliche_daten(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    person P {
+        title: "Software Engineer"
+        contact { email: "x@x.de" }
+        kurzprofil: "Diplom-Physiker mit 30 Jahren Erfahrung."
+        persoenlicheDaten {
+            geburtsdatum: "1962-09-12"
+            staatsangehoerigkeit: "Deutsch"
+            familienstand: "Verheiratet"
+        }
+    }
+    """
+    f = tmp_path / "p.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    p = next(e for e in model.elements if e.__class__.__name__ == "Person")
+    assert p.kurzprofil.startswith("Diplom-Physiker")
+    assert p.persoenlicheDaten is not None
+    assert p.persoenlicheDaten.staatsangehoerigkeit == "Deutsch"
+
+
+def test_sprache_parses_and_level_enum_enforced(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    sprache deutsch {
+        bezeichnung: "Deutsch"
+        level: Muttersprache
+    }
+    sprache englisch {
+        bezeichnung: "Englisch"
+        level: Verhandlungssicher
+    }
+    """
+    f = tmp_path / "s.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    sprachen = [e for e in model.elements if e.__class__.__name__ == "Sprache"]
+    assert len(sprachen) == 2
+    assert sprachen[0].level == "Muttersprache"
+
+
+def test_sprache_invalid_level_rejected(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    sprache deutsch {
+        bezeichnung: "Deutsch"
+        level: Fließend
+    }
+    """
+    f = tmp_path / "s.profile"
+    f.write_text(content, encoding="utf-8")
+    with pytest.raises(TextXSyntaxError):
+        profile_mm.model_from_file(str(f))
+
+
+def test_zertifikat_parses(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    zertifikat mitx_stat {
+        titel: "Fundamentals of Statistics"
+        aussteller: "MITx"
+        jahr: 2019
+    }
+    """
+    f = tmp_path / "z.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    zerts = [e for e in model.elements if e.__class__.__name__ == "Zertifikat"]
+    assert len(zerts) == 1
+    assert zerts[0].jahr == 2019
+
+
+def test_werdegang_parses(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    werdegang freiberuflich {
+        titel: "Freiberuflicher Software Ingenieur"
+        arbeitgeber: "vorgehen.de"
+        periode: 2010-04 to today
+        beschreibung: "Langfristige Projekte bei DAX-Konzernen und Behörden."
+    }
+    """
+    f = tmp_path / "w.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    wd = [e for e in model.elements if e.__class__.__name__ == "Werdegang"]
+    assert len(wd) == 1
+    assert wd[0].arbeitgeber == "vorgehen.de"
+    assert wd[0].end == "today"
+
+
+def test_schluesselkompetenzen_all_five_categories(profile_mm: Any, tmp_path: Path) -> None:
+    content = """
+    schluesselkompetenzen {
+        methodenkompetenz: ["MDD", "TDD"]
+        fachkompetenz: ["Finanzaufsicht"]
+        technologie: ["Java", "Xtext"]
+        spezialgebiet: ["DSL-Design"]
+        fuehrungkompetenz: ["Stakeholder-Management"]
+    }
+    """
+    f = tmp_path / "sk.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    sk = next(e for e in model.elements if e.__class__.__name__ == "Schluesselkompetenzen")
+    assert "MDD" in sk.methodenkompetenz
+    assert "Xtext" in sk.technologie
+    assert "Stakeholder-Management" in sk.fuehrungkompetenz
+
+
+def test_schluesselkompetenzen_all_categories_optional(profile_mm: Any, tmp_path: Path) -> None:
+    """Leere Schluesselkompetenzen sind erlaubt — alle Felder optional."""
+    content = """
+    schluesselkompetenzen {
+    }
+    """
+    f = tmp_path / "sk_empty.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    sk = next(e for e in model.elements if e.__class__.__name__ == "Schluesselkompetenzen")
+    assert sk.methodenkompetenz == []
+    assert sk.technologie == []

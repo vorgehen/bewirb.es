@@ -5,6 +5,7 @@
 Anforderungen:
     'requirements' name=ID '{'
         'rolle:' rolle=STRING
+        ('zielgruppe:' zielgruppe=Angebotsstil)?
         ('branchen:' '[' branchen+=STRING[','] ']')?
         ('must_have:' '[' must_have+=STRING[','] ']')?
         ('nice_to_have:' '[' nice_to_have+=STRING[','] ']')?
@@ -12,6 +13,12 @@ Anforderungen:
         ('context:' context=STRING)?
         ('expires:' expires=YearMonthDay)?
     '}'
+;
+
+// Angebotsstil — bestimmt Reihenfolge, Gewichtung und Benennung der
+// Schluesselkompetenzen-Kategorien in pim_to_psm (Phase 8 Pipeline).
+Angebotsstil:
+    'Behoerde' | 'Consultant' | 'StartUp' | 'Wissenschaftlich' | 'Standard' | 'AIGovernance'
 ;
 
 YearMonthDay:
