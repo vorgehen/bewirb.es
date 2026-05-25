@@ -1,0 +1,158 @@
+# Competency Graph — Stufe 1 (handgefertigt)
+#
+# Zweck:
+#   - Lücken-Erkennung: Wenn jemand Kompetenz A hat, was sollte als verwandt gelten?
+#   - Blind-Spot-Diagnose: Welche impliziten Kompetenzen folgen aus den expliziten?
+#
+# Relationen:
+#   - benoetigt              : harte Voraussetzung (A ohne B ist unvollständig)
+#   - ueberschneidet_sich_mit: starke Ähnlichkeit, oft transferierbar
+#   - erweitert              : A ist eine Weiterentwicklung/Spezialisierung von B
+#   - impliziert             : Wer A in Projekten anwendet, hat zwingend B berührt
+#
+# Quelle: handverlesen aus Roberts Erfahrungsraum + üblichen Branchen-Standards.
+
+relations:
+
+  # ─── Softwarearchitektur als zentrale Kompetenz ────────────────────────────
+
+  - from: Softwarearchitektur
+    type: benoetigt
+    to: [UML, ARC42, "Architecture Decision Records", "Quality Attributes"]
+
+  - from: Softwarearchitektur
+    type: impliziert
+    to: ["Domain-Driven Design", "Design Patterns", "Trade-off-Analyse"]
+
+  - from: ARC42
+    type: benoetigt
+    to: ["Quality Attributes", "Cross-Cutting Concepts", "Architecture Decisions"]
+
+  # ─── Modellgetriebene Entwicklung ──────────────────────────────────────────
+
+  - from: Domain-Specific Languages
+    type: benoetigt
+    to: [Metamodell, "Code Generation", Grammatik]
+
+  - from: Xtext
+    type: ueberschneidet_sich_mit
+    to: [openArchitectureware, ANTLR, "EMF", Langium]
+
+  - from: Xtext
+    type: impliziert
+    to: ["Domain-Specific Languages", "Code Generation", "Eclipse-Ökosystem"]
+
+  - from: Meta-Programming
+    type: ueberschneidet_sich_mit
+    to: ["Modellgetriebene Entwicklung", "Intentional Software", "Code Generation"]
+
+  # ─── Java / Spring-Ökosystem ───────────────────────────────────────────────
+
+  - from: Spring Boot
+    type: erweitert
+    to: [Spring Framework]
+
+  - from: Spring Framework
+    type: ueberschneidet_sich_mit
+    to: [JEE, Quarkus, Micronaut]
+
+  - from: JPA
+    type: ueberschneidet_sich_mit
+    to: [Hibernate, EclipseLink, "Spring Data"]
+
+  - from: Quarkus
+    type: ueberschneidet_sich_mit
+    to: [Micronaut, "Spring Boot", Helidon]
+
+  # ─── Integration und Services ──────────────────────────────────────────────
+
+  - from: Apache Camel
+    type: impliziert
+    to: ["Enterprise Integration Patterns", JMS, Messaging]
+
+  - from: REST
+    type: ueberschneidet_sich_mit
+    to: [GraphQL, gRPC]
+
+  - from: GraphQL
+    type: ueberschneidet_sich_mit
+    to: [REST]
+
+  - from: Microservices
+    type: benoetigt
+    to: ["API Design", "Service Discovery", Observability, CI/CD]
+
+  - from: Microservices
+    type: impliziert
+    to: ["Distributed Systems", Resilience, "Eventual Consistency"]
+
+  # ─── Datenbanken ───────────────────────────────────────────────────────────
+
+  - from: Oracle Database
+    type: ueberschneidet_sich_mit
+    to: ["Microsoft SQL Server", PostgreSQL, DB2]
+
+  - from: PostgreSQL
+    type: ueberschneidet_sich_mit
+    to: [MySQL, "Oracle Database", "Microsoft SQL Server"]
+
+  # ─── Qualitätssicherung ────────────────────────────────────────────────────
+
+  - from: Test-Driven Development
+    type: benoetigt
+    to: ["Unit Testing", Refactoring, "Clean Code"]
+
+  - from: Test-Driven Development
+    type: impliziert
+    to: ["Continuous Integration", "Code Coverage"]
+
+  - from: Cucumber
+    type: ueberschneidet_sich_mit
+    to: ["Behavior-Driven Development", Selenium, "Specification by Example"]
+
+  # ─── AI Software Engineering ───────────────────────────────────────────────
+
+  - from: AI Software Engineering
+    type: benoetigt
+    to: [
+      "Prompt Engineering",
+      "Code Review (Senior)",
+      "Domain Understanding",
+      "AISE-Prinzip",
+    ]
+
+  - from: AI Software Engineering
+    type: impliziert
+    to: ["Meta-Programming", "Modellgetriebene Entwicklung", "Test-Driven Development"]
+
+  - from: AI Software Engineering
+    type: ueberschneidet_sich_mit
+    to: ["Intentional Software", "Code Generation"]
+
+  # ─── Methoden und Prozesse ─────────────────────────────────────────────────
+
+  - from: Scrum
+    type: ueberschneidet_sich_mit
+    to: [Kanban, "SAFe", "Extreme Programming"]
+
+  - from: Domain-Driven Design
+    type: benoetigt
+    to: ["Ubiquitous Language", "Bounded Context", Aggregate]
+
+  - from: Domain-Driven Design
+    type: ueberschneidet_sich_mit
+    to: ["Event Storming", "Hexagonal Architecture", CQRS]
+
+  # ─── AI Governance (für ai_governance Rollenprofil) ────────────────────────
+
+  - from: AI Governance
+    type: benoetigt
+    to: ["EU AI Act", "ISO/IEC 42001", "Risk Management", "Audit Trail"]
+
+  - from: EU AI Act
+    type: ueberschneidet_sich_mit
+    to: ["NIST AI RMF", "ISO/IEC 42001", DORA]
+
+  - from: DORA
+    type: ueberschneidet_sich_mit
+    to: ["BAIT", "MaRisk", "ICT Risk Management"]

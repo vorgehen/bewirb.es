@@ -1,0 +1,124 @@
+# Opinions — Intentionaler Bias (Stufe 1)
+#
+# Zweck:
+#   Explizite Präferenzen die in Advisory-Empfehlungen einfließen. Kein neutraler
+#   Marktspiegel, sondern Positionierungs-Anker mit dokumentierter Haltung.
+#
+# Wirkung:
+#   - prefer/over            : Bewertet Tech-Stacks und Methoden in Ausschreibungen
+#   - warn_if                : Erzeugt Warnungen wenn Indikatoren in einem Angebot auftauchen
+#   - deprioritize_if        : Reduziert Match-Score für Angebote mit diesen Merkmalen
+#   - boost_if               : Erhöht Match-Score für Angebote mit diesen Merkmalen
+#
+# Editierbar: dies ist die Stimme des Profilinhabers — keine externe Wahrheit.
+
+preferences:
+
+  - topic: Architekturansatz
+    prefer: Evolutionary Architecture
+    over: Big Design Up Front
+    reason: >-
+      Komplexität emergiert. Frühe Festlegung erzeugt technische Schulden,
+      die später teuer zu refaktorieren sind.
+
+  - topic: Typsystem
+    prefer: statisch typisiert
+    over: dynamisch
+    reason: >-
+      Statische Typsysteme erkennen Klassen von Fehlern zur Compilezeit und
+      sind Voraussetzung für sinnvolle Refactoring-Tools.
+
+  - topic: Code-Stil
+    prefer: Code Generation aus Modellen
+    over: handgeschriebene Boilerplate
+    reason: >-
+      Wiederkehrende Strukturen aus Modellen abzuleiten ist wartbarer und
+      vermeidet das schleichende Auseinanderlaufen paralleler Implementierungen.
+
+  - topic: Spezifikation
+    prefer: ausführbare Spezifikation
+    over: Prosa-Spezifikation
+    reason: >-
+      Eine Spezifikation die generiert oder ausgeführt werden kann, wird
+      ehrlich gepflegt. Eine Prosa-Spezifikation veraltet still.
+
+  - topic: KI-Einsatz
+    prefer: AISE-Prinzip (Mensch entscheidet, KI implementiert, Mensch verifiziert)
+    over: vollautomatische KI-Pipelines
+    reason: >-
+      Verantwortung lässt sich nicht delegieren. Der Mensch muss die Intention
+      formulieren und das Ergebnis beurteilen können.
+
+  - topic: Dokumentation
+    prefer: ARC42 + Architecture Decision Records
+    over: Wiki-Sammlungen ohne Struktur
+    reason: >-
+      Strukturierte Architekturdokumentation überlebt Personalwechsel und
+      ist die Voraussetzung für nachvollziehbare Evolution.
+
+# ─── Warnsignale in Ausschreibungen ────────────────────────────────────────────
+
+warn_if:
+
+  - indicator: ["kein CI/CD", "manuelle Deployments", "kein automatisiertes Testing"]
+    reason: >-
+      Indikator für hohe Reibungsverluste und Legacy-Schulden. Senior-Stunden
+      werden für Tätigkeiten verbraucht die in modernen Setups automatisiert sind.
+
+  - indicator: [SVN, ClearCase, "kein Git"]
+    reason: >-
+      Versionierungs-Tools die nicht Git sind deuten auf größere Tool-Stagnation
+      und oft auf veraltete Entwicklungs-Workflows hin.
+
+  - indicator: ["Wasserfallmodell", "kein agiler Prozess", "lange Spezifikationsphasen vorab"]
+    reason: >-
+      Mit klassischem Wasserfall lässt sich an Systemen mit echter Komplexität
+      und sich ändernden Anforderungen kaum produktiv arbeiten.
+
+  - indicator: ["junior team", "kein Senior im Team", "rein junior staffing"]
+    reason: >-
+      Senior-Erfahrung kommt erst dann zur Geltung, wenn andere Senior-Stimmen
+      im Team sind. Sonst entstehen Reibungen ohne produktiven Nutzen.
+
+# ─── Boost-Signale: was zieht besonders ──────────────────────────────────────
+
+boost_if:
+
+  - indicator: ["regulatorische Anforderungen", "Finanzaufsicht", "DORA", BaFin, "EU AI Act"]
+    reason: >-
+      Regulatorisch getriebene Projekte zwingen zu klaren Anforderungen und
+      sauberer Dokumentation — eine Umgebung in der Senior-Architektur-Erfahrung
+      direkt Nutzen stiftet.
+
+  - indicator: ["Modellgetriebene Entwicklung", DSL, Xtext, "Code Generation"]
+    reason: >-
+      Kern-Spezialgebiet des Profilinhabers. Solche Projekte gibt es selten,
+      aber wo sie existieren ist der Match überdurchschnittlich.
+
+  - indicator: ["AI Software Engineering", "AISE", "AI-assisted development"]
+    reason: >-
+      Forward-looking Positionierung. Hier kollabiert die Unterscheidung
+      zwischen Tool-Werkzeug-Wahl und Identitäts-Frage.
+
+  - indicator: [ARC42, "Architecture Documentation", "Solution Architect"]
+    reason: >-
+      Rollen mit explizitem Architekturmandat passen zur Senioritätsstufe.
+
+# ─── Deprioritize: was eher nicht ────────────────────────────────────────────
+
+deprioritize_if:
+
+  - indicator: ["buzzword-lastig", "viele Trend-Keywords ohne konkrete Technik", "AI Hype ohne Substanz"]
+    reason: >-
+      Stellenanzeigen die mehr Modebegriffe als konkrete Anforderungen enthalten,
+      deuten auf unklare oder unrealistische Erwartungen hin.
+
+  - indicator: ["reine Greenfield Junior-Stack-Optimierung", "rein moderne Microservices ohne Legacy"]
+    reason: >-
+      Solche Rollen sind in der Regel für Mid-Level-Engineers ausgelegt; die
+      Erfahrung aus Migration und Legacy-Integration spielt dort keine Rolle.
+
+  - indicator: ["unter 60% Remote ohne klaren Grund"]
+    reason: >-
+      In den nächsten drei Jahren hat reine Vor-Ort-Präsenz hohe Opportunitätskosten
+      ohne entsprechenden Mehrwert.

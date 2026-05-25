@@ -1,0 +1,90 @@
+# Role Profile: AI Governance Consultant / Architect
+#
+# Referenz-Kompetenzset für Rollen an der Schnittstelle von KI-Einsatz, Regulatorik
+# und Software-Architektur. Besonders relevant für Finanzsektor (DORA + EU AI Act +
+# BAIT/MaRisk) und Beratungs-Kontexte.
+#
+# Verwendung in Advisory: Modus 3 (Marktpositionierung) für strategische Entwicklungs-
+# entscheidungen. Für M2 erst sekundär relevant — primär Senior Architect.
+#
+# Quelle: handverlesen, Stufe 1. Markt-Realität dieser Rolle ist noch jung (2025/2026).
+
+role: AI Governance Consultant
+sfia_level: 5
+sfia_target_range: [5, 6]
+
+description: >-
+  Berät Organisationen zur verantwortungsvollen Einführung und zum Betrieb von KI-Systemen
+  unter Berücksichtigung regulatorischer Anforderungen (EU AI Act, ISO/IEC 42001,
+  NIST AI RMF, branchenspezifisch DORA/BAIT). Verbindet technisches Verständnis der
+  KI-Architektur mit Governance- und Risikomethoden.
+
+expected_competencies:
+
+  methodenkompetenz:
+    erwartet:
+      - Risk Assessment (insb. KI-spezifische Risiken)
+      - Governance-Frameworks (ISO/IEC 42001, NIST AI RMF, EU AI Act)
+      - Audit Trail und Nachvollziehbarkeit
+      - AISE-Prinzip (Mensch entscheidet, KI implementiert, Mensch verifiziert)
+    wuenschenswert:
+      - Bias Detection und Fairness Assessment
+      - Model Cards und Datasheets for Datasets
+      - Responsible AI Patterns
+
+  fachkompetenz:
+    erwartet:
+      - EU AI Act (insbesondere Annex III High-Risk-Klassifikation)
+      - ISO/IEC 42001 (AI Management System)
+      - NIST AI Risk Management Framework
+      - GDPR / Datenschutz in KI-Kontexten
+    branchenabhaengig:
+      - DORA, BAIT, MaRisk (für Finanzsektor)
+      - MDR (für Medizinprodukte)
+      - sektorspezifische Regulatorik je Auftraggeber
+
+  technologie:
+    erwartet_verstaendnis:
+      - LLM-Architekturen (Transformer-basiert, Embeddings)
+      - Retrieval-Augmented Generation
+      - Fine-Tuning vs. Prompt Engineering vs. RAG (Trade-offs)
+      - Logging- und Monitoring-Strategien für KI-Systeme
+    erwartet:
+      - Grundsolides Software-Engineering-Verständnis (mind. Senior Engineer Niveau)
+      - REST APIs, Integration heterogener Systeme
+    nicht_zwingend:
+      - Eigene Modellentwicklung (das ist ein anderes Profil)
+
+  spezialgebiet:
+    differenzierend:
+      - Erfahrung in der Umsetzung von Compliance-Anforderungen in lauffähige Systeme
+      - Architektur-Dokumentation regulierter Anwendungen (ARC42 + Compliance-Mapping)
+      - Demonstrationsprojekte / Showcase-Artefakte zur eigenen Praxis
+      - Schnittstelle Architektur ↔ Legal / Compliance / Audit
+
+  fuehrungkompetenz:
+    erwartet:
+      - Stakeholder-Management über Fachbereich, IT, Legal, Compliance, Audit
+      - Verständliche Kommunikation regulatorischer Inhalte für technische Teams
+      - Verständliche Kommunikation technischer Inhalte für regulatorische Stakeholder
+    wuenschenswert:
+      - Vorträge / Publikationen zum Thema
+      - Advisory-Rolle in AI-Steering-Komitees
+
+# ─── Marktrelevanz (Stand 2026) ──────────────────────────────────────────────
+
+markttrend:
+  treiber:
+    - EU AI Act vollständige Anwendung ab 02.08.2026 (Hochrisiko-Pflichten)
+    - DORA-Wirksamkeit seit Januar 2025
+    - BaFin-Orientierungshilfe ICT/AI unter DORA seit Dezember 2025
+  rate_richtwert: "150-350 EUR/Stunde Beratung (Stand 2026)"
+  marktgroesse_schaetzung: "globaler Markt für AI Governance Consulting ~3,7 Mrd USD bis 2028"
+
+# ─── Abgrenzung ──────────────────────────────────────────────────────────────
+
+abgrenzung:
+  - Nicht: ML-Engineer (baut Modelle, nicht Governance)
+  - Nicht: Data Scientist (analysiert Daten, nicht Compliance)
+  - Nicht: reiner Legal Consultant (versteht Regulatorik, aber nicht die Implementierung)
+  - Das Besondere: Architektur-Erfahrung + Regulatorik-Verständnis + KI-Architektur-Wissen
