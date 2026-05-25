@@ -1,5 +1,5 @@
 # AUTO-GENERATED -- nicht manuell bearbeiten.
-# Quelle: grammar/profile.tx  ->  codegen/codegen.py
+# Quelle: grammar/{profile.tx, knowledge.tx}  ->  codegen/codegen.py
 from __future__ import annotations
 
 from pydantic import BaseModel
@@ -60,3 +60,65 @@ class Ausbildung(BaseModel):
     start: str = ""
     end: str = ""
     abschluss: str = ""
+
+
+class Technology(BaseModel):
+    name: str = ""
+    category: str = ""
+    aliases: list[str] = []
+    sfia_levels: list[SfiaLevel] = []
+
+
+class SfiaLevel(BaseModel):
+    years: int
+    level: int
+
+
+class TechnologyRelation(BaseModel):
+    name: str = ""
+    source: Technology
+    kind: str = ""
+    targets: list[str] = []
+
+
+class RoleProfile(BaseModel):
+    name: str = ""
+    title: str = ""
+    sfia_level: int
+    sfia_min: int
+    sfia_max: int
+    description: str = ""
+    competencies: list[CompetencyArea] = []
+    abgrenzung: list[str] = []
+
+
+class CompetencyArea(BaseModel):
+    area: str = ""
+    erwartet: list[str] = []
+    wuenschenswert: list[str] = []
+
+
+class Preference(BaseModel):
+    name: str = ""
+    topic: str = ""
+    prefer: str = ""
+    over: str = ""
+    reason: str = ""
+
+
+class WarnRule(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""
+
+
+class BoostRule(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""
+
+
+class DeprioritizeRule(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""

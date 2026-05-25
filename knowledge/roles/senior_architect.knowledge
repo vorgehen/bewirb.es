@@ -1,0 +1,83 @@
+// senior_architect.knowledge -- Rollenprofil Senior Software Architect
+// Migriert aus knowledge/role_profiles/senior_architect.yaml
+
+role Senior_Software_Architect {
+    title: "Senior Software Architect"
+    sfia_level: 5
+    sfia_range: 5 to 6
+    description: "Verantwortet die fachlich-technische Lösungsarchitektur komplexer Geschäftsanwendungen über mehrere Quartale bis Jahre. Übersetzt fachliche Anforderungen in technisches Design, trifft Architekturentscheidungen mit langfristiger Wirkung, dokumentiert diese nachvollziehbar und begleitet die Umsetzung bis zur Inbetriebnahme."
+
+    methoden {
+        erwartet: [
+            "Architekturdokumentation (ARC42 oder vergleichbar)",
+            "Architecture Decision Records",
+            "Domain-Driven Design",
+            "Modellgetriebene Entwicklung",
+            "Quality Attribute Workshops / Trade-off-Analyse",
+            "Iteratives Vorgehen (Scrum, Kanban oder vergleichbar)"
+    ]
+        wuenschenswert: [
+            "Event Storming",
+            "C4-Modell für Architektur-Visualisierung",
+            "Hexagonal Architecture / Ports and Adapters"
+    ]
+    }
+
+    fach {
+        erwartet: [
+            "Tiefe Erfahrung in mindestens einer Branche (z.B. Finanzwesen, Telco, Public Sector)",
+            "Verständnis regulatorischer Rahmenbedingungen der Zielbranche",
+            "Fähigkeit, fachliche Anforderungen präzise zu erfassen und zu schärfen"
+    ]
+        wuenschenswert: [
+            "Erfahrung in mehreren Branchen (zeigt Übertragbarkeit der Methoden)"
+    ]
+    }
+
+    technologie {
+        erwartet: [
+            "Java oder Spring Framework",
+            "Java oder Quarkus",
+            "C# oder .NET Core",
+            "Mindestens eine relationale Datenbank (Oracle, PostgreSQL, MS SQL Server)",
+            "REST APIs",
+            "Versionskontrolle (Git)",
+            "Continuous Integration",
+            "Test-Driven Development"
+    ]
+        wuenschenswert: [
+            "GraphQL",
+            "Messaging / Event-Streaming (Kafka, JMS, RabbitMQ)",
+            "Container-Orchestrierung (Kubernetes)"
+    ]
+    }
+
+    spezialgebiet {
+        wuenschenswert: [
+            "Modellgetriebene Entwicklung mit Xtext / openArchitectureware",
+            "Domain-Specific Languages",
+            "Legacy-Migration und Modernisierung",
+            "Meta-Programming",
+            "AI Software Engineering"
+    ]
+    }
+
+    fuehrung {
+        erwartet: [
+            "Tech-Lead-Erfahrung in cross-funktionalen Teams",
+            "Stakeholder-Management (Fachseite, Management, externe Partner)",
+            "Mentoring von Mid-Level-Entwicklern",
+            "Präsentation und Verteidigung von Architekturentscheidungen"
+    ]
+        wuenschenswert: [
+            "Architektur-Board-Erfahrung",
+            "Vorträge / Veröffentlichungen zur eigenen Arbeit"
+    ]
+    }
+
+    abgrenzung: [
+        "{'Nicht': 'Reine PowerPoint-Architektur ohne Implementierungstiefe'}",
+        "{'Nicht': 'Senior Developer ohne explizites Architekturmandat'}",
+        "{'Nicht': 'Enterprise Architect auf Organisations-Ebene (das ist L6+)'}"
+    ]
+}

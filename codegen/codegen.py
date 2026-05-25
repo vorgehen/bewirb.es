@@ -18,18 +18,26 @@ from textx import metamodel_from_file
 from textx.const import RULE_COMMON
 
 REPO_ROOT = Path(__file__).parent.parent
-GRAMMAR_FILE = REPO_ROOT / "grammar" / "profile.tx"
+GRAMMAR_DIR = REPO_ROOT / "grammar"
 SRC_DIR = REPO_ROOT / "src"
 WEB_DIR = REPO_ROOT / "web"
 
 _SKIP = frozenset(
     {
+        # profile.tx
         "Profil",
         "ProfilElement",
         "Kategorie",
         "Proficiency",
         "YearMonth",
         "YearMonthOrToday",
+        # requirements.tx (Wurzel-/Choice-Regeln)
+        "Anforderungen",
+        # knowledge.tx
+        "Knowledge",
+        "KnowledgeElement",
+        "RelationType",
+        "CompetencyAreaName",
     }
 )
 
@@ -82,15 +90,33 @@ def _common_classes(mm: Any) -> list[tuple[str, Any]]:
     ]
 
 
-def generate_models(mm: Any) -> str:
+def _collect_classes(metamodels: list[Any]) -> list[tuple[str, Any]]:
+    """Sammelt Klassen aus mehreren Metamodellen, dedupliziert per Name."""
+    seen: set[str] = set()
+    result: list[tuple[str, Any]] = []
+    for mm in metamodels:
+        for name, cls in _common_classes(mm):
+            if name in seen:
+                continue
+            seen.add(name)
+            result.append((name, cls))
+    return result
+
+
+def _source_comment(grammar_files: list[Path]) -> str:
+    names = ", ".join(f.name for f in grammar_files)
+    return f"# Quelle: grammar/{{{names}}}  ->  codegen/codegen.py"
+
+
+def generate_models(metamodels: list[Any], grammar_files: list[Path]) -> str:
     lines = [
         "# AUTO-GENERATED -- nicht manuell bearbeiten.",
-        "# Quelle: grammar/profile.tx  ->  codegen/codegen.py",
+        _source_comment(grammar_files),
         "from __future__ import annotations",
         "",
         "from pydantic import BaseModel",
     ]
-    for name, cls in _common_classes(mm):
+    for name, cls in _collect_classes(metamodels):
         lines.append("")
         lines.append("")
         lines.append(f"class {name}(BaseModel):")
@@ -101,11 +127,11 @@ def generate_models(mm: Any) -> str:
     return "\n".join(lines)
 
 
-def generate_graph_schema(mm: Any) -> str:
-    classes = _common_classes(mm)
+def generate_graph_schema(metamodels: list[Any], grammar_files: list[Path]) -> str:
+    classes = _collect_classes(metamodels)
     lines = [
         "# AUTO-GENERATED -- nicht manuell bearbeiten.",
-        "# Quelle: grammar/profile.tx  ->  codegen/codegen.py",
+        _source_comment(grammar_files),
         "",
         "NODE_TYPES: list[str] = [",
     ]
@@ -121,15 +147,15 @@ def generate_graph_schema(mm: Any) -> str:
     return "\n".join(lines)
 
 
-def generate_web_schemas(mm: Any) -> str:
+def generate_web_schemas(metamodels: list[Any], grammar_files: list[Path]) -> str:
     lines = [
         "# AUTO-GENERATED -- nicht manuell bearbeiten.",
-        "# Quelle: grammar/profile.tx  ->  codegen/codegen.py",
+        _source_comment(grammar_files),
         "from __future__ import annotations",
         "",
         "from pydantic import BaseModel",
     ]
-    for name, cls in _common_classes(mm):
+    for name, cls in _collect_classes(metamodels):
         lines.append("")
         lines.append("")
         lines.append(f"class {name}Response(BaseModel):")
@@ -140,17 +166,26 @@ def generate_web_schemas(mm: Any) -> str:
     return "\n".join(lines)
 
 
-def main() -> None:
-    if not GRAMMAR_FILE.exists():
-        print(f"Grammatik nicht gefunden: {GRAMMAR_FILE}", file=sys.stderr)
-        sys.exit(1)
+# Grammatiken die echte Entitäten beitragen (für Codegen).
+# requirements.tx hat nur die Wurzel "Anforderungen" — wird von data_loader direkt
+# via textx geladen, keine Pydantic-Modelle nötig.
+_CODEGEN_GRAMMARS = ["profile.tx", "knowledge.tx"]
 
-    mm = metamodel_from_file(str(GRAMMAR_FILE))
+
+def main() -> None:
+    grammar_files = [GRAMMAR_DIR / name for name in _CODEGEN_GRAMMARS]
+    for f in grammar_files:
+        if not f.exists():
+            print(f"Grammatik nicht gefunden: {f}", file=sys.stderr)
+            sys.exit(1)
+
+    metamodels = [metamodel_from_file(str(f)) for f in grammar_files]
+    print(f"Verarbeite {len(grammar_files)} Grammatik(en): {[f.name for f in grammar_files]}")
 
     targets = [
-        (SRC_DIR / "models.py", generate_models(mm)),
-        (SRC_DIR / "graph_schema.py", generate_graph_schema(mm)),
-        (WEB_DIR / "schemas.py", generate_web_schemas(mm)),
+        (SRC_DIR / "models.py", generate_models(metamodels, grammar_files)),
+        (SRC_DIR / "graph_schema.py", generate_graph_schema(metamodels, grammar_files)),
+        (WEB_DIR / "schemas.py", generate_web_schemas(metamodels, grammar_files)),
     ]
     for path, code in targets:
         path.write_text(code, encoding="utf-8")

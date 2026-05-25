@@ -1,5 +1,5 @@
 # AUTO-GENERATED -- nicht manuell bearbeiten.
-# Quelle: grammar/profile.tx  ->  codegen/codegen.py
+# Quelle: grammar/{profile.tx, knowledge.tx}  ->  codegen/codegen.py
 from __future__ import annotations
 
 from pydantic import BaseModel
@@ -60,3 +60,65 @@ class AusbildungResponse(BaseModel):
     start: str = ""
     end: str = ""
     abschluss: str = ""
+
+
+class TechnologyResponse(BaseModel):
+    name: str = ""
+    category: str = ""
+    aliases: list[str] = []
+    sfia_levels: list[SfiaLevelResponse] = []
+
+
+class SfiaLevelResponse(BaseModel):
+    years: int
+    level: int
+
+
+class TechnologyRelationResponse(BaseModel):
+    name: str = ""
+    source: TechnologyResponse
+    kind: str = ""
+    targets: list[str] = []
+
+
+class RoleProfileResponse(BaseModel):
+    name: str = ""
+    title: str = ""
+    sfia_level: int
+    sfia_min: int
+    sfia_max: int
+    description: str = ""
+    competencies: list[CompetencyAreaResponse] = []
+    abgrenzung: list[str] = []
+
+
+class CompetencyAreaResponse(BaseModel):
+    area: str = ""
+    erwartet: list[str] = []
+    wuenschenswert: list[str] = []
+
+
+class PreferenceResponse(BaseModel):
+    name: str = ""
+    topic: str = ""
+    prefer: str = ""
+    over: str = ""
+    reason: str = ""
+
+
+class WarnRuleResponse(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""
+
+
+class BoostRuleResponse(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""
+
+
+class DeprioritizeRuleResponse(BaseModel):
+    name: str = ""
+    indicators: list[str] = []
+    reason: str = ""

@@ -1,0 +1,619 @@
+// taxonomy.knowledge -- Technology-Taxonomie und Kompetenzgraph
+// Migriert aus knowledge/technology_taxonomy.yaml + competency_graph.yaml
+
+technology Java {
+    category: "Programmiersprachen"
+    aliases: [
+        "JVM",
+        "Java EE",
+        "Jakarta EE",
+        "J2EE"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5, 15 -> 6]
+}
+
+technology Python {
+    category: "Programmiersprachen"
+    aliases: [
+        "Python3",
+        "Python 3"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Scala {
+    category: "Programmiersprachen"
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology SQL {
+    category: "Programmiersprachen"
+    aliases: [
+        "PL/SQL",
+        "T-SQL"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Spring_Framework {
+    category: "Frameworks"
+    aliases: [
+        "Spring Framework",
+        "Spring",
+        "Spring Core"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Spring_Boot {
+    category: "Frameworks"
+    aliases: [
+        "Spring Boot",
+        "Spring-Boot",
+        "SpringBoot"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Quarkus {
+    category: "Frameworks"
+    aliases: [
+        "MicroProfile"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology JEE {
+    category: "Frameworks"
+    aliases: [
+        "Java EE",
+        "Jakarta EE",
+        "J2EE"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Xtext {
+    category: "Modellgetriebene Entwicklung"
+    aliases: [
+        "XText",
+        "Eclipse Xtext"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
+technology openArchitectureware {
+    category: "Modellgetriebene Entwicklung"
+    aliases: [
+        "oAW",
+        "open Architecture Ware"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology Domain_Specific_Languages {
+    category: "Modellgetriebene Entwicklung"
+    aliases: [
+        "Domain-Specific Languages",
+        "DSL",
+        "DSLs",
+        "Domänenspezifische Sprachen"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
+technology JPA {
+    category: "Persistenz"
+    aliases: [
+        "Hibernate",
+        "JPA/Hibernate"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Oracle_Database {
+    category: "Datenbanken"
+    aliases: [
+        "Oracle Database",
+        "Oracle",
+        "Oracle DB",
+        "Oracle WebLogic"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology PostgreSQL {
+    category: "Datenbanken"
+    aliases: [
+        "Postgres",
+        "PostGIS"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Microsoft_SQL_Server {
+    category: "Datenbanken"
+    aliases: [
+        "Microsoft SQL Server",
+        "MS SQL Server",
+        "SQL Server",
+        "MSSQL"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Apache_Camel {
+    category: "Integration"
+    aliases: [
+        "Apache Camel",
+        "Camel",
+        "EIP"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Apache_CXF {
+    category: "Integration"
+    aliases: [
+        "Apache CXF",
+        "CXF",
+        "JAX-WS"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology REST {
+    category: "Integration"
+    aliases: [
+        "REST APIs",
+        "RESTful",
+        "REST-Services"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology GraphQL {
+    category: "Integration"
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology SOAP {
+    category: "Integration"
+    aliases: [
+        "WSDL",
+        "XSD"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Softwarearchitektur {
+    category: "Architektur"
+    aliases: [
+        "Software Architecture",
+        "System Architecture",
+        "Solution Architecture"
+    ]
+    sfia_levels: [2 -> 3, 4 -> 4, 8 -> 5, 12 -> 6]
+}
+
+technology ARC42 {
+    category: "Architektur-Dokumentation"
+    aliases: [
+        "arc42"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology UML {
+    category: "Architektur-Dokumentation"
+    aliases: [
+        "OOA",
+        "OOD",
+        "OOA/OOD"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Domain_Driven_Design {
+    category: "Architektur"
+    aliases: [
+        "Domain-Driven Design",
+        "DDD",
+        "Domain Driven Design"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
+technology Microservices {
+    category: "Architektur"
+    aliases: [
+        "Micro Services",
+        "Microservice-Architektur"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology Test_Driven_Development {
+    category: "Qualitätssicherung"
+    aliases: [
+        "Test-Driven Development",
+        "TDD"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Cucumber {
+    category: "Qualitätssicherung"
+    aliases: [
+        "BDD",
+        "Selenium",
+        "Cucumber/Selenium"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Continuous_Integration {
+    category: "DevOps"
+    aliases: [
+        "Continuous Integration",
+        "CI",
+        "CI/CD",
+        "Jenkins"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Git {
+    category: "DevOps"
+    aliases: [
+        "GitHub",
+        "GitLab"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Kubernetes {
+    category: "Container Orchestration"
+    aliases: [
+        "K8s",
+        "Container Orchestration"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Docker {
+    category: "Container Orchestration"
+    aliases: [
+        "Containerization",
+        "OCI"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Scrum {
+    category: "Prozess"
+    aliases: [
+        "Agile",
+        "Scrum Team"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Clean_Code {
+    category: "Qualitätssicherung"
+    aliases: [
+        "Clean Code",
+        "Clean Coding",
+        "Refactoring"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology AI_Software_Engineering {
+    category: "AI"
+    aliases: [
+        "AI Software Engineering",
+        "AI SE",
+        "AI-Assisted Software Development",
+        "KI-unterstützte Entwicklung"
+    ]
+    sfia_levels: [1 -> 3, 2 -> 4, 4 -> 5]
+}
+
+technology Meta_Programming {
+    category: "Modellgetriebene Entwicklung"
+    aliases: [
+        "Meta-Programming",
+        "Metaprogrammierung",
+        "Intentional Software"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
+technology Machine_Learning {
+    category: "AI"
+    aliases: [
+        "Machine Learning",
+        "ML",
+        "Machine Learning with Python"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Statistik {
+    category: "AI"
+    aliases: [
+        "Statistics",
+        "Statistical Methods"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+// ─── Kompetenzgraph ───────────────────────────────────────────
+
+relation rel_Softwarearchitektur_1 {
+    source: Softwarearchitektur
+    kind: benoetigt
+    targets: [
+        "UML",
+        "ARC42",
+        "Architecture Decision Records",
+        "Quality Attributes"
+    ]
+}
+
+relation rel_Softwarearchitektur_2 {
+    source: Softwarearchitektur
+    kind: impliziert
+    targets: [
+        "Domain-Driven Design",
+        "Design Patterns",
+        "Trade-off-Analyse"
+    ]
+}
+
+relation rel_ARC42_3 {
+    source: ARC42
+    kind: benoetigt
+    targets: [
+        "Quality Attributes",
+        "Cross-Cutting Concepts",
+        "Architecture Decisions"
+    ]
+}
+
+relation rel_Domain_Specific_Languages_4 {
+    source: Domain_Specific_Languages
+    kind: benoetigt
+    targets: [
+        "Metamodell",
+        "Code Generation",
+        "Grammatik"
+    ]
+}
+
+relation rel_Xtext_5 {
+    source: Xtext
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "openArchitectureware",
+        "ANTLR",
+        "EMF",
+        "Langium"
+    ]
+}
+
+relation rel_Xtext_6 {
+    source: Xtext
+    kind: impliziert
+    targets: [
+        "Domain-Specific Languages",
+        "Code Generation",
+        "Eclipse-Ökosystem"
+    ]
+}
+
+relation rel_Meta_Programming_7 {
+    source: Meta_Programming
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Modellgetriebene Entwicklung",
+        "Intentional Software",
+        "Code Generation"
+    ]
+}
+
+relation rel_Spring_Boot_8 {
+    source: Spring_Boot
+    kind: erweitert
+    targets: [
+        "Spring Framework"
+    ]
+}
+
+relation rel_Spring_Framework_9 {
+    source: Spring_Framework
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "JEE",
+        "Quarkus",
+        "Micronaut"
+    ]
+}
+
+relation rel_JPA_10 {
+    source: JPA
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Hibernate",
+        "EclipseLink",
+        "Spring Data"
+    ]
+}
+
+relation rel_Quarkus_11 {
+    source: Quarkus
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Micronaut",
+        "Spring Boot",
+        "Helidon"
+    ]
+}
+
+relation rel_Apache_Camel_12 {
+    source: Apache_Camel
+    kind: impliziert
+    targets: [
+        "Enterprise Integration Patterns",
+        "JMS",
+        "Messaging"
+    ]
+}
+
+relation rel_REST_13 {
+    source: REST
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "GraphQL",
+        "gRPC"
+    ]
+}
+
+relation rel_GraphQL_14 {
+    source: GraphQL
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "REST"
+    ]
+}
+
+relation rel_Microservices_15 {
+    source: Microservices
+    kind: benoetigt
+    targets: [
+        "API Design",
+        "Service Discovery",
+        "Observability",
+        "CI/CD"
+    ]
+}
+
+relation rel_Microservices_16 {
+    source: Microservices
+    kind: impliziert
+    targets: [
+        "Distributed Systems",
+        "Resilience",
+        "Eventual Consistency"
+    ]
+}
+
+relation rel_Oracle_Database_17 {
+    source: Oracle_Database
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Microsoft SQL Server",
+        "PostgreSQL",
+        "DB2"
+    ]
+}
+
+relation rel_PostgreSQL_18 {
+    source: PostgreSQL
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "MySQL",
+        "Oracle Database",
+        "Microsoft SQL Server"
+    ]
+}
+
+relation rel_Test_Driven_Development_19 {
+    source: Test_Driven_Development
+    kind: benoetigt
+    targets: [
+        "Unit Testing",
+        "Refactoring",
+        "Clean Code"
+    ]
+}
+
+relation rel_Test_Driven_Development_20 {
+    source: Test_Driven_Development
+    kind: impliziert
+    targets: [
+        "Continuous Integration",
+        "Code Coverage"
+    ]
+}
+
+relation rel_Cucumber_21 {
+    source: Cucumber
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Behavior-Driven Development",
+        "Selenium",
+        "Specification by Example"
+    ]
+}
+
+relation rel_AI_Software_Engineering_22 {
+    source: AI_Software_Engineering
+    kind: benoetigt
+    targets: [
+        "Prompt Engineering",
+        "Code Review (Senior)",
+        "Domain Understanding",
+        "AISE-Prinzip"
+    ]
+}
+
+relation rel_AI_Software_Engineering_23 {
+    source: AI_Software_Engineering
+    kind: impliziert
+    targets: [
+        "Meta-Programming",
+        "Modellgetriebene Entwicklung",
+        "Test-Driven Development"
+    ]
+}
+
+relation rel_AI_Software_Engineering_24 {
+    source: AI_Software_Engineering
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Intentional Software",
+        "Code Generation"
+    ]
+}
+
+relation rel_Scrum_25 {
+    source: Scrum
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Kanban",
+        "SAFe",
+        "Extreme Programming"
+    ]
+}
+
+relation rel_Domain_Driven_Design_26 {
+    source: Domain_Driven_Design
+    kind: benoetigt
+    targets: [
+        "Ubiquitous Language",
+        "Bounded Context",
+        "Aggregate"
+    ]
+}
+
+relation rel_Domain_Driven_Design_27 {
+    source: Domain_Driven_Design
+    kind: ueberschneidet_sich_mit
+    targets: [
+        "Event Storming",
+        "Hexagonal Architecture",
+        "CQRS"
+    ]
+}

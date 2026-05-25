@@ -1,0 +1,79 @@
+// ai_governance.knowledge -- Rollenprofil AI Governance Consultant
+// Migriert aus knowledge/role_profiles/ai_governance.yaml
+
+role AI_Governance_Consultant {
+    title: "AI Governance Consultant"
+    sfia_level: 5
+    sfia_range: 5 to 6
+    description: "Berät Organisationen zur verantwortungsvollen Einführung und zum Betrieb von KI-Systemen unter Berücksichtigung regulatorischer Anforderungen (EU AI Act, ISO/IEC 42001, NIST AI RMF, branchenspezifisch DORA/BAIT). Verbindet technisches Verständnis der KI-Architektur mit Governance- und Risikomethoden."
+
+    methoden {
+        erwartet: [
+            "Risk Assessment (insb. KI-spezifische Risiken)",
+            "Governance-Frameworks (ISO/IEC 42001, NIST AI RMF, EU AI Act)",
+            "Audit Trail und Nachvollziehbarkeit",
+            "AISE-Prinzip (Mensch entscheidet, KI implementiert, Mensch verifiziert)"
+    ]
+        wuenschenswert: [
+            "Bias Detection und Fairness Assessment",
+            "Model Cards und Datasheets for Datasets",
+            "Responsible AI Patterns"
+    ]
+    }
+
+    fach {
+        erwartet: [
+            "EU AI Act (insbesondere Annex III High-Risk-Klassifikation)",
+            "ISO/IEC 42001 (AI Management System)",
+            "NIST AI Risk Management Framework",
+            "GDPR / Datenschutz in KI-Kontexten"
+    ]
+        wuenschenswert: [
+            "DORA, BAIT, MaRisk (für Finanzsektor)",
+            "MDR (für Medizinprodukte)",
+            "sektorspezifische Regulatorik je Auftraggeber"
+    ]
+    }
+
+    technologie {
+        erwartet: [
+            "LLM-Architekturen (Transformer-basiert, Embeddings)",
+            "Retrieval-Augmented Generation",
+            "Fine-Tuning vs. Prompt Engineering vs. RAG (Trade-offs)",
+            "Logging- und Monitoring-Strategien für KI-Systeme",
+            "Grundsolides Software-Engineering-Verständnis (mind. Senior Engineer Niveau)",
+            "REST APIs, Integration heterogener Systeme"
+    ]
+        wuenschenswert: [
+            "Eigene Modellentwicklung (das ist ein anderes Profil)"
+    ]
+    }
+
+    spezialgebiet {
+        wuenschenswert: [
+            "Erfahrung in der Umsetzung von Compliance-Anforderungen in lauffähige Systeme",
+            "Architektur-Dokumentation regulierter Anwendungen (ARC42 + Compliance-Mapping)",
+            "Demonstrationsprojekte / Showcase-Artefakte zur eigenen Praxis",
+            "Schnittstelle Architektur ↔ Legal / Compliance / Audit"
+    ]
+    }
+
+    fuehrung {
+        erwartet: [
+            "Stakeholder-Management über Fachbereich, IT, Legal, Compliance, Audit",
+            "Verständliche Kommunikation regulatorischer Inhalte für technische Teams",
+            "Verständliche Kommunikation technischer Inhalte für regulatorische Stakeholder"
+    ]
+        wuenschenswert: [
+            "Vorträge / Publikationen zum Thema",
+            "Advisory-Rolle in AI-Steering-Komitees"
+    ]
+    }
+
+    abgrenzung: [
+        "{'Nicht': 'ML-Engineer (baut Modelle, nicht Governance)'}",
+        "{'Nicht': 'Data Scientist (analysiert Daten, nicht Compliance)'}",
+        "{'Nicht': 'reiner Legal Consultant (versteht Regulatorik, aber nicht die Implementierung)'}",
+        "{'Das Besondere': 'Architektur-Erfahrung + Regulatorik-Verständnis + KI-Architektur-Wissen'}"
+    ]
+}

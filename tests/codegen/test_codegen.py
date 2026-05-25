@@ -37,7 +37,8 @@ def test_codegen_exits_zero(generated: dict[str, str]) -> None:
 
 def test_models_py_header(generated: dict[str, str]) -> None:
     assert "AUTO-GENERATED" in generated["models"]
-    assert "grammar/profile.tx" in generated["models"]
+    assert "profile.tx" in generated["models"]
+    assert "knowledge.tx" in generated["models"]
     assert "BaseModel" in generated["models"]
 
 
@@ -50,6 +51,12 @@ def test_models_py_contains_domain_classes(generated: dict[str, str]) -> None:
         "Branche",
         "Ausbildung",
     ):
+        assert cls in generated["models"], f"{cls} fehlt in models.py"
+
+
+def test_models_py_contains_knowledge_classes(generated: dict[str, str]) -> None:
+    """Phase 7.6: Knowledge-Entitäten sind in models.py vorhanden."""
+    for cls in ("Technology", "TechnologyRelation", "RoleProfile", "Preference"):
         assert cls in generated["models"], f"{cls} fehlt in models.py"
 
 

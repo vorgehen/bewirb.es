@@ -1,0 +1,83 @@
+// technischer_projektleiter.knowledge -- Rollenprofil Technischer Projektleiter
+// Migriert aus knowledge/role_profiles/technischer_projektleiter.yaml
+
+role Technischer_Projektleiter {
+    title: "Technischer Projektleiter"
+    sfia_level: 5
+    sfia_range: 5 to 6
+    description: "Verantwortet die technische Lieferung eines Projekts über mehrere Monate bis Quartale. Trifft technische Entscheidungen, koordiniert die Umsetzung mit Entwicklerteam und Fachseite, hält Termine und Scope gegenüber Stakeholdern. Bringt eigene technische Substanz ein, ist aber nicht reiner Entwickler."
+
+    methoden {
+        erwartet: [
+            "Iteratives Projektmanagement (Scrum, Kanban, SAFe oder vergleichbar)",
+            "Architektur-Methoden (ARC42, ADR)",
+            "Risk Management und Risikokommunikation",
+            "Stakeholder-Mapping und -Kommunikation",
+            "Schätzungs- und Planungsverfahren (Story Points, Capacity Planning)"
+    ]
+        wuenschenswert: [
+            "Klassisches Projektmanagement (PMBOK, PRINCE2) für regulierte Umgebungen",
+            "Lean Methods, Value Stream Mapping",
+            "Konfliktmoderation"
+    ]
+    }
+
+    fach {
+        erwartet: [
+            "Tiefe in mindestens einer Domäne (Finanzwesen, Telco, Public Sector, ...)",
+            "Fähigkeit, fachliche Anforderungen in technische Roadmaps zu übersetzen",
+            "Verständnis regulatorischer Rahmenbedingungen der Zielbranche"
+    ]
+        wuenschenswert: [
+            "Erfahrung mit Compliance-getriebenen Projekten (DORA, BAIT, MaRisk)"
+    ]
+    }
+
+    technologie {
+        erwartet: [
+            "Solide technische Grundlage (Senior-Engineer-Niveau in einer Tech-Familie)",
+            "Architektur-Verständnis (Microservices, SOA, Event-Driven)",
+            "REST APIs, Schnittstellen-Modellierung",
+            "Versionskontrolle (Git), CI/CD-Verständnis",
+            "Java oder Spring/JEE-Stack",
+            ".NET-Stack",
+            "Andere etablierte Enterprise-Stacks"
+    ]
+        wuenschenswert: [
+            "Messaging (Kafka, JMS, RabbitMQ)",
+            "Container und Cloud-Plattformen"
+    ]
+    }
+
+    spezialgebiet {
+        wuenschenswert: [
+            "Erfahrung mit Migrationen und Modernisierungsprojekten",
+            "Modellgetriebene Entwicklung als Mittel zur Skalierung",
+            "Architektur-Dokumentation in regulierten Umgebungen",
+            "Schnittstellen-Design zwischen Bestand und Neuentwicklung",
+            "Prototyping-/Vorstudien-Phasen (Machbarkeit klären vor großer Umsetzung)"
+    ]
+    }
+
+    fuehrung {
+        erwartet: [
+            "Fachliche Führung eines Entwicklerteams (ohne disziplinarische Verantwortung)",
+            "Verhandlungs- und Eskalationsfähigkeit",
+            "Statusberichte und Management-Kommunikation",
+            "Moderation technischer Diskussionen, Konsens-Findung",
+            "Code-Review-Qualität als Multiplikator"
+    ]
+        wuenschenswert: [
+            "Übergreifende Koordination mehrerer Teams oder Schnittstellen-Partner",
+            "Mentoring von Senior-Entwicklern"
+    ]
+    }
+
+    abgrenzung: [
+        "Nicht: Engineering Manager (hat Personalverantwortung)",
+        "Nicht: Programm-/Portfolio-Manager (Ebene über einzelnen Projekten)",
+        "Nicht: Reiner Scrum Master (kein technisches Entscheidungsmandat)",
+        "Nicht: Senior Architect ohne Lieferverantwortung (Architektur ist Mittel, nicht Selbstzweck)",
+        "Das Besondere: Vereint technische Substanz, Liefer-Disziplin und Stakeholder- Kommunikation — typischerweise schwer zu besetzen, weil reine Tech-Leute Lieferung oder Politik scheuen, und reine PM-Leute die technische Tiefe fehlt."
+    ]
+}

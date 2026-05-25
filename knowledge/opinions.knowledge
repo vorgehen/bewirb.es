@@ -1,0 +1,148 @@
+// opinions.knowledge -- Intentionaler Bias (Preference / WarnIf / BoostIf / DeprioritizeIf)
+// Migriert aus knowledge/opinions.yaml
+
+preference pref_Architekturansatz_1 {
+    topic: "Architekturansatz"
+    prefer: "Evolutionary Architecture"
+    over: "Big Design Up Front"
+    reason: "Komplexität emergiert. Frühe Festlegung erzeugt technische Schulden, die später teuer zu refaktorieren sind."
+}
+
+preference pref_Typsystem_2 {
+    topic: "Typsystem"
+    prefer: "statisch typisiert"
+    over: "dynamisch"
+    reason: "Statische Typsysteme erkennen Klassen von Fehlern zur Compilezeit und sind Voraussetzung für sinnvolle Refactoring-Tools."
+}
+
+preference pref_Code_Stil_3 {
+    topic: "Code-Stil"
+    prefer: "Code Generation aus Modellen"
+    over: "handgeschriebene Boilerplate"
+    reason: "Wiederkehrende Strukturen aus Modellen abzuleiten ist wartbarer und vermeidet das schleichende Auseinanderlaufen paralleler Implementierungen."
+}
+
+preference pref_Spezifikation_4 {
+    topic: "Spezifikation"
+    prefer: "ausführbare Spezifikation"
+    over: "Prosa-Spezifikation"
+    reason: "Eine Spezifikation die generiert oder ausgeführt werden kann, wird ehrlich gepflegt. Eine Prosa-Spezifikation veraltet still."
+}
+
+preference pref_KI_Einsatz_5 {
+    topic: "KI-Einsatz"
+    prefer: "AISE-Prinzip (Mensch entscheidet, KI implementiert, Mensch verifiziert)"
+    over: "vollautomatische KI-Pipelines"
+    reason: "Verantwortung lässt sich nicht delegieren. Der Mensch muss die Intention formulieren und das Ergebnis beurteilen können."
+}
+
+preference pref_Dokumentation_6 {
+    topic: "Dokumentation"
+    prefer: "ARC42 + Architecture Decision Records"
+    over: "Wiki-Sammlungen ohne Struktur"
+    reason: "Strukturierte Architekturdokumentation überlebt Personalwechsel und ist die Voraussetzung für nachvollziehbare Evolution."
+}
+
+// ─── WarnRules ───
+
+warn_if warn_if_7 {
+    indicators: [
+        "kein CI/CD",
+        "manuelle Deployments",
+        "kein automatisiertes Testing"
+    ]
+    reason: "Indikator für hohe Reibungsverluste und Legacy-Schulden. Senior-Stunden werden für Tätigkeiten verbraucht die in modernen Setups automatisiert sind."
+}
+
+warn_if warn_if_8 {
+    indicators: [
+        "SVN",
+        "ClearCase",
+        "kein Git"
+    ]
+    reason: "Versionierungs-Tools die nicht Git sind deuten auf größere Tool-Stagnation und oft auf veraltete Entwicklungs-Workflows hin."
+}
+
+warn_if warn_if_9 {
+    indicators: [
+        "Wasserfallmodell",
+        "kein agiler Prozess",
+        "lange Spezifikationsphasen vorab"
+    ]
+    reason: "Mit klassischem Wasserfall lässt sich an Systemen mit echter Komplexität und sich ändernden Anforderungen kaum produktiv arbeiten."
+}
+
+warn_if warn_if_10 {
+    indicators: [
+        "junior team",
+        "kein Senior im Team",
+        "rein junior staffing"
+    ]
+    reason: "Senior-Erfahrung kommt erst dann zur Geltung, wenn andere Senior-Stimmen im Team sind. Sonst entstehen Reibungen ohne produktiven Nutzen."
+}
+
+// ─── BoostRules ───
+
+boost_if boost_if_11 {
+    indicators: [
+        "regulatorische Anforderungen",
+        "Finanzaufsicht",
+        "DORA",
+        "EU AI Act"
+    ]
+    reason: "Regulatorisch getriebene Projekte zwingen zu klaren Anforderungen und sauberer Dokumentation — eine Umgebung in der Senior-Architektur-Erfahrung direkt Nutzen stiftet."
+}
+
+boost_if boost_if_12 {
+    indicators: [
+        "Modellgetriebene Entwicklung",
+        "DSL",
+        "Xtext",
+        "Code Generation"
+    ]
+    reason: "Kern-Spezialgebiet des Profilinhabers. Solche Projekte gibt es selten, aber wo sie existieren ist der Match überdurchschnittlich."
+}
+
+boost_if boost_if_13 {
+    indicators: [
+        "AI Software Engineering",
+        "AISE",
+        "AI-assisted development"
+    ]
+    reason: "Forward-looking Positionierung. Hier kollabiert die Unterscheidung zwischen Tool-Werkzeug-Wahl und Identitäts-Frage."
+}
+
+boost_if boost_if_14 {
+    indicators: [
+        "ARC42",
+        "Architecture Documentation",
+        "Solution Architect"
+    ]
+    reason: "Rollen mit explizitem Architekturmandat passen zur Senioritätsstufe."
+}
+
+// ─── DeprioritizeRules ───
+
+deprioritize_if deprioritize_if_15 {
+    indicators: [
+        "buzzword-lastig",
+        "viele Trend-Keywords ohne konkrete Technik",
+        "AI Hype ohne Substanz"
+    ]
+    reason: "Stellenanzeigen die mehr Modebegriffe als konkrete Anforderungen enthalten, deuten auf unklare oder unrealistische Erwartungen hin."
+}
+
+deprioritize_if deprioritize_if_16 {
+    indicators: [
+        "reine Greenfield Junior-Stack-Optimierung",
+        "rein moderne Microservices ohne Legacy"
+    ]
+    reason: "Solche Rollen sind in der Regel für Mid-Level-Engineers ausgelegt; die Erfahrung aus Migration und Legacy-Integration spielt dort keine Rolle."
+}
+
+deprioritize_if deprioritize_if_17 {
+    indicators: [
+        "unter 60% Remote ohne klaren Grund"
+    ]
+    reason: "In den nächsten drei Jahren hat reine Vor-Ort-Präsenz hohe Opportunitätskosten ohne entsprechenden Mehrwert."
+}

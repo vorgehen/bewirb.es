@@ -79,6 +79,15 @@ VERSIONS = [
         "Advisory Layer (Phase 8a, Modi 1+2 in M2), Knowledge Layer Stufe 1 (Phase 7.5), "
         "M2 als Profil-Erstellungs-MVP gestrafft, Karriere-Kapital-Verwaltung als Langzeit-Vision",
     ),
+    (
+        "2.2",
+        "25.05.2026",
+        "Profil-Inhaber / Claude Opus 4.7",
+        "Phase 7.6 — Knowledge Layer DSL-Migration (ADR-012). "
+        "Eine TextX-Grammatik knowledge.tx mit mehreren Entitäten (Technology, "
+        "TechnologyRelation, RoleProfile, Opinion) ersetzt YAML-Stub aus 7.5. "
+        "MDD-Konsistenz wiederhergestellt, folgt der Projekt-Konvention (analog profile.tx).",
+    ),
 ]
 
 
@@ -117,15 +126,15 @@ SUMMARY_PARAGRAPHS = [
     "Vervollständigen) und *Bewerben* (Advisory, Positionieren, Generieren). "
     "Beide arbeiten auf der gemeinsamen .profile-Wissensbasis und informieren sich gegenseitig.",
     "**Meilenstein 2 ist das MVP** des Profil-Erstellungs-Systems. "
-    "Kritischer Pfad in sieben Phasen: 7.5 Knowledge Layer → 8 Grammatik → 9 Import → "
-    "10 Lücken → 8a Advisory (Modi 1+2) → 11 Anreicherung → 11a Anonymisierung. "
-    "Done-Kriterium: advise.py --scan angebote/ läuft und das erste "
-    "angereicherte Profil ist versendet.",
-    "**Knowledge Layer Stufe 1 (Phase 7.5):** Handgefertigte YAML-Wissensbasis als Fundament — "
-    "technology_taxonomy, competency_graph, role_profiles, plus opinions.yaml als explizite "
-    "Bias-Schicht. Kein ESCO, kein SFIA-Compliance-Anspruch. "
-    "Stufen 2-4 (SWEBOK/SFIA-Extraktion, Graph-Modell, dynamische Updates) "
-    "sind spätere Meilensteine.",
+    "Kritischer Pfad in acht Phasen: 7.5 Knowledge YAML-Stub → 7.6 DSL-Migration → "
+    "8 Grammatik → 9 Import → 10 Lücken → 8a Advisory (Modi 1+2) → 11 Anreicherung → "
+    "11a Anonymisierung. Done-Kriterium: advise.py --scan angebote/ läuft und das "
+    "erste angereicherte Profil ist versendet.",
+    "**Knowledge Layer in zwei Schritten (Phase 7.5 + 7.6):** Erst handgefertigter "
+    "YAML-Stub für Konzept-Validierung (7.5), dann Migration auf TextX-DSL (7.6, ADR-012). "
+    "Eine Grammatik knowledge.tx mit mehreren Entitäten (Technology, TechnologyRelation, "
+    "RoleProfile, Opinion) restauriert die MDD-Konsistenz die in 7.5 zugunsten "
+    "von Geschwindigkeit aufgegeben wurde — folgt der Projekt-Konvention (analog profile.tx).",
     "**Advisory Layer (Phase 8a):** Vier Modi — Einzel-Bewerbungsempfehlung (1) und "
     "Portfolio-Scan über mehrere Angebote (2) in M2; Marktpositionierung (3) und "
     "Profil-Diagnose (4) in M3 sobald der Knowledge Layer reif ist. "

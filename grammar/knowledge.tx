@@ -1,0 +1,103 @@
+// knowledge.tx — Knowledge Layer Metamodell
+// Ubiquitous Language: Technology, TechnologyRelation, RoleProfile,
+//                      Preference, WarnRule, BoostRule, DeprioritizeRule
+//
+// Eine Grammatik mit mehreren Entitäten, analog zu profile.tx und requirements.tx.
+// Datei-Konvention: *.knowledge (thematisch aufgeteilt für Lesbarkeit).
+
+Knowledge:
+    elements*=KnowledgeElement
+;
+
+KnowledgeElement:
+    Technology | TechnologyRelation | RoleProfile |
+    Preference | WarnRule | BoostRule | DeprioritizeRule
+;
+
+// ─── Technology Taxonomy ────────────────────────────────────────────────────
+
+Technology:
+    'technology' name=ID '{'
+        'category:' category=STRING
+        ('aliases:' '[' aliases*=STRING[','] ']')?
+        ('sfia_levels:' '[' sfia_levels*=SfiaLevel[','] ']')?
+    '}'
+;
+
+SfiaLevel:
+    years=INT '->' level=INT
+;
+
+// ─── Competency Graph ──────────────────────────────────────────────────────
+
+TechnologyRelation:
+    'relation' name=ID '{'
+        'source:' source=[Technology]
+        'kind:' kind=RelationType
+        'targets:' '[' targets*=STRING[','] ']'
+    '}'
+;
+
+RelationType:
+    'benoetigt' | 'ueberschneidet_sich_mit' | 'erweitert' | 'impliziert'
+;
+
+// ─── Role Profile ───────────────────────────────────────────────────────────
+
+RoleProfile:
+    'role' name=ID '{'
+        'title:' title=STRING
+        'sfia_level:' sfia_level=INT
+        ('sfia_range:' sfia_min=INT 'to' sfia_max=INT)?
+        'description:' description=STRING
+        competencies*=CompetencyArea
+        ('abgrenzung:' '[' abgrenzung*=STRING[','] ']')?
+    '}'
+;
+
+CompetencyArea:
+    area=CompetencyAreaName '{'
+        ('erwartet:' '[' erwartet*=STRING[','] ']')?
+        ('wuenschenswert:' '[' wuenschenswert*=STRING[','] ']')?
+    '}'
+;
+
+CompetencyAreaName:
+    'methoden' | 'fach' | 'technologie' | 'spezialgebiet' | 'fuehrung'
+;
+
+// ─── Opinions (Bias-DSL) ────────────────────────────────────────────────────
+
+Preference:
+    'preference' name=ID '{'
+        'topic:' topic=STRING
+        'prefer:' prefer=STRING
+        'over:' over=STRING
+        ('reason:' reason=STRING)?
+    '}'
+;
+
+WarnRule:
+    'warn_if' name=ID '{'
+        'indicators:' '[' indicators*=STRING[','] ']'
+        ('reason:' reason=STRING)?
+    '}'
+;
+
+BoostRule:
+    'boost_if' name=ID '{'
+        'indicators:' '[' indicators*=STRING[','] ']'
+        ('reason:' reason=STRING)?
+    '}'
+;
+
+DeprioritizeRule:
+    'deprioritize_if' name=ID '{'
+        'indicators:' '[' indicators*=STRING[','] ']'
+        ('reason:' reason=STRING)?
+    '}'
+;
+
+Comment:
+    /\/\/.*$/
+;
