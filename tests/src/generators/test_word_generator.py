@@ -41,12 +41,62 @@ def test_build_context_has_required_keys() -> None:
         "technologien",
         "projekte",
         "ausbildungen",
-        "schluessel_kompetenzen",
+        "schluesselkompetenzen_kategorien",
+        "werdegang",
+        "zertifikate",
+        "sprachen",
+        "persoenliche_daten",
+        "kurzprofil",
         "contact_email",
         "zielrolle",
     )
     for key in expected:
         assert key in ctx
+
+
+def test_build_context_kurzprofil_aus_profil() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    anf = load_requirements(EXAMPLE_REQ)
+    g = build_graph(profil)
+    psm = transform(g, anf)
+    ctx = _build_context(psm, profil, anf)
+    assert ctx["kurzprofil"] != ""
+
+
+def test_build_context_schluesselkompetenzen_kategorien_geordnet() -> None:
+    """Aus example.profile + leerer Zielgruppe → Standard-Reihenfolge."""
+    profil = load_profile(EXAMPLE_PROFILE)
+    anf = Anforderungen()
+    g = build_graph(profil)
+    psm = transform(g, anf)
+    ctx = _build_context(psm, profil, anf)
+    kats = ctx["schluesselkompetenzen_kategorien"]
+    assert len(kats) >= 1
+    for kat in kats:
+        assert "key" in kat and "label" in kat and "items" in kat and "items_str" in kat
+        assert kat["items_str"]  # nicht leer
+
+
+def test_build_context_werdegang_und_zertifikate() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    anf = load_requirements(EXAMPLE_REQ)
+    g = build_graph(profil)
+    psm = transform(g, anf)
+    ctx = _build_context(psm, profil, anf)
+    assert len(ctx["werdegang"]) >= 1
+    assert len(ctx["zertifikate"]) >= 1
+    assert len(ctx["sprachen"]) >= 2
+
+
+def test_build_context_persoenliche_daten_label_value() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    anf = load_requirements(EXAMPLE_REQ)
+    g = build_graph(profil)
+    psm = transform(g, anf)
+    ctx = _build_context(psm, profil, anf)
+    pd = ctx["persoenliche_daten"]
+    assert pd is not None
+    assert "label" in pd and "value" in pd
 
 
 def test_build_context_technologien_sorted_by_years() -> None:
