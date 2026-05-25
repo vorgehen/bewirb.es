@@ -9,12 +9,22 @@ def build_graph(profil: Profil) -> nx.DiGraph[str]:
     g: nx.DiGraph[str] = nx.DiGraph()
 
     person_id = f"Person:{profil.person.name}"
-    g.add_node(
-        person_id,
-        type="Person",
-        name=profil.person.name,
-        title=profil.person.title,
-    )
+    person_attrs: dict[str, object] = {
+        "type": "Person",
+        "name": profil.person.name,
+        "title": profil.person.title,
+        "kurzprofil": profil.person.kurzprofil,
+    }
+    sk = profil.schluesselkompetenzen
+    if sk is not None:
+        person_attrs["schluesselkompetenzen"] = {
+            "methodenkompetenz": list(sk.methodenkompetenz),
+            "fachkompetenz": list(sk.fachkompetenz),
+            "technologie": list(sk.technologie),
+            "spezialgebiet": list(sk.spezialgebiet),
+            "fuehrungkompetenz": list(sk.fuehrungkompetenz),
+        }
+    g.add_node(person_id, **person_attrs)
 
     for tech in profil.technologien:
         tech_id = f"Technologiekompetenz:{tech.name}"
