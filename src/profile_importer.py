@@ -25,7 +25,10 @@ load_dotenv()
 PROMPT_FILE = Path(__file__).parent.parent / "prompts" / "import_profile.md"
 GRAMMAR_FILE = Path(__file__).parent.parent / "grammar" / "profile.tx"
 MODEL = "claude-sonnet-4-6"
-MAX_TOKENS = 8000
+# 16000 erlaubt das vollständige Profil eines erfahrenen Freelancers
+# (~550 Zeilen DSL) ohne Cutoff. Beobachtung: 8000 reichte für ein
+# vielprojektiges CV nicht aus.
+MAX_TOKENS = 16000
 
 
 # ─── Text-Extraktion ────────────────────────────────────────────────────────
