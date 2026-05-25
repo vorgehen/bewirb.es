@@ -7,8 +7,13 @@ from typing import Any
 
 import anthropic
 from anthropic.types import TextBlock
+from dotenv import load_dotenv
 
 from src.data_loader import Anforderungen
+
+# .env wird beim Import einmal geladen, damit ANTHROPIC_API_KEY ohne
+# manuelles Preloading verfügbar ist (idempotent).
+load_dotenv()
 
 PROMPT_FILE = Path(__file__).parent.parent / "prompts" / "extract_requirements.md"
 MODEL = "claude-haiku-4-5-20251001"

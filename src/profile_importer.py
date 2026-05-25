@@ -14,7 +14,13 @@ from pathlib import Path
 import anthropic
 from anthropic.types import TextBlock
 from docx import Document
+from dotenv import load_dotenv
 from textx import metamodel_from_file
+
+# .env wird beim Import einmal geladen, damit ANTHROPIC_API_KEY ohne
+# manuelles Preloading verfügbar ist (idempotent, überschreibt keine
+# bereits gesetzten Umgebungsvariablen).
+load_dotenv()
 
 PROMPT_FILE = Path(__file__).parent.parent / "prompts" / "import_profile.md"
 GRAMMAR_FILE = Path(__file__).parent.parent / "grammar" / "profile.tx"
