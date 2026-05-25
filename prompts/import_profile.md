@@ -143,12 +143,54 @@ schluesselkompetenzen {
 - Reichere mit allem an was klar im Dokument steht — erfinde nichts.
 - Wenn ein Datum ungenau ist (nur Jahr), nutze `YYYY-01` als Monat.
 - Aktuelle Tätigkeit: `to today`.
-- Identifier-Konvention: `auftraggeber_<index>`, `proj_<index>`, `tech_<name_klein>`.
-  Lieber sprechend als nummeriert wenn möglich (z.B. `bafin_aufsicht`).
+
+### Identifier-Konvention
+
+Identifier (das Wort nach `person`/`branche`/`technology`/…) sind ASCII,
+beginnen mit Buchstabe, dürfen nur Buchstaben/Ziffern/`_` enthalten.
+
+- **`technology`:** Der Identifier IST der suchbare Name. Idiomatisch ohne
+  Präfix und so nah am echten Namen wie möglich:
+  - "Java" → `Java`
+  - "Spring Boot" → `Spring_Boot`
+  - "Java EE" → `Java_EE`
+  - "JPA / Hibernate" → `JPA_Hibernate`
+  - ".NET Core" → `dotNet_Core`
+  - "C#" → `CSharp`
+  - "Apache Camel" → `Apache_Camel`
+  KEIN `tech_`-Präfix, KEIN Lowercase-Zwang. Bei Mehrwort-Begriffen Underscore
+  statt Leerzeichen.
+- **`auftraggeber`:** Sprechend, z.B. `Bundesoberbehoerde_Finanzaufsicht`,
+  `Telekom_Deutschland`, `IT_Beratung_GmbH`. KEIN nummerierter Index.
+- **`branche`:** Kurz und sprechend: `Finanzsektor`, `Telekommunikation`,
+  `oeffentliche_Verwaltung`.
+- **`projekt`:** Kurzcode aus dem Dokument wenn vorhanden (z.B. `APP`, `BPS`,
+  `BAKHUB`), sonst sprechend wie `Modernisierung_Kernbank`.
+- **`person`:** Eine eindeutige ID wie `vorname_nachname` oder Initialen.
+
+### Cross-References
+
+`projekt.auftraggeber`, `projekt.branche` und `projekt.uses[]` verweisen auf
+die jeweiligen Identifier — Namen müssen exakt übereinstimmen.
+
+### Inhaltliche Heuristiken
+
 - `years` in Technologiekompetenz: konservativ aus Projektzeiträumen ableiten,
-  Maximum die längste Projekt-Erfahrung.
+  Maximum die längste durchgängige Erfahrung.
 - Bei Auftraggebern wo eine Anonymisierung im Dokument bereits geschehen ist,
   übernimm die anonyme Bezeichnung.
+- **Sprachen:** Auch wenn im Dokument nur als Wort genannt (z.B. nur "Englisch"),
+  als `sprache`-Block aufnehmen. Wenn kein Level angegeben: `Gut` als Default.
+  Deutsch als `Muttersprache` ergänzen wenn das Dokument auf Deutsch ist und
+  der Name deutsch klingt.
+- **Zertifikate:** Alle aufnehmen, auch ältere — der Nutzer entscheidet später
+  was relevant ist. Auch akademische Weiterbildungen mit Zertifikat-Charakter
+  (z.B. MITx-Kurse, Coursera-Kurse) sind Zertifikate.
+- **Schlüsselkompetenzen:** Wenn das Dokument einen Abschnitt "Kompetenzen",
+  "Skills", "Spezielles IT-Know-How", "Kernkompetenzen" o.ä. enthält, in den
+  fünf Kategorien (methodenkompetenz / fachkompetenz / technologie /
+  spezialgebiet / fuehrungkompetenz) sinnvoll aufteilen. Wenn unklar wo etwas
+  hingehört, lieber in zwei Kategorien als gar nicht.
 
 ## Zu verarbeitender Profil-Text
 
