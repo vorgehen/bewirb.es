@@ -170,7 +170,25 @@ def test_import_profile_documents_raises_when_claude_returns_invalid_dsl(
         with pytest.raises(TextXSyntaxError):
             import_profile_documents([docx], output)
 
-    assert not output.exists()  # bei Fehler keine Datei geschrieben
+    # finale Datei wurde nicht geschrieben — Draft mit Rohdaten bleibt aber stehen
+    assert not output.exists()
+    draft = output.with_suffix(output.suffix + ".draft")
+    assert draft.exists()
+    assert "kein gueltiges DSL" in draft.read_text(encoding="utf-8")
+
+
+def test_import_profile_documents_removes_draft_on_success(tmp_path: Path) -> None:
+    docx = tmp_path / "cv.docx"
+    _make_docx(docx, ["X"])
+    output = tmp_path / "out.profile"
+
+    with patch("src.profile_importer.call_claude_for_profile") as mock_call:
+        mock_call.return_value = _VALID_MINIMAL
+        import_profile_documents([docx], output)
+
+    assert output.exists()
+    draft = output.with_suffix(output.suffix + ".draft")
+    assert not draft.exists()  # bei Erfolg wird Draft aufgeräumt
 
 
 def test_import_profile_documents_handles_directory_input(tmp_path: Path) -> None:

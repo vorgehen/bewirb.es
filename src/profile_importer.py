@@ -83,6 +83,19 @@ def _strip_code_fences(text: str) -> str:
     return text
 
 
+def _clean_markdown_artifacts(text: str) -> str:
+    """Entfernt häufige Markdown-Reste aus Claude-Output.
+
+    - Führende `*` oder `-` direkt vor einem String-Literal (Bullet-Reflex)
+    - `**bold**` Markierungen
+    """
+    # *"..." oder -"..." → "..."
+    text = re.sub(r'([:,\[\s])\s*[*-]\s*("[^"]*")', r"\1 \2", text)
+    # **text** → text
+    text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+    return text
+
+
 def call_claude_for_profile(profil_text: str) -> str:
     """Sendet den Text an Claude und gibt den rohen DSL-Output zurück."""
     client = anthropic.Anthropic()
@@ -95,7 +108,8 @@ def call_claude_for_profile(profil_text: str) -> str:
     block = message.content[0]
     if not isinstance(block, TextBlock):
         raise ValueError(f"Unerwarteter Block-Typ: {type(block)}")
-    return _strip_code_fences(block.text)
+    text = _strip_code_fences(block.text)
+    return _clean_markdown_artifacts(text)
 
 
 # ─── Validierung ────────────────────────────────────────────────────────────
@@ -113,14 +127,25 @@ def validate_profile_dsl(dsl_text: str) -> None:
 def import_profile_documents(inputs: list[Path], output: Path) -> Path:
     """Konvertiert Eingabe-Dokumente in eine .profile-Datei.
 
-    Schritte: collect → extract → merge → Claude → validate → write.
+    Schritte: collect → extract → merge → Claude → Draft schreiben → validate → finalize.
+
+    Robustheit: Der rohe Claude-Output wird vor der Validierung als
+    `<output>.draft` gespeichert. Bei Validierungsfehler bleibt die Draft-Datei
+    bestehen und kann manuell korrigiert werden — der teure API-Aufruf ist
+    so nie umsonst.
     """
     files = collect_input_files(inputs)
     merged = merge_documents(files)
     if not merged:
         raise ValueError("Kein extrahierbarer Text in den Eingabe-Dokumenten.")
     dsl = call_claude_for_profile(merged)
-    validate_profile_dsl(dsl)
+
     output.parent.mkdir(parents=True, exist_ok=True)
+    draft = output.with_suffix(output.suffix + ".draft")
+    draft.write_text(dsl, encoding="utf-8")
+
+    validate_profile_dsl(dsl)  # bei Fehler bleibt die Draft-Datei stehen
+
     output.write_text(dsl, encoding="utf-8")
+    draft.unlink(missing_ok=True)
     return output
