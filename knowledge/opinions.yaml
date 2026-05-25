@@ -84,7 +84,7 @@ warn_if:
 
 boost_if:
 
-  - indicator: ["regulatorische Anforderungen", "Finanzaufsicht", "DORA", BaFin, "EU AI Act"]
+  - indicator: ["regulatorische Anforderungen", "Finanzaufsicht", "DORA", "EU AI Act"]
     reason: >-
       Regulatorisch getriebene Projekte zwingen zu klaren Anforderungen und
       sauberer Dokumentation — eine Umgebung in der Senior-Architektur-Erfahrung
