@@ -1,0 +1,33 @@
+# Anonymisierungs-Konfiguration (Beispiel)
+#
+# Kopiere diese Datei nach `anonymize_config.yaml` (gitignored) und
+# passe sie an deinen Kontext an.
+#
+# replace: Wörterbuch für gezielte Ersetzungen. Wird auf alle Eingabe-
+#          Texte angewendet (case-sensitive). Reihenfolge: längste Keys zuerst,
+#          damit "Beispiel-Bank Frankfurt" vor "Beispiel-Bank" gematched wird.
+# public_domain: Begriffe die NIE ersetzt werden, auch wenn sie von einer
+#                Regel getroffen würden. Schützt Fachbegriffe / öffentliches Wissen
+#                vor übereifriger Anonymisierung.
+# patterns: Zusätzliche Regex-Pattern (optional). Werden nach den Standard-
+#           Pattern angewendet. Format: {pattern: ..., replacement: ...}.
+
+replace:
+  "Beispiel-Bank AG": "[Finanzinstitut]"
+  "ProjektCodeName": "[Internes Kernsystem]"
+  "Max Mustermann": "[Projektleiter]"
+
+public_domain:
+  - BaFin
+  - DORA
+  - Basel III
+  - MaRisk
+  - ISO 27001
+  - EU AI Act
+  - DSGVO
+  - GDPR
+
+patterns:
+  # Beispiel: alle internen Tickets ANON-1234 → [Ticket]
+  - pattern: '\bANON-\d{3,6}\b'
+    replacement: '[Ticket]'
