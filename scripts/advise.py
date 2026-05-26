@@ -41,6 +41,8 @@ def print_single_offer(profil_path: Path, req_path: Path, as_json: bool) -> None
     print(f"Rolle:   {anf.rolle}")
     print(f"Empfehlung: {r.empfehlung}  (Match-Score: {r.score:.0%})")
     print()
+    if r.role_match:
+        print(f"Rolle-Match:          {', '.join(r.role_match)}")
     if r.matched_must_have:
         print(f"Treffer must_have:    {', '.join(r.matched_must_have)}")
     if r.matched_nice_to_have:

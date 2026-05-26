@@ -35,6 +35,17 @@ technology SQL {
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
 }
 
+technology TypeScript {
+    category: "Programmiersprachen"
+    aliases: [
+        "TS",
+        "JavaScript",
+        "JS",
+        "ECMAScript"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
 technology Spring_Framework {
     category: "Frameworks"
     aliases: [
@@ -191,7 +202,15 @@ technology Softwarearchitektur {
     aliases: [
         "Software Architecture",
         "System Architecture",
-        "Solution Architecture"
+        "Solution Architecture",
+        "Architekt",
+        "Softwarearchitekt",
+        "Software-Architekt",
+        "Systemarchitekt",
+        "System-Architekt",
+        "Solution Architect",
+        "Senior Architect",
+        "Lead Architect"
     ]
     sfia_levels: [2 -> 3, 4 -> 4, 8 -> 5, 12 -> 6]
 }

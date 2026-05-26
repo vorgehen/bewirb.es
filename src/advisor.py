@@ -10,6 +10,7 @@ aus Profil + Anforderungen + Knowledge ableitbar.
 from __future__ import annotations
 
 import logging
+import re
 from enum import StrEnum
 from pathlib import Path
 
@@ -20,6 +21,49 @@ from src.data_loader import Anforderungen, Profil, load_profile, load_requiremen
 from src.knowledge_loader import KnowledgeBase, load_knowledge_base
 
 _log = logging.getLogger(__name__)
+
+
+# Gender-Marker: Architekt*in, Architekt:in, Architekt_in, Architekt/in,
+# Architekt*innen, Architekt:innen, Architekt/innen
+_GENDER_SUFFIX_RE = re.compile(r"([\*:/_])innen\b|([\*:/_])in\b", re.IGNORECASE)
+# Weibliche -in Endung (Architektin, Entwicklerin): konservativ nur nach
+# bestimmten Stämmen — naives Suffix-Stripping würde zu viele False-Positives
+# liefern ("Maschine", "Limousine"). Hier nur expliziert für übliche Rollen-Stämme.
+_FEMALE_ENDING_RE = re.compile(
+    r"\b(\w*(?:arbeiter|architekt|berater|consultant|developer|engineer|"
+    r"entwickler|expert|ingenieur|leiter|manager|programmierer|spezialist))in(?:nen)?\b",
+    re.IGNORECASE,
+)
+
+
+def _normalize_gender(text: str) -> str:
+    """Entfernt Gender-Marker (*in, :in, /in, _in, *innen) und ersetzt
+    weibliche -in/-innen-Endungen bei klaren Rollen-Stämmen durch maskuline Form.
+    """
+    text = _GENDER_SUFFIX_RE.sub("", text)
+    text = _FEMALE_ENDING_RE.sub(r"\1", text)
+    return text
+
+
+def _extract_known_techs(text: str, kb: KnowledgeBase) -> list[str]:
+    """Findet alle Knowledge-Technologien deren Name/Alias als ganzes Wort
+    im Text vorkommt. Word-Boundary verhindert dass z.B. 'Go' in 'Going' matcht.
+    Gender-Varianten (Architekt*in, Architektin) werden vor dem Matching normalisiert.
+    Gibt kanonische Tech-Namen zurück (Aliase werden aufgelöst).
+    """
+    normalized = _normalize_gender(text)
+    found: list[str] = []
+    for t in kb.technologies:
+        candidates = [t.name, *t.aliases]
+        for cand in candidates:
+            # Wort-Grenzen: Tech-Name darf vorne und hinten nicht von
+            # einem alphanumerischen Zeichen umgeben sein
+            pattern = r"(?<![A-Za-z0-9])" + re.escape(cand) + r"(?![A-Za-z0-9])"
+            if re.search(pattern, normalized, re.IGNORECASE):
+                if t.name not in found:
+                    found.append(t.name)
+                break
+    return found
 
 
 class GapType(StrEnum):
@@ -43,6 +87,7 @@ class AdvisoryResult(BaseModel):
     empfehlung: str  # "✓ Bewerbung empfohlen" | "⚠ bedingt" | "✗ nicht empfohlen"
     matched_must_have: list[str] = []
     matched_nice_to_have: list[str] = []
+    role_match: list[str] = []  # Knowledge-Terms aus rolle, die im Profil sind
     gaps: list[Gap] = []
     # Stärken die im Profil-Text auftauchen aber nicht als eigene technology
     strengths_underused: list[str] = []
@@ -140,6 +185,18 @@ def classify_gap(term: str, profil: Profil, kb: KnowledgeBase) -> Gap:
             schliessbar=True,
         )
 
+    # 4. Multi-Token-Fallback: enthält der String mehrere bekannte Techs
+    #    (z.B. "Java oder TypeScript")? Wenn ja, klassifizieren wir als
+    #    Erfahrungslücke mit Verweis auf die enthaltenen bekannten Begriffe.
+    extracted = _extract_known_techs(term, kb)
+    if extracted:
+        return Gap(
+            term=term,
+            type=GapType.ERFAHRUNG,
+            reason=f"Enthält bekannte Begriffe ({', '.join(extracted)}), aber keiner im Profil",
+            schliessbar=True,
+        )
+
     return Gap(
         term=term,
         type=GapType.STRUKTURELL,
@@ -200,22 +257,77 @@ def _verdict(score: float, structural_gaps: int) -> str:
     return "✗ nicht empfohlen"
 
 
+def _term_matches_profile(
+    term: str, profile_techs: set[str], profile_text: str, kb: KnowledgeBase
+) -> bool:
+    """Prüft ob ein Anforderungs-String mit dem Profil matcht.
+
+    Vier Strategien (in dieser Reihenfolge):
+    1. Direkt: ist der ganze term-String eine Tech im Profil?
+    2. Normalisiert: löst term über Aliase auf eine Knowledge-Tech auf?
+    3. Tokenisierung für reale `.req`-Texte ("Java oder TypeScript"):
+       Extrahiere alle Knowledge-Tech-Tokens aus dem term-String und prüfe
+       ob mindestens eines im Profil als technology vorhanden ist.
+    4. Impliziter Profil-Match: ist einer der extrahierten Knowledge-Tokens
+       irgendwo im Profil-Text erwähnt (Projekt-Rolle, Schlüsselkompetenz,
+       Kurzprofil etc.)? Das deckt Fälle ab in denen "Architekt" als Rolle,
+       aber nicht als technology-Eintrag im Profil steht.
+    """
+    canon = kb.normalize(term) or term
+    if canon.lower() in profile_techs:
+        return True
+    extracted = _extract_known_techs(term, kb)
+    if any(tech.lower() in profile_techs for tech in extracted):
+        return True
+    # Impliziter Match: Knowledge-Term taucht im Profil-Text auf
+    for tech in extracted:
+        tech_obj = kb.technology_by_name(tech)
+        if tech_obj is None:
+            continue
+        candidates = [tech_obj.name, *tech_obj.aliases]
+        for cand in candidates:
+            pattern = r"(?<![A-Za-z0-9])" + re.escape(cand.lower()) + r"(?![A-Za-z0-9])"
+            if re.search(pattern, profile_text):
+                return True
+    return False
+
+
 def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> AdvisoryResult:
     """Bewertet ein einzelnes Stellenangebot gegen das Profil + Knowledge."""
     profile_techs = _profile_tech_set(profil, kb)
+    profile_text = _profile_text_index(profil)
 
     matched_must: list[str] = []
     missing_must: list[str] = []
     for term in anf.must_have:
-        canon = kb.normalize(term) or term
-        if canon.lower() in profile_techs:
+        if _term_matches_profile(term, profile_techs, profile_text, kb):
             matched_must.append(term)
         else:
             missing_must.append(term)
 
     matched_nice = [
-        term for term in anf.nice_to_have if (kb.normalize(term) or term).lower() in profile_techs
+        term
+        for term in anf.nice_to_have
+        if _term_matches_profile(term, profile_techs, profile_text, kb)
     ]
+
+    # Rolle als zusätzlichen Match-Indikator auswerten (mit Profil-Text-Fallback)
+    role_match: list[str] = []
+    if anf.rolle:
+        for tech in _extract_known_techs(anf.rolle, kb):
+            tech_obj = kb.technology_by_name(tech)
+            if (
+                tech.lower() in profile_techs
+                or tech_obj is not None
+                and any(
+                    re.search(
+                        r"(?<![A-Za-z0-9])" + re.escape(c.lower()) + r"(?![A-Za-z0-9])",
+                        profile_text,
+                    )
+                    for c in [tech_obj.name, *tech_obj.aliases]
+                )
+            ):
+                role_match.append(tech)
 
     gaps = [classify_gap(term, profil, kb) for term in missing_must]
 
@@ -235,6 +347,9 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
     # Artikulations-Lücken zählen halb mit (vorhanden, nur nicht artikuliert)
     artikulation_count = sum(1 for g in gaps if g.type == GapType.ARTIKULATION)
     effective_score = raw_score + (0.5 * artikulation_count / total if total > 0 else 0)
+    # Rolle-Match: jeder Treffer +0.15 (max 0.30) — kompensiert .req-Dateien
+    # mit ausschließlich formalen Voraussetzungen im must_have
+    effective_score += min(0.30, 0.15 * len(role_match))
     effective_score = min(1.0, effective_score)
 
     structural_count = sum(1 for g in gaps if g.type == GapType.STRUKTURELL)
@@ -251,6 +366,7 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
         empfehlung=_verdict(effective_score, structural_count),
         matched_must_have=matched_must,
         matched_nice_to_have=matched_nice,
+        role_match=role_match,
         gaps=gaps,
         strengths_underused=strengths_underused,
         warnings=warnings,
