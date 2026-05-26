@@ -30,8 +30,19 @@ Die `zielgruppe`-Variable bestimmt Akzentuierung und Wortwahl:
 - Maximal 5 Sätze, maximal 500 Zeichen.
 - Keine Aufzählungs-Listen, keine Markdown-Formatierung.
 - Keine Buzzwords ohne konkrete Begründung. Lieber konkret als bunt.
-- Anonymisierung beibehalten: wenn Auftraggeber im Profil anonymisiert
-  sind ("Bundesoberbehörde im Finanzaufsichtsbereich"), bleibt das so.
+- **Keine namentlichen Auftraggeber im Kurzprofil**. Selbst wenn der
+  Profil-Inhalt Auftraggeber namentlich nennt (BaFin, Telekom Deutschland,
+  Vivento, ExperTeam etc.), ersetze sie im Kurzprofil-Text durch
+  beschreibende Sektor-Begriffe:
+  - BaFin / Bundesanstalt für Finanzdienstleistungsaufsicht →
+    "Bundesoberbehörde im Finanzaufsichtsbereich" oder "Finanzaufsicht"
+  - Telekom Deutschland → "DAX-Telekommunikationskonzern" oder "Telco"
+  - Vivento → "Personaldienstleister im Telekommunikationssektor"
+  - Bundesbank / BBk → "Zentralbank"
+  - Andere konkret benannte Firmen → "Mittelständler"/"Konzern"/"Behörde" je nach Kontext
+  Diese Regel gilt auch wenn Auftraggeber-Felder im Profil
+  ("Bundesoberbehörde im Finanzaufsichtsbereich") bereits anonymisiert sind —
+  übernimm dann die anonyme Form unverändert.
 - Keine Anrede an die Leser ("Sie suchen…"), kein Marketingsprech.
 
 **Antwort-Format:** NUR der Kurzprofil-Text, ohne Anführungszeichen,
