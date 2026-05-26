@@ -51,8 +51,19 @@ _PATTERNS: list[tuple[str, str, str]] = [
     ),
     (
         "telefon",
-        # +49 123 456789, 0123/4567890, (089) 123-456, etc. — defensiv
-        r"(?:\+?\d{1,3}[\s\-./]?)?(?:\(?\d{2,5}\)?[\s\-./]?){2,4}\d{2,5}",
+        # Strikt: Telefonnummern brauchen einen erkennbaren Präfix —
+        # entweder + (international), 0 (deutsche Vorwahl) oder (0...) in Klammern.
+        # Plus: Trenner zwischen Vorwahl und Hauptnummer ist Pflicht.
+        # Damit werden Datumsangaben (14.06.2019), Timestamps und IDs
+        # (131701, 0004000) NICHT mehr fälschlich als Telefon erkannt.
+        # `(?x)` aktiviert VERBOSE-Modus für Whitespace und Kommentare.
+        r"""(?x)
+            \+\d{1,3}[\s./-]\d{2,5}[\s./-]\d{3,}     # +49 123 4567890
+            |
+            \b0\d{2,4}[\s./-]\d{3,}                  # 0123/4567890
+            |
+            \(0\d{1,5}\)[\s./-]?\d{3,}               # (089) 123-456
+        """,
         "[TEL]",
     ),
 ]
@@ -88,13 +99,13 @@ class AuditLog(BaseModel):
     replacements: list[Replacement] = []
     public_domain_skipped: list[str] = []
 
-    def add(self, original: str, ersetzung: str, kategorie: str) -> None:
+    def add(self, original: str, ersetzung: str, kategorie: str, count: int = 1) -> None:
         for r in self.replacements:
             if r.original == original and r.kategorie == kategorie:
-                r.count += 1
+                r.count += count
                 return
         self.replacements.append(
-            Replacement(original=original, ersetzung=ersetzung, kategorie=kategorie)
+            Replacement(original=original, ersetzung=ersetzung, kategorie=kategorie, count=count)
         )
 
     def format(self) -> str:
@@ -147,15 +158,18 @@ def anonymize_text(text: str, config: AnonymizeConfig | None = None) -> tuple[st
     audit.public_domain_skipped = sorted(public_domain_seen)
 
     # 1. Konfig-Wörterbuch (replace)
+    # Case-insensitive damit "BaFin", "BAFIN", "bafin" alle ersetzt werden.
+    # Komposita wie "BafinStammdatenAo" werden ebenfalls erfasst (kein \b),
+    # weil Auftraggeber-Namen oft in Identifiern stecken (Code, XML, JSON).
     for key in sorted(config.replace.keys(), key=len, reverse=True):
         value = config.replace[key]
         if _is_in_public_domain(key, config.public_domain):
             continue
         pattern = re.escape(key)
-        new_text, n = re.subn(pattern, value, text)
+        new_text, n = re.subn(pattern, value, text, flags=re.IGNORECASE)
         if n > 0:
             text = new_text
-            audit.add(key, value, "replace")
+            audit.add(key, value, "replace", count=n)
 
     # 2. Konfig-Pattern
     for entry in config.patterns:
@@ -166,7 +180,7 @@ def anonymize_text(text: str, config: AnonymizeConfig | None = None) -> tuple[st
         new_text, n = re.subn(pat, repl, text)
         if n > 0:
             text = new_text
-            audit.add(pat, repl, "pattern")
+            audit.add(pat, repl, "pattern", count=n)
 
     # 3. Standard-Pattern
     for kategorie, pattern, replacement in _PATTERNS:
