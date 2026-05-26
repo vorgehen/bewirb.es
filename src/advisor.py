@@ -100,12 +100,17 @@ _SOFT_REQUIREMENT_PATTERNS = [
         "Akademischer Abschluss",
     ),
     # Pauschale Berufserfahrung (X Jahre ohne Tech-Spezifik)
+    # Akzeptiert auch zusammengesetzte Wörter wie "Softwareentwicklungserfahrung"
+    # und englische Varianten "Software Engineering", "Professional".
     (
-        r"\b(Mindestens\s+\d+|\d+\+?)\s*Jahr(e)?\s+(Berufserfahrung|Erfahrung|practice)\b",
+        r"\b(Mindestens\s+\d+|\d+\+?)\s*Jahr(e)?\s+"
+        r"(\w*[Ee]rfahrung|\w*[Pp]raxis|practice|"
+        r"Professional|"
+        r"Software\s+(Engineering|Entwicklung|Development))\b",
         "Berufserfahrung-pauschal",
     ),
     (
-        r"\b\d+\+?\s+years?\s+(of\s+)?(experience|professional)\b",
+        r"\b\d+\+?\s+years?\s+(of\s+)?(experience|professional|software\s+engineering)\b",
         "Berufserfahrung-pauschal",
     ),
     # Reise / Mobilität
@@ -123,7 +128,9 @@ _SOFT_REQUIREMENT_PATTERNS = [
         r"\b(Problem.?solving|Critical\s+thinking|Analytical\s+(thinking|skills)|"
         r"Team\s+(work|player|collaboration)|Communication\s+skills?|"
         r"Self.?starter|Ownership|End.?to.?end\s+ownership|"
-        r"Entrepreneurial|Drive|Ambition|Leadership)\b",
+        r"Entrepreneurial|Drive|Ambition|Leadership|"
+        r"Security\s+Mindset|Security.{0,15}aware(ness)?|"
+        r"First\s+principles?\s+thinking|System(s)?\s+thinking)\b",
         "Soft Skill",
     ),
     # Allgemein (zu generisch um spezifischer Skill zu sein)
