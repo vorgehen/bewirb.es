@@ -59,6 +59,12 @@ def _normalize_gender(text: str) -> str:
 _SOFT_REQUIREMENT_PATTERNS = [
     # Sprachen DE: GER-Niveau, C1/C2/B1/B2, oder "Deutsch/Englisch ... Niveau/Kenntnisse"
     (r"\b(GER|C[12]|B[12]|A[12])\b", "Sprachkenntnisse"),
+    # Zusammengesetzt: "Englischkenntnisse", "Deutschkenntnisse"
+    (
+        r"\b(Deutsch|Englisch|Französisch|Spanisch)(kenntnisse|sprach[ae]?)\b",
+        "Sprachkenntnisse",
+    ),
+    # Getrennt: "Deutsch ... Niveau", "Englisch fließend", "Deutsch C1"
     (
         r"\b(Deutsch|Englisch|Französisch|Spanisch)\b.{0,30}\b"
         r"(kenntnisse|niveau|fließend|Mutter|verhandlungssicher|fluently)\b",
