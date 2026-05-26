@@ -46,6 +46,34 @@ technology TypeScript {
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
 }
 
+technology Cpp {
+    category: "Programmiersprachen"
+    aliases: [
+        "C++",
+        "Cpp",
+        "C/C++"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+technology Rust {
+    category: "Programmiersprachen"
+    aliases: [
+        "Rust-Lang",
+        "Rustlang"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Go {
+    category: "Programmiersprachen"
+    aliases: [
+        "Golang",
+        "Go-Lang"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
 technology Spring_Framework {
     category: "Frameworks"
     aliases: [
@@ -80,6 +108,51 @@ technology JEE {
         "Java EE",
         "Jakarta EE",
         "J2EE"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
+// ─── Frontend-Frameworks ──────────────────────────────────────
+
+technology Angular {
+    category: "Frontend"
+    aliases: [
+        "AngularJS",
+        "Angular 2+",
+        "Angular Framework"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology React {
+    category: "Frontend"
+    aliases: [
+        "ReactJS",
+        "React.js",
+        "React Framework"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Vue {
+    category: "Frontend"
+    aliases: [
+        "Vue.js",
+        "VueJS",
+        "Vue Framework"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Fullstack {
+    category: "Frontend"
+    aliases: [
+        "Full-Stack",
+        "Full Stack",
+        "Fullstack-Entwicklung",
+        "Full-Stack-Entwicklung",
+        "Fullstack Developer",
+        "Fullstack Engineer"
     ]
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
 }
@@ -247,7 +320,57 @@ technology Microservices {
     category: "Architektur"
     aliases: [
         "Micro Services",
-        "Microservice-Architektur"
+        "Microservice-Architektur",
+        "Microservices architecture",
+        "Microservices-Architektur"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology Design_Patterns {
+    category: "Architektur"
+    aliases: [
+        "Design Patterns",
+        "Entwurfsmuster",
+        "GoF Patterns",
+        "Software Patterns",
+        "Architectural Patterns"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology System_Design {
+    category: "Architektur"
+    aliases: [
+        "System Design",
+        "Systemdesign",
+        "Systems Design",
+        "Solution Design"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
+technology Separation_of_Concerns {
+    category: "Architektur"
+    aliases: [
+        "Separation of Concerns",
+        "SoC",
+        "Trennung der Belange",
+        "Single Responsibility"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology Event_Driven_Architecture {
+    category: "Architektur"
+    aliases: [
+        "Event-driven",
+        "Event-Driven Architecture",
+        "EDA",
+        "Event-getrieben",
+        "Event-getriebene Systeme",
+        "Event-Driven Systems",
+        "Event Sourcing"
     ]
     sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
 }
@@ -256,9 +379,38 @@ technology Test_Driven_Development {
     category: "Qualitätssicherung"
     aliases: [
         "Test-Driven Development",
-        "TDD"
+        "TDD",
+        "Testing Frameworks",
+        "Test Frameworks",
+        "Testautomatisierung",
+        "Unit Testing"
     ]
     sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Code_Review {
+    category: "Qualitätssicherung"
+    aliases: [
+        "Code Review",
+        "Code Reviews",
+        "Codereviews",
+        "Pull Request Review",
+        "PR Review",
+        "Peer Review"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Monitoring {
+    category: "Qualitätssicherung"
+    aliases: [
+        "Monitoring",
+        "Observability",
+        "Logging",
+        "Telemetrie",
+        "Telemetry"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
 }
 
 technology Cucumber {
@@ -286,7 +438,10 @@ technology Git {
     category: "DevOps"
     aliases: [
         "GitHub",
-        "GitLab"
+        "GitLab",
+        "Version Control",
+        "VCS",
+        "Versionsverwaltung"
     ]
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
 }
@@ -366,6 +521,47 @@ technology Statistik {
         "Statistical Methods"
     ]
     sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology GenAI {
+    category: "AI"
+    aliases: [
+        "GenAI",
+        "Generative AI",
+        "Generative KI",
+        "LLM",
+        "LLMs",
+        "Large Language Models",
+        "Foundation Models",
+        "GenAI Engineering",
+        "LLM-Entwicklung"
+    ]
+    sfia_levels: [1 -> 3, 2 -> 4, 4 -> 5]
+}
+
+technology RAG {
+    category: "AI"
+    aliases: [
+        "RAG",
+        "Retrieval-Augmented Generation",
+        "Retrieval Augmented Generation"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5]
+}
+
+technology AI_Agents {
+    category: "AI"
+    aliases: [
+        "AI Agents",
+        "AI-Agenten",
+        "Agentic AI",
+        "Agentic Coding",
+        "Agent Orchestration",
+        "Agentenentwicklung",
+        "Tool-Calling",
+        "Tool Calling"
+    ]
+    sfia_levels: [1 -> 3, 2 -> 4, 4 -> 5]
 }
 
 // ─── Business Intelligence & Reporting ────────────────────────
