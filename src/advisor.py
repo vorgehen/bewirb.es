@@ -188,6 +188,20 @@ class Gap(BaseModel):
     schliessbar: bool = True
 
 
+class ScoreBreakdown(BaseModel):
+    """Transparente Aufschlüsselung wie der finale Score zustande kommt."""
+
+    technical_must_total: int = 0  # Nenner: anzahl echter Tech-Anforderungen
+    matched_count: int = 0  # exakte/aliased/tokenisierte Treffer
+    artikulation_count: int = 0  # halb-zählende Lücken
+    role_match_count: int = 0  # +0.15 pro Stück, max +0.30
+    raw_score: float = 0.0  # matched / total
+    artikulation_bonus: float = 0.0  # 0.5 * artikulation / total
+    role_bonus: float = 0.0  # min(0.30, 0.15 * role_match)
+    final_score: float = 0.0  # gecapt auf 1.0
+    verdict_reason: str = ""  # warum diese Empfehlung
+
+
 class AdvisoryResult(BaseModel):
     score: float
     empfehlung: str  # "✓ Bewerbung empfohlen" | "⚠ bedingt" | "✗ nicht empfohlen"
@@ -200,6 +214,9 @@ class AdvisoryResult(BaseModel):
     strengths_underused: list[str] = []
     warnings: list[str] = []  # aus opinions.warn_rules
     boosts: list[str] = []  # aus opinions.boost_rules
+    # Verbose-Felder
+    match_explanations: dict[str, str] = {}  # term → wie es matchte
+    breakdown: ScoreBreakdown = ScoreBreakdown()
 
 
 # ─── Profil-Text-Index ──────────────────────────────────────────────────────
@@ -366,26 +383,30 @@ def _verdict(score: float, structural_gaps: int) -> str:
 
 def _term_matches_profile(
     term: str, profile_techs: set[str], profile_text: str, kb: KnowledgeBase
-) -> bool:
+) -> tuple[bool, str]:
     """Prüft ob ein Anforderungs-String mit dem Profil matcht.
 
-    Vier Strategien (in dieser Reihenfolge):
-    1. Direkt: ist der ganze term-String eine Tech im Profil?
-    2. Normalisiert: löst term über Aliase auf eine Knowledge-Tech auf?
-    3. Tokenisierung für reale `.req`-Texte ("Java oder TypeScript"):
-       Extrahiere alle Knowledge-Tech-Tokens aus dem term-String und prüfe
-       ob mindestens eines im Profil als technology vorhanden ist.
-    4. Impliziter Profil-Match: ist einer der extrahierten Knowledge-Tokens
-       irgendwo im Profil-Text erwähnt (Projekt-Rolle, Schlüsselkompetenz,
-       Kurzprofil etc.)? Das deckt Fälle ab in denen "Architekt" als Rolle,
-       aber nicht als technology-Eintrag im Profil steht.
+    Rückgabe: (matched, erklärung). Bei False ist erklärung "".
+
+    Vier Strategien:
+    1. Direkt: term ist exakt eine Tech im Profil
+    2. Alias: term → kanonische Tech über Knowledge-Alias
+    3. Tokenisiert: aus dem String wurden Knowledge-Tokens extrahiert,
+       mindestens eines davon ist im Profil als technology
+    4. Impliziter Profil-Match: einer der extrahierten Tokens taucht
+       irgendwo im Profil-Text auf (Projekt-Rolle, Schlüsselkompetenz, ...)
     """
     canon = kb.normalize(term) or term
     if canon.lower() in profile_techs:
-        return True
+        if canon == term:
+            return True, f"direkter Match: {term!r} im Profil als technology"
+        return True, f"über Alias: {term!r} → {canon!r}"
+
     extracted = _extract_known_techs(term, kb)
-    if any(tech.lower() in profile_techs for tech in extracted):
-        return True
+    direct_techs = [t for t in extracted if t.lower() in profile_techs]
+    if direct_techs:
+        return True, f"tokenisiert: erkannt → {', '.join(direct_techs)} (im Profil)"
+
     # Impliziter Match: Knowledge-Term taucht im Profil-Text auf
     for tech in extracted:
         tech_obj = kb.technology_by_name(tech)
@@ -395,8 +416,8 @@ def _term_matches_profile(
         for cand in candidates:
             pattern = r"(?<![A-Za-z0-9])" + re.escape(cand.lower()) + r"(?![A-Za-z0-9])"
             if re.search(pattern, profile_text):
-                return True
-    return False
+                return True, f"Profil-Text-Match: {tech!r} via {cand!r}"
+    return False, ""
 
 
 def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> AdvisoryResult:
@@ -417,17 +438,21 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
 
     matched_must: list[str] = []
     missing_must: list[str] = []
+    match_explanations: dict[str, str] = {}
     for term in technical_must:
-        if _term_matches_profile(term, profile_techs, profile_text, kb):
+        ok, reason = _term_matches_profile(term, profile_techs, profile_text, kb)
+        if ok:
             matched_must.append(term)
+            match_explanations[term] = reason
         else:
             missing_must.append(term)
 
-    matched_nice = [
-        term
-        for term in anf.nice_to_have
-        if _term_matches_profile(term, profile_techs, profile_text, kb)
-    ]
+    matched_nice: list[str] = []
+    for term in anf.nice_to_have:
+        ok, reason = _term_matches_profile(term, profile_techs, profile_text, kb)
+        if ok:
+            matched_nice.append(term)
+            match_explanations[term] = reason
 
     # Rolle als zusätzlichen Match-Indikator auswerten (mit Profil-Text-Fallback)
     role_match: list[str] = []
@@ -468,13 +493,35 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
     raw_score = len(matched_must) / total if total > 0 else 1.0
     # Artikulations-Lücken zählen halb mit (vorhanden, nur nicht artikuliert)
     artikulation_count = sum(1 for g in gaps if g.type == GapType.ARTIKULATION)
-    effective_score = raw_score + (0.5 * artikulation_count / total if total > 0 else 0)
-    # Rolle-Match: jeder Treffer +0.15 (max 0.30) — kompensiert .req-Dateien
-    # mit ausschließlich formalen Voraussetzungen im must_have
-    effective_score += min(0.30, 0.15 * len(role_match))
-    effective_score = min(1.0, effective_score)
+    artikulation_bonus = 0.5 * artikulation_count / total if total > 0 else 0.0
+    # Rolle-Match: jeder Treffer +0.15 (max 0.30)
+    role_bonus = min(0.30, 0.15 * len(role_match))
+    effective_score = min(1.0, raw_score + artikulation_bonus + role_bonus)
 
     structural_count = sum(1 for g in gaps if g.type == GapType.STRUKTURELL)
+    verdict = _verdict(effective_score, structural_count)
+    if structural_count > 0:
+        verdict_reason = (
+            f"strukturelle Lücke(n) blockieren " f"({structural_count}× nicht im Knowledge Layer)"
+        )
+    elif effective_score >= 0.80:
+        verdict_reason = f"Score ≥ 80% ({effective_score:.0%})"
+    elif effective_score >= 0.50:
+        verdict_reason = f"Score zwischen 50–80% ({effective_score:.0%})"
+    else:
+        verdict_reason = f"Score < 50% ({effective_score:.0%})"
+
+    breakdown = ScoreBreakdown(
+        technical_must_total=total,
+        matched_count=len(matched_must),
+        artikulation_count=artikulation_count,
+        role_match_count=len(role_match),
+        raw_score=raw_score,
+        artikulation_bonus=artikulation_bonus,
+        role_bonus=role_bonus,
+        final_score=effective_score,
+        verdict_reason=verdict_reason,
+    )
 
     pool = _anf_indicator_pool(anf)
     warnings = _trigger_opinion_rules(pool, kb.opinions.warn_rules)
@@ -485,7 +532,7 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
 
     return AdvisoryResult(
         score=effective_score,
-        empfehlung=_verdict(effective_score, structural_count),
+        empfehlung=verdict,
         matched_must_have=matched_must,
         matched_nice_to_have=matched_nice,
         role_match=role_match,
@@ -494,6 +541,8 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
         strengths_underused=strengths_underused,
         warnings=warnings,
         boosts=boosts,
+        match_explanations=match_explanations,
+        breakdown=breakdown,
     )
 
 

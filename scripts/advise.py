@@ -40,13 +40,51 @@ def print_single_offer(profil_path: Path, req_path: Path, as_json: bool) -> None
     print(f"Angebot: {req_path.name}")
     print(f"Rolle:   {anf.rolle}")
     print(f"Empfehlung: {r.empfehlung}  (Match-Score: {r.score:.0%})")
+    print(f"            → {r.breakdown.verdict_reason}")
     print()
+
+    # Score-Aufschlüsselung
+    bd = r.breakdown
+    print("Score-Aufschlüsselung:")
+    if bd.technical_must_total > 0:
+        print(
+            f"  Roh-Score:           {bd.matched_count}/{bd.technical_must_total} "
+            f"technische must_have getroffen = {bd.raw_score:.0%}"
+        )
+    else:
+        print(
+            "  Roh-Score:           keine technischen must_have im Angebot "
+            "(nur Voraussetzungen) → 100%"
+        )
+    if bd.artikulation_bonus > 0:
+        print(
+            f"  + Artikulations-Bonus: {bd.artikulation_count} Lücke(n) zählen halb "
+            f"= +{bd.artikulation_bonus:.0%}"
+        )
+    if bd.role_bonus > 0:
+        print(
+            f"  + Rolle-Bonus:       {bd.role_match_count} Knowledge-Treffer aus rolle "
+            f"= +{bd.role_bonus:.0%} (max +30%)"
+        )
+    print(f"  = Final-Score:       {bd.final_score:.0%}")
+    print()
+
     if r.role_match:
         print(f"Rolle-Match:          {', '.join(r.role_match)}")
     if r.matched_must_have:
-        print(f"Treffer must_have:    {', '.join(r.matched_must_have)}")
+        print("Treffer must_have:")
+        for term in r.matched_must_have:
+            reason = r.match_explanations.get(term, "")
+            print(f"  ✓ {term}")
+            if reason:
+                print(f"      → {reason}")
     if r.matched_nice_to_have:
-        print(f"Treffer nice_to_have: {', '.join(r.matched_nice_to_have)}")
+        print("Treffer nice_to_have:")
+        for term in r.matched_nice_to_have:
+            reason = r.match_explanations.get(term, "")
+            print(f"  ✓ {term}")
+            if reason:
+                print(f"      → {reason}")
     print()
 
     if r.strengths_underused:
