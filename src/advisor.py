@@ -57,25 +57,40 @@ def _normalize_gender(text: str) -> str:
 # (Selbst-Check).
 
 _SOFT_REQUIREMENT_PATTERNS = [
-    # Sprachen: GER-Niveau, C1/C2/B1/B2, oder "Deutsch/Englisch ... Niveau/Kenntnisse"
+    # Sprachen DE: GER-Niveau, C1/C2/B1/B2, oder "Deutsch/Englisch ... Niveau/Kenntnisse"
     (r"\b(GER|C[12]|B[12]|A[12])\b", "Sprachkenntnisse"),
     (
         r"\b(Deutsch|Englisch|Französisch|Spanisch)\b.{0,30}\b"
         r"(kenntnisse|niveau|fließend|Mutter|verhandlungssicher|fluently)\b",
         "Sprachkenntnisse",
     ),
+    # Sprachen EN: "English proficiency", "Fluent in English", "Native German speaker"
+    (
+        r"\b(English|German|French|Spanish)\s+(proficiency|fluency|skills?|level|native)\b",
+        "Sprachkenntnisse",
+    ),
+    (
+        r"\b(Fluent|Native|Proficient)\s+(in\s+)?(English|German|French|Spanish)\b",
+        "Sprachkenntnisse",
+    ),
     # Sicherheit
     (r"\bSicherheits(überprüfung|prüfung|check)\b", "Sicherheitsfreigabe"),
     (r"\bFührungszeugnis\b", "Sicherheitsfreigabe"),
+    (r"\b(security\s+clearance|background\s+check)\b", "Sicherheitsfreigabe"),
     # Staatsangehörigkeit
     (
         r"\b(Staatsangehörigkeit|Staatsbürgerschaft|EU[-/ ]?(EWR|Bürger)|EU-Mitgliedstaat)\b",
         "Staatsangehörigkeit",
     ),
+    (r"\b(citizenship|work\s+permit|right\s+to\s+work)\b", "Staatsangehörigkeit"),
     # Akademischer Abschluss
     (
         r"\b(Hochschul(studium|abschluss)|Universitätsdiplom|Master|Diplom|Bachelor)\b"
         r".*\b(in|of)\b.+",
+        "Akademischer Abschluss",
+    ),
+    (
+        r"\b(Bachelor'?s?|Master'?s?|PhD|Doctoral)\s+degree\b",
         "Akademischer Abschluss",
     ),
     # Pauschale Berufserfahrung (X Jahre ohne Tech-Spezifik)
@@ -83,15 +98,31 @@ _SOFT_REQUIREMENT_PATTERNS = [
         r"\b(Mindestens\s+\d+|\d+\+?)\s*Jahr(e)?\s+(Berufserfahrung|Erfahrung|practice)\b",
         "Berufserfahrung-pauschal",
     ),
+    (
+        r"\b\d+\+?\s+years?\s+(of\s+)?(experience|professional)\b",
+        "Berufserfahrung-pauschal",
+    ),
     # Reise / Mobilität
     (r"\b(Reisebereitschaft|Dienstreis(e|en)|Bereitschaft\s+zu\s+Reisen)\b", "Mobilität"),
-    # Klassische Soft Skills
+    (r"\b(willing(ness)?\s+to\s+travel|travel\s+required)\b", "Mobilität"),
+    # Soft Skills DE
     (
         r"\b(Strukturiert(e|er)?\s+(Analyse|Arbeitsweise|Denken)|"
         r"Teamfähigkeit|Kommunikationsstärke|Wertschätzender\s+Umgang|"
         r"Digitale\s+Kompetenzen?|Belastbar(keit)?|Eigenverantwortlich)\b",
         "Soft Skill",
     ),
+    # Soft Skills EN
+    (
+        r"\b(Problem.?solving|Critical\s+thinking|Analytical\s+(thinking|skills)|"
+        r"Team\s+(work|player|collaboration)|Communication\s+skills?|"
+        r"Self.?starter|Ownership|End.?to.?end\s+ownership|"
+        r"Entrepreneurial|Drive|Ambition|Leadership)\b",
+        "Soft Skill",
+    ),
+    # Allgemein (zu generisch um spezifischer Skill zu sein)
+    (r"^\s*Software\s+(development|engineering)\s*$", "Allgemein"),
+    (r"^\s*(Programming|Coding)\s*$", "Allgemein"),
     # Bereitschaft / Verfügbarkeit
     (r"\bBereitschaft\s+(zur?|für)\b", "Bereitschaft"),
 ]
