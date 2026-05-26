@@ -368,6 +368,106 @@ technology Statistik {
     sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
 }
 
+// ─── Business Intelligence & Reporting ────────────────────────
+
+technology Business_Intelligence {
+    category: "Business Intelligence"
+    aliases: [
+        "Business Intelligence",
+        "BI",
+        "Analytics",
+        "Data Analytics",
+        "Business Analytics"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology IBM_Cognos {
+    category: "Business Intelligence"
+    aliases: [
+        "Cognos",
+        "IBM Cognos",
+        "Cognos Analytics",
+        "Cognos Reports"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Oracle_BI_Publisher {
+    category: "Business Intelligence"
+    aliases: [
+        "BI Publisher",
+        "Oracle BI Publisher",
+        "Oracle Reports",
+        "Oracle BIP"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Power_BI {
+    category: "Business Intelligence"
+    aliases: [
+        "PowerBI",
+        "MS Power BI",
+        "Microsoft Power BI"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Tableau {
+    category: "Business Intelligence"
+    aliases: [
+        "Tableau Desktop",
+        "Tableau Server"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4]
+}
+
+technology Reporting {
+    category: "Business Intelligence"
+    aliases: [
+        "Reporting",
+        "Berichtswesen",
+        "Reports",
+        "Dokumentengenerierung",
+        "Report Engineering"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+// ─── Data Management & Governance ─────────────────────────────
+
+technology Data_Governance {
+    category: "Data Management"
+    aliases: [
+        "Data Governance",
+        "Datenmanagement",
+        "Data Management",
+        "Datenqualitätsmanagement",
+        "Datenqualität",
+        "Data Quality",
+        "Metadatenmanagement",
+        "Metadata Management",
+        "Datenkatalog",
+        "Data Catalog"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 5 -> 4, 8 -> 5]
+}
+
+technology Datenmodellierung {
+    category: "Data Management"
+    aliases: [
+        "Datenmodellierung",
+        "Data Modeling",
+        "Datenarchitektur",
+        "Data Architecture",
+        "Datenmodelle",
+        "Schema Design",
+        "ER-Modellierung"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4, 10 -> 5]
+}
+
 // ─── Kompetenzgraph ───────────────────────────────────────────
 
 relation rel_Softwarearchitektur_1 {
