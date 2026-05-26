@@ -230,6 +230,29 @@ def test_schluesselkompetenzen_all_five_categories(profile_mm: Any, tmp_path: Pa
     assert "Stakeholder-Management" in sk.fuehrungkompetenz
 
 
+def test_auftraggeber_extern_optional(profile_mm: Any, tmp_path: Path) -> None:
+    """Auftraggeber kann optional einen extern: Sektor-Begriff haben."""
+    content = """
+    auftraggeber Anonym {
+        label: "Echter Firmenname GmbH"
+        location: "Frankfurt"
+        extern: "Finanzdienstleister"
+    }
+    auftraggeber OhneExtern {
+        label: "Firma B"
+    }
+    """
+    f = tmp_path / "a.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    auftraggeber = [e for e in model.elements if e.__class__.__name__ == "Auftraggeber"]
+    assert len(auftraggeber) == 2
+    a1 = next(a for a in auftraggeber if a.name == "Anonym")
+    a2 = next(a for a in auftraggeber if a.name == "OhneExtern")
+    assert a1.extern == "Finanzdienstleister"
+    assert not a2.extern  # leer/None bei nicht-gesetztem optionalen Feld
+
+
 def test_schluesselkompetenzen_all_categories_optional(profile_mm: Any, tmp_path: Path) -> None:
     """Leere Schluesselkompetenzen sind erlaubt — alle Felder optional."""
     content = """

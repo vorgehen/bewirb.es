@@ -47,6 +47,7 @@ class Auftraggeber(BaseModel):
     name: str = ""
     label: str = ""
     location: str = ""
+    extern: str = ""
 
 
 class Projekterfahrung(BaseModel):

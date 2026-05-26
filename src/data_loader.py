@@ -131,7 +131,12 @@ def _to_branche(obj: Any) -> Branche:
 
 
 def _to_auftraggeber(obj: Any) -> Auftraggeber:
-    return Auftraggeber(name=obj.name or "", label=obj.label or "", location=obj.location or "")
+    return Auftraggeber(
+        name=obj.name or "",
+        label=obj.label or "",
+        location=obj.location or "",
+        extern=obj.extern or "",
+    )
 
 
 def _to_projekterfahrung(

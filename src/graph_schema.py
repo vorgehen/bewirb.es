@@ -62,6 +62,7 @@ AUFTRAGGEBER_ATTRS: list[str] = [
     "name",
     "label",
     "location",
+    "extern",
 ]
 PROJEKTERFAHRUNG_ATTRS: list[str] = [
     "name",

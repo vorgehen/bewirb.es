@@ -245,7 +245,15 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
     for p in profil.projekte:
         tech_str = ", ".join(t.name for t in p.uses)
         achievements = "\n".join(f"• {a}" for a in p.achievements)
-        auftraggeber_label = p.auftraggeber.label or p.auftraggeber.name if p.auftraggeber else ""
+        # Externer Sektor-Begriff (auftraggeber.extern) hat Vorrang vor
+        # dem internen Namen (label), damit der Word-Output extern-tauglich ist
+        # ohne dass die interne Datenbasis verändert werden muss.
+        if p.auftraggeber:
+            auftraggeber_label = (
+                p.auftraggeber.extern or p.auftraggeber.label or p.auftraggeber.name
+            )
+        else:
+            auftraggeber_label = ""
         projekte.append(
             {
                 "title": p.title,

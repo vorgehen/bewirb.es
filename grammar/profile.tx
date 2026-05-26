@@ -65,10 +65,17 @@ Branche:
     '}'
 ;
 
+// Auftraggeber: label ist der echte Name (intern), extern ist der für
+// extern-Dokumente verwendete Sektor-/Beschreibungs-Begriff
+// (z.B. "Bundesoberbehörde im Finanzaufsichtsbereich"). Wenn extern
+// gesetzt ist, nutzt der Word-Generator standardmäßig diesen Wert;
+// sonst fällt er auf label zurück. Diese Trennung erlaubt eine
+// einzige Wahrheits-.profile-Datei für intern und extern.
 Auftraggeber:
     'auftraggeber' name=ID '{'
         'label:' label=STRING
         ('location:' location=STRING)?
+        ('extern:'   extern=STRING)?
     '}'
 ;
 

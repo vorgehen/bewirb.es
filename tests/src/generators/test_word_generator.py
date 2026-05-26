@@ -88,6 +88,41 @@ def test_build_context_werdegang_und_zertifikate() -> None:
     assert len(ctx["sprachen"]) >= 2
 
 
+def test_build_context_auftraggeber_extern_hat_vorrang(tmp_path: Path) -> None:
+    """Wenn auftraggeber.extern gesetzt ist, nutzt _build_context diesen Wert
+    statt des internen label."""
+    content = """
+    branche IT { label: "IT" }
+    auftraggeber Echt {
+        label: "Echte Firma AG"
+        extern: "Bundesoberbehörde"
+    }
+    technology Java {
+        category: Programmiersprache
+        proficiency: Experte
+        years: 5
+    }
+    person P { title: "Dev" contact { email: "x@x.de" } }
+    projekt Proj {
+        title: "Test"
+        auftraggeber: Echt
+        branche: IT
+        periode: 2024-01 to today
+        rolle: "Architekt"
+    }
+    """
+    f = tmp_path / "p.profile"
+    f.write_text(content, encoding="utf-8")
+    profil = load_profile(f)
+    anf = Anforderungen()
+    g = build_graph(profil)
+    psm = transform(g, anf)
+    ctx = _build_context(psm, profil, anf)
+    proj_label = ctx["projekte"][0]["auftraggeber_label"]
+    assert proj_label == "Bundesoberbehörde"
+    assert "Echte Firma" not in proj_label
+
+
 def test_build_context_persoenliche_daten_label_value() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     anf = load_requirements(EXAMPLE_REQ)
