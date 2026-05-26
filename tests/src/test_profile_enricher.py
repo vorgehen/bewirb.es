@@ -7,15 +7,18 @@ import pytest
 
 from src.data_loader import load_profile
 from src.profile_enricher import (
+    ProjektVorschlag,
     _build_prompt,
     _escape_dsl_string,
     _format_projekte,
     _format_top_technologien,
     _strip_artifacts,
+    enrich_projekt,
     generate_kurzprofil,
     suggest_keywords,
     update_keywords_in_profile,
     update_kurzprofil_in_profile,
+    update_projekt_in_profile,
 )
 
 pytestmark = pytest.mark.unit
@@ -222,6 +225,108 @@ def test_update_keywords_ignores_unknown_tech(tmp_path: Path) -> None:
     vorschlaege = {"NonExistentTech": ["X", "Y"]}
     count = update_keywords_in_profile(target, vorschlaege)
     assert count == 0
+    assert target.read_text(encoding="utf-8") == src
+
+
+# ─── Mode projekt ──────────────────────────────────────────────────────────
+
+
+def test_enrich_projekt_parses_json_response() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+
+    fake_text = (
+        '{"description": "Migration auf Microservices-Architektur mit Java/Spring.", '
+        '"achievements": ["Latenz um 40% reduziert", "Deployment-Frequenz verzehnfacht"]}'
+    )
+
+    class _FakeBlock:
+        def __init__(self, text: str) -> None:
+            self.text = text
+
+    class _FakeMessage:
+        def __init__(self, text: str) -> None:
+            self.content = [_FakeBlock(text)]
+
+    with patch("src.profile_enricher.anthropic.Anthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create.return_value = _FakeMessage(fake_text)
+        with patch("src.profile_enricher.TextBlock", _FakeBlock):
+            result = enrich_projekt(profil, "Projekt_A", "Anonymisiertes Extrakt …")
+
+    assert isinstance(result, ProjektVorschlag)
+    assert "Microservices" in result.description
+    assert "Latenz um 40% reduziert" in result.achievements
+    assert len(result.achievements) == 2
+
+
+def test_enrich_projekt_unknown_id_raises() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+
+    class _FakeBlock:
+        def __init__(self, text: str) -> None:
+            self.text = text
+
+    class _FakeMessage:
+        def __init__(self, text: str) -> None:
+            self.content = [_FakeBlock(text)]
+
+    with patch("src.profile_enricher.anthropic.Anthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create.return_value = _FakeMessage('{"description":"x"}')
+        with (
+            patch("src.profile_enricher.TextBlock", _FakeBlock),
+            pytest.raises(KeyError),
+        ):
+            enrich_projekt(profil, "NICHT_VORHANDEN", "Extrakt")
+
+
+def test_update_projekt_in_profile_aktualisiert_description_und_achievements(
+    tmp_path: Path,
+) -> None:
+    src = EXAMPLE_PROFILE.read_text(encoding="utf-8")
+    target = tmp_path / "test.profile"
+    target.write_text(src, encoding="utf-8")
+
+    vorschlag = ProjektVorschlag(
+        description="Neue verbesserte Beschreibung.",
+        achievements=["Konkretes Achievement A", "Konkretes Achievement B"],
+    )
+    ok = update_projekt_in_profile(target, "Projekt_A", vorschlag)
+    assert ok is True
+
+    # Profil ist weiterhin valide
+    from src.profile_importer import validate_profile_dsl
+
+    written = target.read_text(encoding="utf-8")
+    validate_profile_dsl(written)
+
+    # Inhalte wurden geschrieben
+    p_after = load_profile(target)
+    p_a = next(p for p in p_after.projekte if p.name == "Projekt_A")
+    assert p_a.description == "Neue verbesserte Beschreibung."
+    assert "Konkretes Achievement A" in p_a.achievements
+    assert "Konkretes Achievement B" in p_a.achievements
+
+
+def test_update_projekt_unknown_id_returns_false(tmp_path: Path) -> None:
+    src = EXAMPLE_PROFILE.read_text(encoding="utf-8")
+    target = tmp_path / "test.profile"
+    target.write_text(src, encoding="utf-8")
+
+    vorschlag = ProjektVorschlag(description="x")
+    ok = update_projekt_in_profile(target, "NICHT_VORHANDEN", vorschlag)
+    assert ok is False
+
+
+def test_update_projekt_leerer_vorschlag_returns_false(tmp_path: Path) -> None:
+    src = EXAMPLE_PROFILE.read_text(encoding="utf-8")
+    target = tmp_path / "test.profile"
+    target.write_text(src, encoding="utf-8")
+
+    vorschlag = ProjektVorschlag(description="", achievements=[])
+    ok = update_projekt_in_profile(target, "Projekt_A", vorschlag)
+    assert ok is False
+    # Datei unverändert
     assert target.read_text(encoding="utf-8") == src
 
 

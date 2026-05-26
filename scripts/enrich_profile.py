@@ -22,10 +22,12 @@ from pathlib import Path
 
 from src.data_loader import load_profile
 from src.profile_enricher import (
+    enrich_projekt,
     generate_kurzprofil,
     suggest_keywords,
     update_keywords_in_profile,
     update_kurzprofil_in_profile,
+    update_projekt_in_profile,
 )
 
 # Ensure UTF-8 console output on Windows
@@ -94,12 +96,88 @@ def _run_keywords(profile_path: Path, apply: bool) -> None:
     print(f"✓ {count} technology-Blöcke in {profile_path} aktualisiert.")
 
 
+def _run_projekt(
+    profile_path: Path, projekt_id: str | None, preprocess: Path | None, apply: bool
+) -> None:
+    if not projekt_id:
+        print("FEHLER: --projekt-id ist Pflicht bei --mode projekt", file=sys.stderr)
+        sys.exit(2)
+    if not preprocess:
+        print(
+            "FEHLER: --preprocess ist Pflicht bei --mode projekt (NDA-Schutz).\n"
+            "        Bitte ein anonymisiertes Extrakt übergeben (siehe scripts/anonymize_doc.py).",
+            file=sys.stderr,
+        )
+        sys.exit(2)
+    if not preprocess.exists():
+        print(f"FEHLER: Extrakt nicht gefunden: {preprocess}", file=sys.stderr)
+        sys.exit(1)
+
+    profil = load_profile(profile_path)
+    try:
+        projekt = next(p for p in profil.projekte if p.name == projekt_id)
+    except StopIteration:
+        print(
+            f"FEHLER: Projekt-ID {projekt_id!r} nicht im Profil. "
+            f"Verfügbar: {', '.join(p.name for p in profil.projekte)}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    extrakt = preprocess.read_text(encoding="utf-8")
+    print(f"Profil:     {profile_path}")
+    print(f"Projekt:    {projekt_id} — {projekt.title}")
+    print(f"Extrakt:    {preprocess} ({len(extrakt):,} Zeichen)")
+    print()
+    print("Aktuelle description:")
+    print(f"  {projekt.description or '(leer)'}")
+    print()
+    print("Aktuelle achievements:")
+    if projekt.achievements:
+        for a in projekt.achievements:
+            print(f"  • {a}")
+    else:
+        print("  (keine)")
+    print()
+    print("Rufe Claude API auf …")
+    vorschlag = enrich_projekt(profil, projekt_id, extrakt)
+    print()
+    print("Neue description:")
+    print("─" * 60)
+    print(vorschlag.description or "(keine Änderung vorgeschlagen)")
+    print("─" * 60)
+    print()
+    print("Neue achievements:")
+    print("─" * 60)
+    if vorschlag.achievements:
+        for a in vorschlag.achievements:
+            print(f"  • {a}")
+    else:
+        print("(keine Änderung vorgeschlagen)")
+    print("─" * 60)
+    print()
+
+    if not apply:
+        print("Dry-Run: --apply weglassen, um die Änderungen tatsächlich zu schreiben.")
+        return
+
+    updated = update_projekt_in_profile(profile_path, projekt_id, vorschlag)
+    if updated:
+        print(f"✓ Projekt {projekt_id} in {profile_path} aktualisiert.")
+    else:
+        print(
+            f"✗ Konnte Projekt-Block {projekt_id!r} nicht aktualisieren.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="KI-gestützte Anreicherung von .profile-Daten")
     parser.add_argument("profil", type=Path, help="Pfad zur .profile-Datei")
     parser.add_argument(
         "--mode",
-        choices=["kurzprofil", "keywords"],
+        choices=["kurzprofil", "keywords", "projekt"],
         required=True,
         help="Welchen Aspekt anreichern",
     )
@@ -109,6 +187,18 @@ def main() -> None:
         default="Standard",
         help="Zielgruppe für Tonalität "
         "(Behoerde / Consultant / StartUp / Wissenschaftlich / Standard / AIGovernance)",
+    )
+    parser.add_argument(
+        "--projekt-id",
+        type=str,
+        default=None,
+        help="Projekt-ID im Profil (nur für --mode projekt)",
+    )
+    parser.add_argument(
+        "--preprocess",
+        type=Path,
+        default=None,
+        help="Pfad zu anonymisiertem Artefakt-Extrakt (nur für --mode projekt)",
     )
     parser.add_argument(
         "--apply",
@@ -125,6 +215,8 @@ def main() -> None:
         _run_kurzprofil(args.profil, args.zielgruppe, args.apply)
     elif args.mode == "keywords":
         _run_keywords(args.profil, args.apply)
+    elif args.mode == "projekt":
+        _run_projekt(args.profil, args.projekt_id, args.preprocess, args.apply)
 
 
 if __name__ == "__main__":

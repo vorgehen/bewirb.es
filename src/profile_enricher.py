@@ -6,10 +6,10 @@ Phase 11 (M2). Aktuell implementiert:
   Profilinhalten, zielgruppen-spezifisch in Tonalität.
 - Mode `keywords`: schlägt marktrelevante zusätzliche Keywords pro
   Technologie vor (keine Web-Recherche, nur Claude-Trainingswissen).
-
-Geplant:
-- Mode `projekt`: Verbessert Projekt-Beschreibungen mit Artefakt-Input
-  (Phase 11 + 11a NDA-Pipeline).
+- Mode `projekt`: verbessert description und achievements eines
+  Projekt-Eintrags anhand eines anonymisierten Artefakt-Extrakts
+  (NDA-sicher per AISE — Nutzer hat das Extrakt selbst bereinigt
+  und freigegeben).
 
 Nur das eigene Profil geht in die API — keine Kundendokumente.
 """
@@ -28,9 +28,11 @@ from src.data_loader import Profil
 
 PROMPT_KURZPROFIL = Path(__file__).parent.parent / "prompts" / "generate_kurzprofil.md"
 PROMPT_KEYWORDS = Path(__file__).parent.parent / "prompts" / "enrich_keywords.md"
+PROMPT_PROJEKT = Path(__file__).parent.parent / "prompts" / "enrich_projekt.md"
 MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 4000  # Kurzprofil ~500 Zeichen, aber Reasoning-Modi brauchen Headroom
 MAX_TOKENS_KEYWORDS = 8000  # Bei 30+ Technologien je 2-5 Vorschläge
+MAX_TOKENS_PROJEKT = 4000  # Verbesserte description + achievements
 
 load_dotenv()
 
@@ -231,3 +233,135 @@ def update_keywords_in_profile(profile_path: Path, vorschlaege: dict[str, list[s
     if updates > 0:
         profile_path.write_text(new_content, encoding="utf-8")
     return updates
+
+
+# ─── Mode projekt ──────────────────────────────────────────────────────────
+
+
+class ProjektVorschlag:
+    """Container für den von Claude gelieferten Verbesserungs-Vorschlag."""
+
+    def __init__(self, description: str = "", achievements: list[str] | None = None) -> None:
+        self.description = description
+        self.achievements = achievements or []
+
+    @property
+    def hat_aenderung(self) -> bool:
+        return bool(self.description) or bool(self.achievements)
+
+
+def _find_projekt(profil: Profil, projekt_id: str) -> object:
+    for p in profil.projekte:
+        if p.name == projekt_id:
+            return p
+    raise KeyError(f"Projekt-ID {projekt_id!r} nicht im Profil gefunden.")
+
+
+def _build_projekt_prompt(projekt: object, extrakt: str) -> str:
+    template = PROMPT_PROJEKT.read_text(encoding="utf-8")
+    tech_names = ", ".join(t.name for t in getattr(projekt, "uses", []) or []) or "(keine)"
+    achievements = getattr(projekt, "achievements", []) or []
+    ach_text = "\n".join(f"- {a}" for a in achievements) if achievements else "(keine)"
+    substitutions = {
+        "{{projekt_id}}": getattr(projekt, "name", ""),
+        "{{projekt_title}}": getattr(projekt, "title", ""),
+        "{{projekt_start}}": getattr(projekt, "start", ""),
+        "{{projekt_end}}": getattr(projekt, "end", ""),
+        "{{projekt_rolle}}": getattr(projekt, "rolle", ""),
+        "{{projekt_tech}}": tech_names,
+        "{{projekt_description}}": getattr(projekt, "description", "") or "(keine)",
+        "{{projekt_achievements}}": ach_text,
+        "{{extrakt}}": extrakt,
+    }
+    out = template
+    for key, value in substitutions.items():
+        out = out.replace(key, value)
+    return out
+
+
+def enrich_projekt(profil: Profil, projekt_id: str, extrakt: str) -> ProjektVorschlag:
+    """Ruft Claude API mit Projekt-Eintrag + anonymisiertem Extrakt.
+
+    Gibt ProjektVorschlag mit verbesserter description und achievements zurück.
+    """
+    projekt = _find_projekt(profil, projekt_id)
+    client = anthropic.Anthropic()
+    prompt = _build_projekt_prompt(projekt, extrakt)
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=MAX_TOKENS_PROJEKT,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    block = message.content[0]
+    if not isinstance(block, TextBlock):
+        raise ValueError(f"Unerwarteter Block-Typ: {type(block)}")
+    raw = _strip_artifacts(block.text).strip()
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        # Defensive: vielleicht ist nur das umschließende { ... } fehlerhaft
+        # Versuche das erste JSON-Objekt im Text zu finden
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        if not match:
+            raise ValueError(f"Claude-Antwort ist kein JSON: {raw[:200]}") from e
+        data = json.loads(match.group(0))
+    description = str(data.get("description", "") or "")
+    achievements_raw = data.get("achievements") or []
+    achievements = [str(a) for a in achievements_raw if str(a).strip()]
+    return ProjektVorschlag(description=description, achievements=achievements)
+
+
+# Findet einen projekt-Block mit gegebener ID. Greift weil DSL-Blöcke
+# verschachtelte {} nicht enthalten (alle Felder sind flach).
+def _projekt_block_re(projekt_id: str) -> re.Pattern[str]:
+    escaped_id = re.escape(projekt_id)
+    return re.compile(
+        rf"(projekt\s+{escaped_id}\s*\{{)([^}}]*?)(\}})",
+        re.DOTALL,
+    )
+
+
+_DESC_LINE_RE = re.compile(r'^(\s*description:\s*)"(?:[^"\\]|\\.)*"', re.MULTILINE)
+_ACHIEVEMENTS_LINE_RE = re.compile(r"^(\s*achievements:\s*)\[[^\]]*\]", re.MULTILINE)
+
+
+def update_projekt_in_profile(
+    profile_path: Path, projekt_id: str, vorschlag: ProjektVorschlag
+) -> bool:
+    """Aktualisiert description und/oder achievements eines Projekt-Blocks
+    in-place. Wenn ein Feld leer ist, wird es nicht überschrieben.
+
+    Gibt True zurück, wenn mindestens ein Feld aktualisiert wurde.
+    """
+    content = profile_path.read_text(encoding="utf-8")
+    block_re = _projekt_block_re(projekt_id)
+    match = block_re.search(content)
+    if match is None:
+        return False
+    prefix, body, suffix = match.groups()
+    new_body = body
+    changed = False
+
+    if vorschlag.description:
+        escaped = _escape_dsl_string(vorschlag.description)
+        # Falls description-Zeile fehlt: einfügen vor dem schließenden }
+        if _DESC_LINE_RE.search(new_body):
+            new_body = _DESC_LINE_RE.sub(rf'\1"{escaped}"', new_body, count=1)
+        else:
+            new_body = new_body.rstrip("\n") + f'\n    description: "{escaped}"\n'
+        changed = True
+
+    if vorschlag.achievements:
+        items = ", ".join(f'"{_escape_dsl_string(a)}"' for a in vorschlag.achievements)
+        if _ACHIEVEMENTS_LINE_RE.search(new_body):
+            new_body = _ACHIEVEMENTS_LINE_RE.sub(rf"\1[{items}]", new_body, count=1)
+        else:
+            new_body = new_body.rstrip("\n") + f"\n    achievements: [{items}]\n"
+        changed = True
+
+    if not changed:
+        return False
+
+    new_content = content[: match.start()] + prefix + new_body + suffix + content[match.end() :]
+    profile_path.write_text(new_content, encoding="utf-8")
+    return True
