@@ -123,6 +123,46 @@ def test_scan_ranks_by_score(tmp_path: Path) -> None:
     assert result.entries[0].file == "good.req"
 
 
+def test_voraussetzungen_filter_aus_score(profil: object, kb: KnowledgeBase) -> None:
+    """Formale Voraussetzungen (Sprache, Staatsangehörigkeit, etc.) fließen
+    nicht in den Score, sondern werden separat als voraussetzungen gelistet.
+    """
+    from src.data_loader import Anforderungen
+
+    anf = Anforderungen(
+        rolle="Test",
+        must_have=[
+            "Java",  # technische Anforderung
+            "Deutsch C1 GER",  # Sprache
+            "EU/EWR-Staatsangehörigkeit",  # Staatsangehörigkeit
+            "Mindestens 5 Jahre Berufserfahrung",  # pauschal
+            "Hochschulabschluss in Informatik",  # akademisch
+        ],
+    )
+    r = evaluate_offer(profil, anf, kb)  # type: ignore[arg-type]
+    assert len(r.voraussetzungen) == 4
+    kategorien = {kat for _, kat in r.voraussetzungen}
+    assert "Sprachkenntnisse" in kategorien
+    assert "Staatsangehörigkeit" in kategorien
+    assert "Berufserfahrung-pauschal" in kategorien
+    assert "Akademischer Abschluss" in kategorien
+    # Java ist die einzige echte must_have → 100%
+    assert r.score == 1.0
+    assert r.matched_must_have == ["Java"]
+
+
+def test_tech_anforderung_wird_nicht_als_voraussetzung_klassifiziert(
+    profil: object, kb: KnowledgeBase
+) -> None:
+    """5 Jahre Java-Erfahrung enthält 'Java' → kein soft-requirement."""
+    from src.data_loader import Anforderungen
+
+    anf = Anforderungen(rolle="Test", must_have=["Mindestens 5 Jahre Erfahrung mit Java"])
+    r = evaluate_offer(profil, anf, kb)  # type: ignore[arg-type]
+    assert r.voraussetzungen == []
+    assert "Mindestens 5 Jahre Erfahrung mit Java" in r.matched_must_have
+
+
 def test_scan_detects_recurring_gaps(tmp_path: Path) -> None:
     """Wenn 'Cobol' in mehreren Angeboten als must_have fehlt, taucht es in recurring_gaps."""
     (tmp_path / "a.req").write_text(

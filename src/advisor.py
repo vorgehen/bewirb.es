@@ -45,6 +45,80 @@ def _normalize_gender(text: str) -> str:
     return text
 
 
+# ─── Soft-Requirement-Erkennung ────────────────────────────────────────────
+#
+# Soft-Requirements sind must_have-Einträge die formal als Anforderung gelistet
+# sind, aber keine technischen Skills — sondern formale, organisatorische oder
+# rechtliche Voraussetzungen (Sprachen, Staatsangehörigkeit, Sicherheits-
+# überprüfung, Hochschulabschluss, pauschale Berufserfahrung, Soft Skills,
+# Reisebereitschaft).
+#
+# Sie werden aus dem Score-Nenner ausgeschlossen und separat angezeigt
+# (Selbst-Check).
+
+_SOFT_REQUIREMENT_PATTERNS = [
+    # Sprachen: GER-Niveau, C1/C2/B1/B2, oder "Deutsch/Englisch ... Niveau/Kenntnisse"
+    (r"\b(GER|C[12]|B[12]|A[12])\b", "Sprachkenntnisse"),
+    (
+        r"\b(Deutsch|Englisch|Französisch|Spanisch)\b.{0,30}\b"
+        r"(kenntnisse|niveau|fließend|Mutter|verhandlungssicher|fluently)\b",
+        "Sprachkenntnisse",
+    ),
+    # Sicherheit
+    (r"\bSicherheits(überprüfung|prüfung|check)\b", "Sicherheitsfreigabe"),
+    (r"\bFührungszeugnis\b", "Sicherheitsfreigabe"),
+    # Staatsangehörigkeit
+    (
+        r"\b(Staatsangehörigkeit|Staatsbürgerschaft|EU[-/ ]?(EWR|Bürger)|EU-Mitgliedstaat)\b",
+        "Staatsangehörigkeit",
+    ),
+    # Akademischer Abschluss
+    (
+        r"\b(Hochschul(studium|abschluss)|Universitätsdiplom|Master|Diplom|Bachelor)\b"
+        r".*\b(in|of)\b.+",
+        "Akademischer Abschluss",
+    ),
+    # Pauschale Berufserfahrung (X Jahre ohne Tech-Spezifik)
+    (
+        r"\b(Mindestens\s+\d+|\d+\+?)\s*Jahr(e)?\s+(Berufserfahrung|Erfahrung|practice)\b",
+        "Berufserfahrung-pauschal",
+    ),
+    # Reise / Mobilität
+    (r"\b(Reisebereitschaft|Dienstreis(e|en)|Bereitschaft\s+zu\s+Reisen)\b", "Mobilität"),
+    # Klassische Soft Skills
+    (
+        r"\b(Strukturiert(e|er)?\s+(Analyse|Arbeitsweise|Denken)|"
+        r"Teamfähigkeit|Kommunikationsstärke|Wertschätzender\s+Umgang|"
+        r"Digitale\s+Kompetenzen?|Belastbar(keit)?|Eigenverantwortlich)\b",
+        "Soft Skill",
+    ),
+    # Bereitschaft / Verfügbarkeit
+    (r"\bBereitschaft\s+(zur?|für)\b", "Bereitschaft"),
+]
+
+
+def _is_soft_requirement(term: str, kb: KnowledgeBase) -> tuple[bool, str]:
+    """Prüft ob ein must_have-String eine formale Voraussetzung ist.
+
+    Rückgabe: (ist_soft_requirement, kategorie). Bei False ist kategorie "".
+
+    Heuristik:
+    1. Wenn der String einen klar erkennbaren Knowledge-Tech enthält
+       (z.B. "Java oder TypeScript"), ist es KEIN soft-requirement —
+       Tech-Anforderungen haben Vorrang.
+    2. Sonst: Pattern-Matching gegen Sprache/Sicherheit/Studium/etc.
+    """
+    # Wenn klare Tech-Anforderung enthalten: nicht als Soft-Req klassifizieren
+    if _extract_known_techs(term, kb):
+        return False, ""
+
+    for pattern, kategorie in _SOFT_REQUIREMENT_PATTERNS:
+        if re.search(pattern, term, re.IGNORECASE):
+            return True, kategorie
+
+    return False, ""
+
+
 def _extract_known_techs(text: str, kb: KnowledgeBase) -> list[str]:
     """Findet alle Knowledge-Technologien deren Name/Alias als ganzes Wort
     im Text vorkommt. Word-Boundary verhindert dass z.B. 'Go' in 'Going' matcht.
@@ -67,12 +141,13 @@ def _extract_known_techs(text: str, kb: KnowledgeBase) -> list[str]:
 
 
 class GapType(StrEnum):
-    """Vier Klassen von Lücken nach Schließbarkeit."""
+    """Klassen von Lücken nach Schließbarkeit."""
 
     ARTIKULATION = "Artikulations-Lücke"  # vorhanden, nicht kommuniziert
     ZERTIFIZIERUNG = "Zertifizierungs-Lücke"  # >70% Überlappung mit vorhandenem Wissen
     ERFAHRUNG = "Erfahrungs-Lücke"  # fehlt, mittelfristig erlernbar
     STRUKTURELL = "Strukturelle Lücke"  # fundamental fehlend
+    VORAUSSETZUNG = "Voraussetzung"  # formal/rechtlich/sprachlich — Selbst-Check
 
 
 class Gap(BaseModel):
@@ -88,6 +163,7 @@ class AdvisoryResult(BaseModel):
     matched_must_have: list[str] = []
     matched_nice_to_have: list[str] = []
     role_match: list[str] = []  # Knowledge-Terms aus rolle, die im Profil sind
+    voraussetzungen: list[tuple[str, str]] = []  # (Original-Term, Kategorie)
     gaps: list[Gap] = []
     # Stärken die im Profil-Text auftauchen aber nicht als eigene technology
     strengths_underused: list[str] = []
@@ -297,9 +373,20 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
     profile_techs = _profile_tech_set(profil, kb)
     profile_text = _profile_text_index(profil)
 
+    # Soft-Requirements aus must_have herausfiltern — sie fließen nicht
+    # in den technischen Score ein, sondern in voraussetzungen für Selbst-Check.
+    voraussetzungen: list[tuple[str, str]] = []
+    technical_must: list[str] = []
+    for term in anf.must_have:
+        is_soft, kategorie = _is_soft_requirement(term, kb)
+        if is_soft:
+            voraussetzungen.append((term, kategorie))
+        else:
+            technical_must.append(term)
+
     matched_must: list[str] = []
     missing_must: list[str] = []
-    for term in anf.must_have:
+    for term in technical_must:
         if _term_matches_profile(term, profile_techs, profile_text, kb):
             matched_must.append(term)
         else:
@@ -342,7 +429,11 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
                 f"technology-Eintrag — Artikulation schärfen"
             )
 
-    total = len(anf.must_have)
+    # Score-Nenner sind nur die technischen Anforderungen (ohne Voraussetzungen).
+    # Wenn das Angebot KEINE technischen must_haves hat (nur Voraussetzungen),
+    # gilt der Score als 1.0 modulo Rolle-Match — Robert muss dann nur die
+    # Voraussetzungen selbst prüfen.
+    total = len(technical_must)
     raw_score = len(matched_must) / total if total > 0 else 1.0
     # Artikulations-Lücken zählen halb mit (vorhanden, nur nicht artikuliert)
     artikulation_count = sum(1 for g in gaps if g.type == GapType.ARTIKULATION)
@@ -367,6 +458,7 @@ def evaluate_offer(profil: Profil, anf: Anforderungen, kb: KnowledgeBase) -> Adv
         matched_must_have=matched_must,
         matched_nice_to_have=matched_nice,
         role_match=role_match,
+        voraussetzungen=voraussetzungen,
         gaps=gaps,
         strengths_underused=strengths_underused,
         warnings=warnings,

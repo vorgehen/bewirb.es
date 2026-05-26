@@ -55,6 +55,12 @@ def print_single_offer(profil_path: Path, req_path: Path, as_json: bool) -> None
             print(f"  • {s}")
         print()
 
+    if r.voraussetzungen:
+        print("Voraussetzungen (Selbst-Check):")
+        for term, kategorie in r.voraussetzungen:
+            print(f"  ○ [{kategorie}] {term}")
+        print()
+
     if r.gaps:
         # Sortiert: artikulation < zertifizierung < erfahrung < strukturell
         order = {
