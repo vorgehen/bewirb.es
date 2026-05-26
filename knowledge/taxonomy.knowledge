@@ -270,6 +270,27 @@ technology SOAP {
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
 }
 
+technology Requirements_Engineering {
+    category: "Architektur"
+    aliases: [
+        "Requirements Engineering",
+        "Anforderungsanalyse",
+        "Anforderungsmanagement",
+        "Anforderungsaufnahme",
+        "Lastenheft",
+        "Lastenheft-Erstellung",
+        "Pflichtenheft",
+        "Pflichtenheft-Erstellung",
+        "DV-Konzept",
+        "DV-Konzept-Erstellung",
+        "Lösungsneutrale Anforderungsaufnahme",
+        "Solution-Independent Requirements",
+        "Goal-oriented Requirements Engineering",
+        "Schnittstelle Fachbereich Entwicklung"
+    ]
+    sfia_levels: [1 -> 3, 3 -> 4, 5 -> 5, 8 -> 6]
+}
+
 technology Softwarearchitektur {
     category: "Architektur"
     aliases: [
