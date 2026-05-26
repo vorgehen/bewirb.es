@@ -4,17 +4,19 @@ Phase 11 (M2). Aktuell implementiert:
 
 - Mode `kurzprofil`: generiert/aktualisiert das Kurzprofil-Feld aus
   Profilinhalten, zielgruppen-spezifisch in Tonalität.
+- Mode `keywords`: schlägt marktrelevante zusätzliche Keywords pro
+  Technologie vor (keine Web-Recherche, nur Claude-Trainingswissen).
 
 Geplant:
 - Mode `projekt`: Verbessert Projekt-Beschreibungen mit Artefakt-Input
   (Phase 11 + 11a NDA-Pipeline).
-- Mode `keywords`: Web-Recherche für aktualisierte Technologie-Begriffe.
 
 Nur das eigene Profil geht in die API — keine Kundendokumente.
 """
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -25,8 +27,10 @@ from dotenv import load_dotenv
 from src.data_loader import Profil
 
 PROMPT_KURZPROFIL = Path(__file__).parent.parent / "prompts" / "generate_kurzprofil.md"
+PROMPT_KEYWORDS = Path(__file__).parent.parent / "prompts" / "enrich_keywords.md"
 MODEL = "claude-sonnet-4-6"
-MAX_TOKENS = 1000
+MAX_TOKENS = 4000  # Kurzprofil ~500 Zeichen, aber Reasoning-Modi brauchen Headroom
+MAX_TOKENS_KEYWORDS = 8000  # Bei 30+ Technologien je 2-5 Vorschläge
 
 load_dotenv()
 
@@ -139,3 +143,91 @@ def update_kurzprofil_in_profile(profile_path: Path, neues_kurzprofil: str) -> b
         profile_path.write_text(new_content, encoding="utf-8")
         return True
     return False
+
+
+# ─── Mode keywords ─────────────────────────────────────────────────────────
+
+
+def _format_technologien_with_keywords(profil: Profil) -> str:
+    """Tech-Liste mit existierenden Keywords im Format für den Prompt."""
+    lines: list[str] = []
+    for t in profil.technologien:
+        kws = ", ".join(t.keywords) if t.keywords else "(keine)"
+        lines.append(f"- {t.name} ({t.category}): bestehende Keywords: {kws}")
+    return "\n".join(lines)
+
+
+def suggest_keywords(profil: Profil) -> dict[str, list[str]]:
+    """Ruft Claude API und gibt {tech_name: [vorschlaege]} zurück."""
+    client = anthropic.Anthropic()
+    template = PROMPT_KEYWORDS.read_text(encoding="utf-8")
+    prompt = template.replace("{{technologien}}", _format_technologien_with_keywords(profil))
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=MAX_TOKENS_KEYWORDS,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    block = message.content[0]
+    if not isinstance(block, TextBlock):
+        raise ValueError(f"Unerwarteter Block-Typ: {type(block)}")
+    text = _strip_artifacts(block.text)
+
+    result: dict[str, list[str]] = {}
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or not line.startswith("{"):
+            continue
+        try:
+            obj = json.loads(line)
+            tech = str(obj.get("tech", ""))
+            vorschlaege = [str(v) for v in obj.get("vorschlaege") or []]
+            if tech and vorschlaege:
+                result[tech] = vorschlaege
+        except json.JSONDecodeError:
+            continue
+    return result
+
+
+_TECHNOLOGY_BLOCK_RE = re.compile(
+    r"(technology\s+(\w+)\s*\{[^}]*?keywords:\s*\[)([^\]]*?)(\])",
+    re.DOTALL,
+)
+
+
+def update_keywords_in_profile(profile_path: Path, vorschlaege: dict[str, list[str]]) -> int:
+    """Erweitert die keywords-Listen je technology-Block in-place.
+
+    Nutzt vorschlaege als {tech_name: [neue_keywords]}-Mapping. Hängt
+    neue Keywords ans Ende der bestehenden Liste an (keine Duplikate).
+    Gibt die Anzahl tatsächlich aktualisierter technology-Blöcke zurück.
+    """
+    content = profile_path.read_text(encoding="utf-8")
+    updates = 0
+
+    def _replace(match: re.Match[str]) -> str:
+        nonlocal updates
+        prefix, tech_name, kws_inner, suffix = match.groups()
+        if tech_name not in vorschlaege:
+            return match.group(0)
+        new_items = vorschlaege[tech_name]
+
+        # Existierende Keywords parsen
+        existing = []
+        for s in re.findall(r'"((?:[^"\\]|\\.)*)"', kws_inner):
+            existing.append(s)
+
+        # Neue Items anhängen ohne Duplikate (case-insensitive)
+        existing_lower = {e.lower() for e in existing}
+        for item in new_items:
+            if item.lower() not in existing_lower:
+                existing.append(item)
+                existing_lower.add(item.lower())
+
+        formatted = ", ".join(f'"{_escape_dsl_string(e)}"' for e in existing)
+        updates += 1
+        return f"{prefix}{formatted}{suffix}"
+
+    new_content = _TECHNOLOGY_BLOCK_RE.sub(_replace, content)
+    if updates > 0:
+        profile_path.write_text(new_content, encoding="utf-8")
+    return updates

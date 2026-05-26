@@ -13,6 +13,8 @@ from src.profile_enricher import (
     _format_top_technologien,
     _strip_artifacts,
     generate_kurzprofil,
+    suggest_keywords,
+    update_keywords_in_profile,
     update_kurzprofil_in_profile,
 )
 
@@ -144,6 +146,83 @@ def test_generate_kurzprofil_calls_claude_and_strips(tmp_path: Path) -> None:
 
     assert result == "Ein Mock-Kurzprofil mit Quotes."
     instance.messages.create.assert_called_once()
+
+
+# ─── Mode keywords ─────────────────────────────────────────────────────────
+
+
+def test_suggest_keywords_parses_jsonl_response() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+
+    fake_text = (
+        '{"tech": "Java", "vorschlaege": ["Java 17", "Records"]}\n'
+        '{"tech": "Python", "vorschlaege": ["asyncio", "FastAPI"]}\n'
+        "garbage line that should be skipped\n"
+        '{"tech": "REST", "vorschlaege": []}\n'  # leer = wird übersprungen
+    )
+
+    class _FakeBlock:
+        def __init__(self, text: str) -> None:
+            self.text = text
+
+    class _FakeMessage:
+        def __init__(self, text: str) -> None:
+            self.content = [_FakeBlock(text)]
+
+    with patch("src.profile_enricher.anthropic.Anthropic") as MockClient:
+        instance = MockClient.return_value
+        instance.messages.create.return_value = _FakeMessage(fake_text)
+        with patch("src.profile_enricher.TextBlock", _FakeBlock):
+            result = suggest_keywords(profil)
+
+    assert result == {
+        "Java": ["Java 17", "Records"],
+        "Python": ["asyncio", "FastAPI"],
+    }
+
+
+def test_update_keywords_in_profile_appends_without_duplicates(tmp_path: Path) -> None:
+    src = EXAMPLE_PROFILE.read_text(encoding="utf-8")
+    target = tmp_path / "test.profile"
+    target.write_text(src, encoding="utf-8")
+
+    # example.profile hat Java mit keywords: ["Java", "JEE", "Spring", "JDK"]
+    vorschlaege = {
+        "Java": ["Java 17", "Spring", "Records"],  # "Spring" ist Duplikat
+    }
+    count = update_keywords_in_profile(target, vorschlaege)
+    assert count == 1
+
+    # Datei bleibt valide
+    from src.profile_importer import validate_profile_dsl
+
+    written = target.read_text(encoding="utf-8")
+    validate_profile_dsl(written)
+
+    # Re-Lade Profil und prüfe Java-Keywords präzise (nicht das ganze File)
+    from src.data_loader import load_profile
+
+    p_after = load_profile(target)
+    java_tech = next(t for t in p_after.technologien if t.name == "Java")
+    assert "Java 17" in java_tech.keywords
+    assert "Records" in java_tech.keywords
+    # "Spring" war schon vorher drin und darf nicht doppelt erscheinen
+    assert java_tech.keywords.count("Spring") == 1
+    # Original-Keywords erhalten
+    assert "Java" in java_tech.keywords
+    assert "JEE" in java_tech.keywords
+    assert "JDK" in java_tech.keywords
+
+
+def test_update_keywords_ignores_unknown_tech(tmp_path: Path) -> None:
+    src = EXAMPLE_PROFILE.read_text(encoding="utf-8")
+    target = tmp_path / "test.profile"
+    target.write_text(src, encoding="utf-8")
+
+    vorschlaege = {"NonExistentTech": ["X", "Y"]}
+    count = update_keywords_in_profile(target, vorschlaege)
+    assert count == 0
+    assert target.read_text(encoding="utf-8") == src
 
 
 @pytest.mark.integration

@@ -21,7 +21,12 @@ import sys
 from pathlib import Path
 
 from src.data_loader import load_profile
-from src.profile_enricher import generate_kurzprofil, update_kurzprofil_in_profile
+from src.profile_enricher import (
+    generate_kurzprofil,
+    suggest_keywords,
+    update_keywords_in_profile,
+    update_kurzprofil_in_profile,
+)
 
 # Ensure UTF-8 console output on Windows
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -60,12 +65,41 @@ def _run_kurzprofil(profile_path: Path, zielgruppe: str, apply: bool) -> None:
         sys.exit(1)
 
 
+def _run_keywords(profile_path: Path, apply: bool) -> None:
+    profil = load_profile(profile_path)
+    print(f"Profil:     {profile_path}")
+    print(f"{len(profil.technologien)} Technologien zur Analyse")
+    print()
+    print("Rufe Claude API auf …")
+    vorschlaege = suggest_keywords(profil)
+    print()
+
+    if not vorschlaege:
+        print("Keine Vorschläge zurückgegeben.")
+        return
+
+    print(f"Vorschläge für {len(vorschlaege)} Technologien:")
+    print("─" * 60)
+    for tech, items in vorschlaege.items():
+        print(f"  {tech}")
+        print(f"    + {', '.join(items)}")
+    print("─" * 60)
+    print()
+
+    if not apply:
+        print("Dry-Run: --apply weglassen, um die Vorschläge tatsächlich anzuwenden.")
+        return
+
+    count = update_keywords_in_profile(profile_path, vorschlaege)
+    print(f"✓ {count} technology-Blöcke in {profile_path} aktualisiert.")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="KI-gestützte Anreicherung von .profile-Daten")
     parser.add_argument("profil", type=Path, help="Pfad zur .profile-Datei")
     parser.add_argument(
         "--mode",
-        choices=["kurzprofil"],
+        choices=["kurzprofil", "keywords"],
         required=True,
         help="Welchen Aspekt anreichern",
     )
@@ -89,6 +123,8 @@ def main() -> None:
 
     if args.mode == "kurzprofil":
         _run_kurzprofil(args.profil, args.zielgruppe, args.apply)
+    elif args.mode == "keywords":
+        _run_keywords(args.profil, args.apply)
 
 
 if __name__ == "__main__":
