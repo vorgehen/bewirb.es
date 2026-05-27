@@ -51,24 +51,29 @@ was beim Pflegen fehlt oder besser formuliert werden muss.
 
 ### M1 — Abgeschlossen
 Repository, ARC42-Dokumentation, TextX-Grammatiken, Core-Pipeline
-(Markdown + Word Generator, Extractor, 87 Tests).
+(Markdown + Word Generator, Extractor).
 
 ### M2 — In Arbeit: Lifecycle-Tool-MVP
 
 ```
 7.5 ✓ Knowledge Layer (Stufe 1, handgefertigte YAML-Daten)
 7.6 ✓ Knowledge Layer als DSL (grammar/knowledge.tx, ADR-012)
-8   ◔ Metamodell-Erweiterung (Persönliche Daten, Sprachen, Zertifikate,
-        Werdegang, Schlüsselkompetenzen, Zielgruppe — in Arbeit)
-9     Import-Tool (.docx → .profile DSL)
-10    Datenbasis vervollständigen
-8a    Advisory Layer (Bewerbungsempfehlung, Portfolio-Scan)
-11    KI-Anreicherung (Artefakte + Web-Recherche)
-11a   Anonymisierungs-Utility (NDA-sichere Preprocessing-Pipeline)
+8   ✓ Metamodell-Erweiterung (Persönliche Daten, Sprachen, Zertifikate,
+        Werdegang, Schlüsselkompetenzen, Zielgruppe, Auftraggeber.extern)
+9   ✓ Import-Tool (.docx → .profile DSL, scripts/import_profile.py)
+10  ✓ Datenbasis vervollständigen
+8a  ✓ Advisory Layer (Bewerbungsempfehlung, Portfolio-Scan)
+11  ◔ KI-Anreicherung (Modi kurzprofil/keywords/projekt fertig;
+        Web-Recherche offen)
+11a ◔ Anonymisierungs-Utility (Level 1 lokal-regelbasiert fertig;
+        Level 2/3 mit LLM offen)
 ```
 
-**M2 fertig wenn:** Advisory-Portfolio-Scan über mehrere Angebote läuft,
-und das erste angereicherte Profil ist versendet.
+**M2 fertig wenn:** das erste über die volle Pipeline (Import → Anreichern →
+Advisory → Generieren) erzeugte Profil ist versendet.
+
+Operativer Spickzettel mit allen CLI-Befehlen nach Szenarien:
+**[docs/kochbuch.md](docs/kochbuch.md)**.
 
 ### M3 — Geplant: Intelligence & Positioning
 AI-Evaluator-Simulation, Agent-Ready Output (JSON-LD für AI-Recruiter-Bots),
@@ -131,16 +136,16 @@ copy .env.example .env   # ANTHROPIC_API_KEY eintragen
 # Codegen (nach jeder Grammatik-Änderung)
 python codegen/codegen.py
 
-# Profil generieren (mit anonymisiertem Demo-Profil)
-python scripts/generate.py data/example/example.profile data/example/example_job.req
-
 # Word-Vorlage initial erstellen
 python scripts/create_template.py
 
-# Word-Profil generieren
+# Word-Profil aus Demo-Daten generieren
 python scripts/generate.py data/example/example.profile data/example/example_job.req `
     --format word --output mein_profil.docx
 ```
+
+Alle weiteren Befehle (Import, Anreichern, Advisory, Anonymisierung) nach
+Arbeitsablauf gegliedert: **[docs/kochbuch.md](docs/kochbuch.md)**.
 
 ---
 
@@ -154,7 +159,7 @@ pytest tests/ -m "not integration and not eval"
 pytest tests/ -m integration
 ```
 
-Aktuell: **87 Unit-Tests grün**.
+Aktuell: **195 Unit-Tests grün**.
 
 ---
 
@@ -168,9 +173,13 @@ Aktuell: **87 Unit-Tests grün**.
   `codegen/codegen.py` — nicht manuell bearbeiten
 - Alle Claude-API-Aufrufe laufen über Prompt-Templates in `prompts/*.md`
 
-Phase 11a (in der Roadmap) ergänzt eine dreistufige Anonymisierungs-Pipeline
-für Kundendokumente — lokale NER + optionales LLM-Postprocessing — bevor
-diese in die Anreicherung einfließen.
+`scripts/anonymize_doc.py` führt eine regelbasierte Lokal-Anonymisierung
+(Phase 11a Level 1) durch — Wörterbuch-Replace, striktes Telefon-Pattern,
+`public_domain`-Schutzliste — und schreibt ein Audit-Log mit allen
+Ersetzungen. Pflicht-Vorstufe für `enrich_profile.py --mode projekt`, das
+Kundendokumente nur als anonymisiertes Extrakt akzeptiert (`--preprocess`).
+LLM-gestützte Level 2/3 (semantische Bereinigung, strukturiertes Extrakt)
+sind in der Roadmap.
 
 ---
 
