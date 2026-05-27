@@ -7,6 +7,9 @@ data/**/*.req
 !data/example/*.profile
 !data/example/*.req
 
+# Besprechungs-Protokolle (lokal, nicht öffentlich)
+besprechungen/
+
 # Generierte Ausgaben
 output/
 output_test.md
