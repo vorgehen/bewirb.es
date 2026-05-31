@@ -1,5 +1,5 @@
 // profile.tx — Profil-Metamodell (M2)
-// Ubiquitous Language: Profil, Projekterfahrung, Technologiekompetenz, Auftraggeber, Branche,
+// Ubiquitous Language: Profil, Projekterfahrung, Wissensgebiet, Auftraggeber, Branche,
 //                      Sprache, Zertifikat, Werdegang, Schluesselkompetenzen, PersoenlicheDaten
 
 Profil:
@@ -7,7 +7,7 @@ Profil:
 ;
 
 ProfilElement:
-    Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung |
+    Person | Branche | Auftraggeber | Projekterfahrung |
     Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen |
     WissenschaftlichesInteresse | Wissensgebiet
 ;
@@ -43,24 +43,6 @@ Kontakt:
     '}'
 ;
 
-Technologiekompetenz:
-    'technology' name=ID '{'
-        'category:' category=Kategorie
-        'proficiency:' proficiency=Proficiency
-        'years:' years=INT
-        ('keywords:' '[' keywords+=STRING[','] ']')?
-    '}'
-;
-
-Kategorie:
-    'Programmiersprache' | 'Framework' | 'Datenbank' | 'Cloud' |
-    'Werkzeug' | 'Methodik' | 'Plattform' | 'Protokoll'
-;
-
-Proficiency:
-    'Experte' | 'Fortgeschritten' | 'Grundkenntnisse'
-;
-
 Branche:
     'branche' name=ID '{'
         'label:' label=STRING
@@ -82,6 +64,11 @@ Auftraggeber:
     '}'
 ;
 
+// Projekterfahrung.uses verweist auf Wissensgebiete (G3 Migration Phase 8b,
+// 2026-05-31): jedes Projekt assoziiert sich mit einem oder mehreren der
+// kumulativ aufgebauten Wissens-Cluster. Granularer als Wissensgebiet ist
+// pro-Projekt-Markierung nicht sinnvoll; konkrete Sprachen/Frameworks
+// stehen im Description-Text und in keywords.
 Projekterfahrung:
     'projekt' name=ID '{'
         'title:' title=STRING
@@ -89,7 +76,7 @@ Projekterfahrung:
         'branche:' branche=[Branche]
         'periode:' start=YearMonth 'to' end=YearMonthOrToday
         'rolle:' rolle=STRING
-        ('uses:' '[' uses+=[Technologiekompetenz][','] ']')?
+        ('uses:' '[' uses+=[Wissensgebiet][','] ']')?
         ('keywords:' '[' keywords+=STRING[','] ']')?
         ('description:' description=STRING)?
         ('achievements:' '[' achievements+=STRING[','] ']')?

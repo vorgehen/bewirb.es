@@ -4,12 +4,14 @@ Phase 11 (M2). Aktuell implementiert:
 
 - Mode `kurzprofil`: generiert/aktualisiert das Kurzprofil-Feld aus
   Profilinhalten, zielgruppen-spezifisch in Tonalität.
-- Mode `keywords`: schlägt marktrelevante zusätzliche Keywords pro
-  Technologie vor (keine Web-Recherche, nur Claude-Trainingswissen).
 - Mode `projekt`: verbessert description und achievements eines
   Projekt-Eintrags anhand eines anonymisierten Artefakt-Extrakts
   (NDA-sicher per AISE — Nutzer hat das Extrakt selbst bereinigt
   und freigegeben).
+
+Phase 8b G3 (2026-05-31): Mode `keywords` entfernt — die Tech-Keyword-Listen
+hingen an der Technologiekompetenz-Entität, die mit Migration auf
+Wissensgebiete weggefallen ist.
 
 Nur das eigene Profil geht in die API — keine Kundendokumente.
 """
@@ -27,11 +29,9 @@ from dotenv import load_dotenv
 from src.data_loader import Profil
 
 PROMPT_KURZPROFIL = Path(__file__).parent.parent / "prompts" / "generate_kurzprofil.md"
-PROMPT_KEYWORDS = Path(__file__).parent.parent / "prompts" / "enrich_keywords.md"
 PROMPT_PROJEKT = Path(__file__).parent.parent / "prompts" / "enrich_projekt.md"
 MODEL = "claude-sonnet-4-6"
 MAX_TOKENS = 4000  # Kurzprofil ~500 Zeichen, aber Reasoning-Modi brauchen Headroom
-MAX_TOKENS_KEYWORDS = 8000  # Bei 30+ Technologien je 2-5 Vorschläge
 MAX_TOKENS_PROJEKT = 4000  # Verbesserte description + achievements
 
 load_dotenv()
@@ -43,18 +43,29 @@ def _format_projekte(profil: Profil, n: int = 5) -> str:
     lines: list[str] = []
     for p in sorted_projekte[:n]:
         auftraggeber = p.auftraggeber.label or p.auftraggeber.name if p.auftraggeber else ""
-        techs = ", ".join(t.name for t in p.uses) if p.uses else ""
+        wgs = ", ".join(w.titel for w in p.uses) if p.uses else ""
         line = f"- {p.start}–{p.end} {p.title} ({auftraggeber}, {p.rolle})"
-        if techs:
-            line += f" [{techs}]"
+        if wgs:
+            line += f" [{wgs}]"
         lines.append(line)
     return "\n".join(lines)
 
 
-def _format_top_technologien(profil: Profil, n: int = 10) -> str:
-    """Top-N Technologien nach Jahren."""
-    sorted_techs = sorted(profil.technologien, key=lambda t: t.years, reverse=True)
-    return "\n".join(f"- {t.name} ({t.years}J, {t.proficiency})" for t in sorted_techs[:n])
+def _format_wissensgebiete(profil: Profil) -> str:
+    """Wissensgebiete sortiert nach Aneignungs-Reihenfolge, ein Halbsatz je Gebiet."""
+    sorted_wgs = sorted(profil.wissensgebiete, key=lambda w: w.reihenfolge)
+    lines: list[str] = []
+    for w in sorted_wgs:
+        items = []
+        for kat in w.kategorien:
+            items.append(f"{kat.typ}: {', '.join(kat.items)}")
+        details = " · ".join(items) if items else ""
+        stil = f" — {w.architekturstil}" if w.architekturstil else ""
+        line = f"- {w.titel}{stil}"
+        if details:
+            line += f"\n    {details}"
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def _format_werdegang(profil: Profil) -> str:
@@ -79,7 +90,7 @@ def _build_prompt(profil: Profil, zielgruppe: str) -> str:
         "{{person_title}}": profil.person.title or "",
         "{{zielgruppe}}": zielgruppe or "Standard",
         "{{kurzprofil_alt}}": profil.person.kurzprofil or "(keines vorhanden)",
-        "{{top_technologien}}": _format_top_technologien(profil),
+        "{{wissensgebiete}}": _format_wissensgebiete(profil),
         "{{projekte}}": _format_projekte(profil),
         "{{methoden}}": _format_schluesselkompetenz_kategorie(profil, "methodenkompetenz"),
         "{{fachgebiete}}": _format_schluesselkompetenz_kategorie(profil, "fachkompetenz"),
@@ -147,94 +158,6 @@ def update_kurzprofil_in_profile(profile_path: Path, neues_kurzprofil: str) -> b
     return False
 
 
-# ─── Mode keywords ─────────────────────────────────────────────────────────
-
-
-def _format_technologien_with_keywords(profil: Profil) -> str:
-    """Tech-Liste mit existierenden Keywords im Format für den Prompt."""
-    lines: list[str] = []
-    for t in profil.technologien:
-        kws = ", ".join(t.keywords) if t.keywords else "(keine)"
-        lines.append(f"- {t.name} ({t.category}): bestehende Keywords: {kws}")
-    return "\n".join(lines)
-
-
-def suggest_keywords(profil: Profil) -> dict[str, list[str]]:
-    """Ruft Claude API und gibt {tech_name: [vorschlaege]} zurück."""
-    client = anthropic.Anthropic()
-    template = PROMPT_KEYWORDS.read_text(encoding="utf-8")
-    prompt = template.replace("{{technologien}}", _format_technologien_with_keywords(profil))
-    message = client.messages.create(
-        model=MODEL,
-        max_tokens=MAX_TOKENS_KEYWORDS,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    block = message.content[0]
-    if not isinstance(block, TextBlock):
-        raise ValueError(f"Unerwarteter Block-Typ: {type(block)}")
-    text = _strip_artifacts(block.text)
-
-    result: dict[str, list[str]] = {}
-    for line in text.splitlines():
-        line = line.strip()
-        if not line or not line.startswith("{"):
-            continue
-        try:
-            obj = json.loads(line)
-            tech = str(obj.get("tech", ""))
-            vorschlaege = [str(v) for v in obj.get("vorschlaege") or []]
-            if tech and vorschlaege:
-                result[tech] = vorschlaege
-        except json.JSONDecodeError:
-            continue
-    return result
-
-
-_TECHNOLOGY_BLOCK_RE = re.compile(
-    r"(technology\s+(\w+)\s*\{[^}]*?keywords:\s*\[)([^\]]*?)(\])",
-    re.DOTALL,
-)
-
-
-def update_keywords_in_profile(profile_path: Path, vorschlaege: dict[str, list[str]]) -> int:
-    """Erweitert die keywords-Listen je technology-Block in-place.
-
-    Nutzt vorschlaege als {tech_name: [neue_keywords]}-Mapping. Hängt
-    neue Keywords ans Ende der bestehenden Liste an (keine Duplikate).
-    Gibt die Anzahl tatsächlich aktualisierter technology-Blöcke zurück.
-    """
-    content = profile_path.read_text(encoding="utf-8")
-    updates = 0
-
-    def _replace(match: re.Match[str]) -> str:
-        nonlocal updates
-        prefix, tech_name, kws_inner, suffix = match.groups()
-        if tech_name not in vorschlaege:
-            return match.group(0)
-        new_items = vorschlaege[tech_name]
-
-        # Existierende Keywords parsen
-        existing = []
-        for s in re.findall(r'"((?:[^"\\]|\\.)*)"', kws_inner):
-            existing.append(s)
-
-        # Neue Items anhängen ohne Duplikate (case-insensitive)
-        existing_lower = {e.lower() for e in existing}
-        for item in new_items:
-            if item.lower() not in existing_lower:
-                existing.append(item)
-                existing_lower.add(item.lower())
-
-        formatted = ", ".join(f'"{_escape_dsl_string(e)}"' for e in existing)
-        updates += 1
-        return f"{prefix}{formatted}{suffix}"
-
-    new_content = _TECHNOLOGY_BLOCK_RE.sub(_replace, content)
-    if updates > 0:
-        profile_path.write_text(new_content, encoding="utf-8")
-    return updates
-
-
 # ─── Mode projekt ──────────────────────────────────────────────────────────
 
 
@@ -259,7 +182,7 @@ def _find_projekt(profil: Profil, projekt_id: str) -> object:
 
 def _build_projekt_prompt(projekt: object, extrakt: str) -> str:
     template = PROMPT_PROJEKT.read_text(encoding="utf-8")
-    tech_names = ", ".join(t.name for t in getattr(projekt, "uses", []) or []) or "(keine)"
+    tech_names = ", ".join(t.titel for t in getattr(projekt, "uses", []) or []) or "(keine)"
     achievements = getattr(projekt, "achievements", []) or []
     ach_text = "\n".join(f"- {a}" for a in achievements) if achievements else "(keine)"
     substitutions = {

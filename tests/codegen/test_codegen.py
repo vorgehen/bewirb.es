@@ -45,7 +45,8 @@ def test_models_py_header(generated: dict[str, str]) -> None:
 def test_models_py_contains_domain_classes(generated: dict[str, str]) -> None:
     for cls in (
         "Projekterfahrung",
-        "Technologiekompetenz",
+        "Wissensgebiet",
+        "Subkategorie",
         "Person",
         "Auftraggeber",
         "Branche",
@@ -67,7 +68,7 @@ def test_models_py_is_valid_python(generated: dict[str, str]) -> None:
 def test_graph_schema_node_types(generated: dict[str, str]) -> None:
     assert "NODE_TYPES" in generated["graph_schema"]
     assert "Projekterfahrung" in generated["graph_schema"]
-    assert "Technologiekompetenz" in generated["graph_schema"]
+    assert "Wissensgebiet" in generated["graph_schema"]
 
 
 def test_graph_schema_is_valid_python(generated: dict[str, str]) -> None:
@@ -79,7 +80,7 @@ def test_web_schemas_response_classes(generated: dict[str, str]) -> None:
         "ProjekerfahrungResponse" in generated["web_schemas"]
         or "ProjekterfahrungResponse" in generated["web_schemas"]
     )
-    assert "TechnologiekompetenzResponse" in generated["web_schemas"]
+    assert "WissensgebietResponse" in generated["web_schemas"]
 
 
 def test_web_schemas_is_valid_python(generated: dict[str, str]) -> None:

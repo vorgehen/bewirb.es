@@ -30,7 +30,7 @@ def test_markdown_snapshot(markdown_output: str, snapshot: SnapshotAssertion) ->
 
 
 def test_markdown_has_required_sections(markdown_output: str) -> None:
-    assert "## Technologiekompetenz" in markdown_output
+    assert "## IT-Know-How" in markdown_output
     assert "## Projekterfahrung" in markdown_output
     assert "## Ausbildung" in markdown_output
     assert "## Schluessel-Kompetenzen" in markdown_output

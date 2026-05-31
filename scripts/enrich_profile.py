@@ -24,8 +24,6 @@ from src.data_loader import load_profile
 from src.profile_enricher import (
     enrich_projekt,
     generate_kurzprofil,
-    suggest_keywords,
-    update_keywords_in_profile,
     update_kurzprofil_in_profile,
     update_projekt_in_profile,
 )
@@ -65,35 +63,6 @@ def _run_kurzprofil(profile_path: Path, zielgruppe: str, apply: bool) -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
-
-def _run_keywords(profile_path: Path, apply: bool) -> None:
-    profil = load_profile(profile_path)
-    print(f"Profil:     {profile_path}")
-    print(f"{len(profil.technologien)} Technologien zur Analyse")
-    print()
-    print("Rufe Claude API auf …")
-    vorschlaege = suggest_keywords(profil)
-    print()
-
-    if not vorschlaege:
-        print("Keine Vorschläge zurückgegeben.")
-        return
-
-    print(f"Vorschläge für {len(vorschlaege)} Technologien:")
-    print("─" * 60)
-    for tech, items in vorschlaege.items():
-        print(f"  {tech}")
-        print(f"    + {', '.join(items)}")
-    print("─" * 60)
-    print()
-
-    if not apply:
-        print("Dry-Run: --apply weglassen, um die Vorschläge tatsächlich anzuwenden.")
-        return
-
-    count = update_keywords_in_profile(profile_path, vorschlaege)
-    print(f"✓ {count} technology-Blöcke in {profile_path} aktualisiert.")
 
 
 def _run_projekt(
@@ -177,7 +146,7 @@ def main() -> None:
     parser.add_argument("profil", type=Path, help="Pfad zur .profile-Datei")
     parser.add_argument(
         "--mode",
-        choices=["kurzprofil", "keywords", "projekt"],
+        choices=["kurzprofil", "projekt"],
         required=True,
         help="Welchen Aspekt anreichern",
     )
@@ -213,8 +182,6 @@ def main() -> None:
 
     if args.mode == "kurzprofil":
         _run_kurzprofil(args.profil, args.zielgruppe, args.apply)
-    elif args.mode == "keywords":
-        _run_keywords(args.profil, args.apply)
     elif args.mode == "projekt":
         _run_projekt(args.profil, args.projekt_id, args.preprocess, args.apply)
 

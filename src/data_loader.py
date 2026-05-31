@@ -17,7 +17,6 @@ from src.models import (
     Schluesselkompetenzen,
     Sprache,
     Subkategorie,
-    Technologiekompetenz,
     Werdegang,
     WissenschaftlichesInteresse,
     Wissensgebiet,
@@ -29,7 +28,6 @@ GRAMMAR_DIR = Path(__file__).parent.parent / "grammar"
 
 class Profil(BaseModel):
     person: Person
-    technologien: list[Technologiekompetenz] = []
     projekte: list[Projekterfahrung] = []
     ausbildungen: list[Ausbildung] = []
     branchen: list[Branche] = []
@@ -145,16 +143,6 @@ def _to_wissensgebiet(obj: Any) -> Wissensgebiet:
     )
 
 
-def _to_technologiekompetenz(obj: Any) -> Technologiekompetenz:
-    return Technologiekompetenz(
-        name=obj.name or "",
-        category=obj.category or "",
-        proficiency=obj.proficiency or "",
-        years=obj.years or 0,
-        keywords=list(obj.keywords),
-    )
-
-
 def _to_branche(obj: Any) -> Branche:
     return Branche(name=obj.name or "", label=obj.label or "")
 
@@ -173,7 +161,7 @@ def _to_projekterfahrung(
     obj: Any,
     branchen_map: dict[str, Branche],
     auftraggeber_map: dict[str, Auftraggeber],
-    tech_map: dict[str, Technologiekompetenz],
+    wg_map: dict[str, Wissensgebiet],
 ) -> Projekterfahrung:
     return Projekterfahrung(
         name=obj.name or "",
@@ -183,7 +171,7 @@ def _to_projekterfahrung(
         start=obj.start or "",
         end=obj.end or "",
         rolle=obj.rolle or "",
-        uses=[tech_map[t.name] for t in obj.uses],
+        uses=[wg_map[w.name] for w in obj.uses],
         keywords=list(obj.keywords),
         description=obj.description or "",
         achievements=list(obj.achievements),
@@ -210,7 +198,7 @@ def load_profile(path: Path) -> Profil:
 
     branchen_map: dict[str, Branche] = {}
     auftraggeber_map: dict[str, Auftraggeber] = {}
-    tech_map: dict[str, Technologiekompetenz] = {}
+    wg_map: dict[str, Wissensgebiet] = {}
     person: Person | None = None
     ausbildungen: list[Ausbildung] = []
     sprachen: list[Sprache] = []
@@ -218,7 +206,6 @@ def load_profile(path: Path) -> Profil:
     werdegang: list[Werdegang] = []
     schluesselkompetenzen: Schluesselkompetenzen | None = None
     wissenschaftliche_interessen: list[WissenschaftlichesInteresse] = []
-    wissensgebiete: list[Wissensgebiet] = []
 
     for elem in model.elements:
         cls_name = elem.__class__.__name__
@@ -228,9 +215,6 @@ def load_profile(path: Path) -> Profil:
         elif cls_name == "Auftraggeber":
             a = _to_auftraggeber(elem)
             auftraggeber_map[a.name] = a
-        elif cls_name == "Technologiekompetenz":
-            t = _to_technologiekompetenz(elem)
-            tech_map[t.name] = t
         elif cls_name == "Person":
             person = _to_person(elem)
         elif cls_name == "Ausbildung":
@@ -246,12 +230,13 @@ def load_profile(path: Path) -> Profil:
         elif cls_name == "WissenschaftlichesInteresse":
             wissenschaftliche_interessen.append(_to_wissenschaftliches_interesse(elem))
         elif cls_name == "Wissensgebiet":
-            wissensgebiete.append(_to_wissensgebiet(elem))
+            wg = _to_wissensgebiet(elem)
+            wg_map[wg.name] = wg
 
-    wissensgebiete.sort(key=lambda w: w.reihenfolge)
+    wissensgebiete = sorted(wg_map.values(), key=lambda w: w.reihenfolge)
 
     projekte: list[Projekterfahrung] = [
-        _to_projekterfahrung(elem, branchen_map, auftraggeber_map, tech_map)
+        _to_projekterfahrung(elem, branchen_map, auftraggeber_map, wg_map)
         for elem in model.elements
         if elem.__class__.__name__ == "Projekterfahrung"
     ]
@@ -261,7 +246,6 @@ def load_profile(path: Path) -> Profil:
 
     return Profil(
         person=person,
-        technologien=list(tech_map.values()),
         projekte=projekte,
         ausbildungen=ausbildungen,
         branchen=list(branchen_map.values()),

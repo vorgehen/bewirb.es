@@ -240,9 +240,11 @@ def _profile_text_index(profil: Profil) -> str:
     parts: list[str] = []
     parts.append(profil.person.title)
     parts.append(profil.person.kurzprofil)
-    for t in profil.technologien:
-        parts.append(t.name)
-        parts.extend(t.keywords)
+    for wg in profil.wissensgebiete:
+        parts.append(wg.titel)
+        parts.append(wg.architekturstil)
+        for kat in wg.kategorien:
+            parts.extend(kat.items)
     for p in profil.projekte:
         parts.append(p.title)
         parts.append(p.description)
@@ -264,11 +266,14 @@ def _profile_text_index(profil: Profil) -> str:
 
 
 def _profile_tech_set(profil: Profil, kb: KnowledgeBase) -> set[str]:
-    """Normalisierte Tech-Namen im Profil (Profil-IDs durch Knowledge-Aliase aufgelöst)."""
+    """Normalisierte Tech-Namen im Profil (Items aus Wissensgebieten,
+    Profil-Bezeichner durch Knowledge-Aliase aufgelöst)."""
     result: set[str] = set()
-    for t in profil.technologien:
-        canon = kb.normalize(t.name) or t.name
-        result.add(canon.lower())
+    for wg in profil.wissensgebiete:
+        for kat in wg.kategorien:
+            for item in kat.items:
+                canon = kb.normalize(item) or item
+                result.add(canon.lower())
     return result
 
 

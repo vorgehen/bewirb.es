@@ -25,15 +25,16 @@ def build_graph(profil: Profil) -> nx.DiGraph[str]:
         }
     g.add_node(person_id, **person_attrs)
 
-    for tech in profil.technologien:
-        tech_id = f"Technologiekompetenz:{tech.name}"
+    for wg in profil.wissensgebiete:
+        wg_id = f"Wissensgebiet:{wg.name}"
         g.add_node(
-            tech_id,
-            type="Technologiekompetenz",
-            name=tech.name,
-            category=tech.category,
-            proficiency=tech.proficiency,
-            years=tech.years,
+            wg_id,
+            type="Wissensgebiet",
+            name=wg.name,
+            titel=wg.titel,
+            reihenfolge=wg.reihenfolge,
+            architekturstil=wg.architekturstil,
+            kategorien=[{"typ": kat.typ, "items": list(kat.items)} for kat in wg.kategorien],
         )
 
     for projekt in profil.projekte:
@@ -48,8 +49,8 @@ def build_graph(profil: Profil) -> nx.DiGraph[str]:
             rolle=projekt.rolle,
         )
         g.add_edge(person_id, proj_id, rel="hat_projekt")
-        for tech in projekt.uses:
-            g.add_edge(proj_id, f"Technologiekompetenz:{tech.name}", rel="uses")
+        for wg in projekt.uses:
+            g.add_edge(proj_id, f"Wissensgebiet:{wg.name}", rel="uses")
 
     for ausb in profil.ausbildungen:
         ausb_id = f"Ausbildung:{ausb.name}"

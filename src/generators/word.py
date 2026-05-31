@@ -50,7 +50,7 @@ def create_default_template(output: Path) -> None:
       2. Kurzprofil (optional)
       3. Zielrolle (optional)
       4. Schlüsselkompetenzen (zielgruppen-spezifisch geordnet und benannt)
-      5. Technologiekompetenz
+      5. IT-Know-How (Wissensgebiete in Aneignungs-Reihenfolge)
       6. Projekterfahrung
       7. Werdegang (Festanstellungen)
       8. Ausbildung
@@ -98,26 +98,29 @@ def create_default_template(output: Path) -> None:
     _clear_and_set(sk_table.rows[2].cells[0], "{%tr endfor %}")
     doc.add_paragraph("{%p endif %}")
 
-    # ─── 5. Technologiekompetenz ───────────────────────────────────────────
-    doc.add_heading("Technologiekompetenz", level=2)
-    tech_table = doc.add_table(rows=4, cols=3)
-    tech_table.style = "Table Grid"
-    for i, label in enumerate(["Technologie", "Kategorie", "Level"]):
-        cell = tech_table.rows[0].cells[i]
-        _clear_and_set(cell, label)
-        cell.paragraphs[0].runs[0].bold = True
-    _clear_and_set(tech_table.rows[1].cells[0], "{%tr for tech in technologien %}")
-    dr = tech_table.rows[2]
-    _clear_and_set(dr.cells[0], "{{ tech.name }}")
-    _clear_and_set(dr.cells[1], "{{ tech.category }}")
-    _clear_and_set(dr.cells[2], "{{ tech.proficiency }}")
-    _clear_and_set(tech_table.rows[3].cells[0], "{%tr endfor %}")
+    # ─── 5. IT-Know-How ────────────────────────────────────────────────────
+    # Wissensgebiete in Reihenfolge der Aneignung; pro Gebiet ein Heading,
+    # optional ein Halbsatz „Architekturstil" und eine Tabelle mit den
+    # Subkategorien (Sprache, Framework, Persistenz, …).
+    doc.add_heading("IT-Know-How", level=2)
+    doc.add_paragraph("{%p for wg in wissensgebiete %}")
+    doc.add_heading("{{ wg.reihenfolge }}. {{ wg.titel }}", level=3)
+    doc.add_paragraph("{%p if wg.architekturstil %}")
+    doc.add_paragraph("Architekturstil: {{ wg.architekturstil }}")
+    doc.add_paragraph("{%p endif %}")
+    wg_table = doc.add_table(rows=3, cols=2)
+    wg_table.style = "Table Grid"
+    _clear_and_set(wg_table.rows[0].cells[0], "{%tr for kat in wg.kategorien %}")
+    _clear_and_set(wg_table.rows[1].cells[0], "{{ kat.typ }}")
+    _clear_and_set(wg_table.rows[1].cells[1], "{{ kat.items_str }}")
+    _clear_and_set(wg_table.rows[2].cells[0], "{%tr endfor %}")
+    doc.add_paragraph("{%p endfor %}")
 
     # ─── 6. Projekterfahrung ───────────────────────────────────────────────
     doc.add_heading("Projekterfahrung", level=2)
     proj_table = doc.add_table(rows=4, cols=3)
     proj_table.style = "Table Grid"
-    for i, label in enumerate(["Zeitraum / Auftraggeber / Rolle", "Projekt", "Technologien"]):
+    for i, label in enumerate(["Zeitraum / Auftraggeber / Rolle", "Projekt", "Wissensgebiete"]):
         cell = proj_table.rows[0].cells[i]
         _clear_and_set(cell, label)
         cell.paragraphs[0].runs[0].bold = True
@@ -244,20 +247,24 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
         for entry in sk_ordered
     ]
 
-    technologien: list[dict[str, Any]] = []
-    for tech in sorted(profil.technologien, key=lambda t: t.years, reverse=True):
-        technologien.append(
+    wissensgebiete: list[dict[str, Any]] = []
+    for wg in sorted(profil.wissensgebiete, key=lambda w: w.reihenfolge):
+        kategorien_str = "; ".join(f"{kat.typ}: {', '.join(kat.items)}" for kat in wg.kategorien)
+        wissensgebiete.append(
             {
-                "name": tech.name,
-                "category": tech.category,
-                "proficiency": tech.proficiency,
-                "years": str(tech.years),
+                "titel": wg.titel,
+                "reihenfolge": str(wg.reihenfolge),
+                "architekturstil": wg.architekturstil,
+                "kategorien_str": kategorien_str,
+                "kategorien": [
+                    {"typ": kat.typ, "items_str": ", ".join(kat.items)} for kat in wg.kategorien
+                ],
             }
         )
 
     projekte: list[dict[str, Any]] = []
     for p in profil.projekte:
-        tech_str = ", ".join(t.name for t in p.uses)
+        tech_str = ", ".join(t.titel for t in p.uses)
         achievements = "\n".join(f"• {a}" for a in p.achievements)
         # Externer Sektor-Begriff (auftraggeber.extern) hat Vorrang vor
         # dem internen Namen (label), damit der Word-Output extern-tauglich ist
@@ -344,7 +351,7 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
         "kurzprofil": profil.person.kurzprofil,
         "zielrolle": anf.rolle,
         "schluesselkompetenzen_kategorien": schluesselkompetenzen_kategorien,
-        "technologien": technologien,
+        "wissensgebiete": wissensgebiete,
         "projekte": projekte,
         "werdegang": werdegang,
         "ausbildungen": ausbildungen,

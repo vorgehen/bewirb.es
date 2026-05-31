@@ -15,7 +15,11 @@ def test_valid_minimal_profile(profile_mm: Any, tmp_path: Path) -> None:
     content = """
     branche IT { label: "IT" }
     auftraggeber A { label: "Firma A" }
-    technology Python { category: Programmiersprache proficiency: Experte years: 5 }
+    wissensgebiet wg_py {
+        titel: "Python"
+        reihenfolge: 1
+        Sprache: ["Python"]
+    }
     person P { title: "Dev" contact { email: "x@x.de" } }
     """
     f = tmp_path / "test.profile"
@@ -24,25 +28,29 @@ def test_valid_minimal_profile(profile_mm: Any, tmp_path: Path) -> None:
     assert model is not None
 
 
-def test_technologiekompetenz_attributes(profile_mm: Any, tmp_path: Path) -> None:
+def test_wissensgebiet_attributes(profile_mm: Any, tmp_path: Path) -> None:
     content = """
-    technology Java {
-        category: Programmiersprache
-        proficiency: Experte
-        years: 20
-        keywords: ["Java", "Spring"]
+    wissensgebiet wg_java {
+        titel: "Enterprise Java"
+        reihenfolge: 2
+        architekturstil: "N-Tier / Microservices"
+        Sprache: ["Java (8–17)"]
+        Framework: ["Spring", "Spring Boot"]
+        Persistenz: ["JPA / Hibernate"]
     }
     """
-    f = tmp_path / "t.profile"
+    f = tmp_path / "wg.profile"
     f.write_text(content, encoding="utf-8")
     model = profile_mm.model_from_file(str(f))
-    techs = [e for e in model.elements if e.__class__.__name__ == "Technologiekompetenz"]
-    assert len(techs) == 1
-    java = techs[0]
-    assert java.name == "Java"
-    assert java.years == 20
-    assert java.proficiency == "Experte"
-    assert "Spring" in java.keywords
+    wgs = [e for e in model.elements if e.__class__.__name__ == "Wissensgebiet"]
+    assert len(wgs) == 1
+    java = wgs[0]
+    assert java.name == "wg_java"
+    assert java.titel == "Enterprise Java"
+    assert java.reihenfolge == 2
+    assert java.architekturstil == "N-Tier / Microservices"
+    typen = {k.typ for k in java.kategorien}
+    assert {"Sprache", "Framework", "Persistenz"} <= typen
 
 
 def test_projekterfahrung_cross_references(mini_profile: Any) -> None:
@@ -55,7 +63,7 @@ def test_projekterfahrung_cross_references(mini_profile: Any) -> None:
     assert p.start == "2023-01"
     assert p.end == "today"
     assert len(p.uses) == 1
-    assert p.uses[0].name == "Python"
+    assert p.uses[0].name == "wg_python"
 
 
 def test_optional_fields_default_empty(mini_profile: Any) -> None:
@@ -65,29 +73,16 @@ def test_optional_fields_default_empty(mini_profile: Any) -> None:
     assert p.achievements == []
 
 
-def test_invalid_category_rejected(profile_mm: Any, tmp_path: Path) -> None:
+def test_invalid_subkategorie_typ_rejected(profile_mm: Any, tmp_path: Path) -> None:
+    """SubkategorieTyp ist ein Enum — unbekannte Typen werden vom Parser zurückgewiesen."""
     content = """
-    technology X {
-        category: UngueltigeKategorie
-        proficiency: Experte
-        years: 1
+    wissensgebiet wg_x {
+        titel: "Test"
+        reihenfolge: 1
+        UngueltigerTyp: ["A"]
     }
     """
     f = tmp_path / "bad.profile"
-    f.write_text(content, encoding="utf-8")
-    with pytest.raises(TextXSyntaxError):
-        profile_mm.model_from_file(str(f))
-
-
-def test_invalid_proficiency_rejected(profile_mm: Any, tmp_path: Path) -> None:
-    content = """
-    technology X {
-        category: Programmiersprache
-        proficiency: Superexperte
-        years: 1
-    }
-    """
-    f = tmp_path / "bad2.profile"
     f.write_text(content, encoding="utf-8")
     with pytest.raises(TextXSyntaxError):
         profile_mm.model_from_file(str(f))

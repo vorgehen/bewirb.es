@@ -35,14 +35,14 @@ def test_psm_has_person_node() -> None:
     assert len(person_nodes) == 1
 
 
-def test_psm_annotates_matched_technologies() -> None:
+def test_psm_annotates_matched_wissensgebiete() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     anf = load_requirements(EXAMPLE_REQ)
     g = build_graph(profil)
     psm = transform(g, anf)
-    tech_nodes = [d for _, d in psm.nodes(data=True) if d.get("type") == "Technologiekompetenz"]
-    # At least one tech node should be annotated as matched
-    assert any(d.get("matched") for d in tech_nodes)
+    wg_nodes = [d for _, d in psm.nodes(data=True) if d.get("type") == "Wissensgebiet"]
+    # At least one Wissensgebiet should be annotated as matched
+    assert any(d.get("matched") for d in wg_nodes)
 
 
 def test_psm_preserves_all_nodes() -> None:
@@ -113,7 +113,7 @@ def test_psm_ohne_schluesselkompetenzen_keine_annotation(tmp_path: Path) -> None
     minimal_profile = """
     branche IT { label: "IT" }
     auftraggeber X { label: "X" }
-    technology Java { category: Programmiersprache proficiency: Experte years: 5 }
+    wissensgebiet wg_java { titel: "Java" reihenfolge: 1 Sprache: ["Java"] }
     person P { title: "Dev" contact { email: "x@x.de" } }
     """
     f = tmp_path / "min.profile"
@@ -132,7 +132,7 @@ def test_psm_leere_kategorien_werden_uebersprungen(tmp_path: Path) -> None:
     profile_text = """
     branche IT { label: "IT" }
     auftraggeber X { label: "X" }
-    technology Java { category: Programmiersprache proficiency: Experte years: 5 }
+    wissensgebiet wg_java { titel: "Java" reihenfolge: 1 Sprache: ["Java"] }
     person P { title: "Dev" contact { email: "x@x.de" } }
     schluesselkompetenzen {
         fuehrungkompetenz: ["Mentoring"]

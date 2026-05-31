@@ -4,18 +4,21 @@ import pytest
 
 from src.data_loader import Anforderungen, Profil
 from src.matcher import MatchResult, match_profile_to_requirements
-from src.models import Kontakt, Person, Technologiekompetenz
+from src.models import Kontakt, Person, Subkategorie, Wissensgebiet
 
 pytestmark = pytest.mark.unit
 
 
 def _make_profil(techs: list[str]) -> Profil:
+    """Profil mit einem Wissensgebiet, dessen Sprache-Kategorie alle techs enthält."""
     person = Person(name="TestDev", title="Entwickler", contact=Kontakt(email="t@t.de"))
-    technologien = [
-        Technologiekompetenz(name=t, category="Programmiersprache", proficiency="Experte", years=5)
-        for t in techs
-    ]
-    return Profil(person=person, technologien=technologien)
+    wg = Wissensgebiet(
+        name="wg_test",
+        titel="Test-Wissensgebiet",
+        reihenfolge=1,
+        kategorien=[Subkategorie(typ="Sprache", items=techs)],
+    )
+    return Profil(person=person, wissensgebiete=[wg])
 
 
 def _make_anforderungen(must: list[str], nice: list[str]) -> Anforderungen:
@@ -73,3 +76,11 @@ def test_match_result_has_score_field() -> None:
         matched_nice_to_have=[],
     )
     assert result.score == 0.5
+
+
+def test_match_findet_substring_in_versionsangabe() -> None:
+    """„Java (8–17)" matched „Java" — Versionsangaben sind unschädlich."""
+    profil = _make_profil(["Java (8–17)"])
+    anf = _make_anforderungen(["Java"], [])
+    result = match_profile_to_requirements(profil, anf)
+    assert result.score == 1.0

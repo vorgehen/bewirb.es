@@ -31,14 +31,6 @@ class Kontakt(BaseModel):
     github: str = ""
 
 
-class Technologiekompetenz(BaseModel):
-    name: str = ""
-    category: str = ""
-    proficiency: str = ""
-    years: int
-    keywords: list[str] = []
-
-
 class Branche(BaseModel):
     name: str = ""
     label: str = ""
@@ -60,7 +52,7 @@ class Projekterfahrung(BaseModel):
     start: str = ""
     end: str = ""
     rolle: str = ""
-    uses: list[Technologiekompetenz] = []
+    uses: list[Wissensgebiet] = []
     keywords: list[str] = []
     description: str = ""
     achievements: list[str] = []

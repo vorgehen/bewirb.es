@@ -22,9 +22,9 @@ def test_load_profile_has_projekte() -> None:
     assert len(profil.projekte) >= 1
 
 
-def test_load_profile_has_technologien() -> None:
+def test_load_profile_has_wissensgebiete() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
-    assert len(profil.technologien) >= 1
+    assert len(profil.wissensgebiete) >= 1
 
 
 def test_load_profile_has_ausbildungen() -> None:

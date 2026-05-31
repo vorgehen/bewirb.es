@@ -16,11 +16,11 @@ auftraggeber TestGmbH {
     label: "Test GmbH"
     location: "Berlin"
 }
-technology Python {
-    category: Programmiersprache
-    proficiency: Experte
-    years: 5
-    keywords: ["Python", "pytest"]
+wissensgebiet wg_python {
+    titel: "Python-Stack"
+    reihenfolge: 1
+    Sprache: ["Python"]
+    Test: ["pytest"]
 }
 person TestNutzer {
     title: "Software Entwickler"
@@ -34,7 +34,7 @@ projekt TestProjekt {
     branche: IT
     periode: 2023-01 to today
     rolle: "Entwickler"
-    uses: [Python]
+    uses: [wg_python]
     keywords: ["Test"]
 }
 """

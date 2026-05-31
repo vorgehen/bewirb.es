@@ -12,12 +12,31 @@ class MatchResult(BaseModel):
     matched_nice_to_have: list[str]
 
 
-def match_profile_to_requirements(profil: Profil, anf: Anforderungen) -> MatchResult:
-    tech_names = {t.name.lower() for t in profil.technologien}
+def _profile_tech_corpus(profil: Profil) -> list[str]:
+    """Lower-case-Strings aus Wissensgebiet-Titeln und Subkategorie-Items.
 
-    matched_must = [t for t in anf.must_have if t.lower() in tech_names]
-    missing_must = [t for t in anf.must_have if t.lower() not in tech_names]
-    matched_nice = [t for t in anf.nice_to_have if t.lower() in tech_names]
+    Versionsangaben wie „Java (8–17)" bleiben erhalten — der Match nutzt
+    Substring-Vergleich, sodass „Java" auch in „Java (8–17)" gefunden wird.
+    """
+    corpus: list[str] = []
+    for wg in profil.wissensgebiete:
+        corpus.append(wg.titel.lower())
+        for kat in wg.kategorien:
+            corpus.extend(item.lower() for item in kat.items)
+    return corpus
+
+
+def _matches(term: str, corpus: list[str]) -> bool:
+    needle = term.lower()
+    return any(needle in c for c in corpus)
+
+
+def match_profile_to_requirements(profil: Profil, anf: Anforderungen) -> MatchResult:
+    corpus = _profile_tech_corpus(profil)
+
+    matched_must = [t for t in anf.must_have if _matches(t, corpus)]
+    missing_must = [t for t in anf.must_have if not _matches(t, corpus)]
+    matched_nice = [t for t in anf.nice_to_have if _matches(t, corpus)]
 
     total = len(anf.must_have)
     score = len(matched_must) / total if total > 0 else 1.0

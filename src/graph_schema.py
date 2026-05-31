@@ -5,7 +5,6 @@ NODE_TYPES: list[str] = [
     "Person",
     "PersoenlicheDaten",
     "Kontakt",
-    "Technologiekompetenz",
     "Branche",
     "Auftraggeber",
     "Projekterfahrung",
@@ -50,13 +49,6 @@ KONTAKT_ATTRS: list[str] = [
     "website",
     "linkedin",
     "github",
-]
-TECHNOLOGIEKOMPETENZ_ATTRS: list[str] = [
-    "name",
-    "category",
-    "proficiency",
-    "years",
-    "keywords",
 ]
 BRANCHE_ATTRS: list[str] = [
     "name",

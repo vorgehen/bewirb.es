@@ -21,25 +21,26 @@ def generate_markdown(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) 
         lines.append(f"**LinkedIn:** {c.linkedin}")
     lines.append("")
 
-    matched_techs = [
-        d["name"]
+    matched_wgs = [
+        d.get("titel") or d.get("name")
         for _, d in psm.nodes(data=True)
-        if d.get("type") == "Technologiekompetenz" and d.get("matched")
+        if d.get("type") == "Wissensgebiet" and d.get("matched")
     ]
-    if matched_techs:
+    if matched_wgs:
         lines.append("## Schluessel-Kompetenzen (Treffer)")
-        for t in matched_techs:
+        for t in matched_wgs:
             lines.append(f"- {t}")
         lines.append("")
 
-    lines.append("## Technologiekompetenz")
-    for tech in sorted(profil.technologien, key=lambda t: t.years, reverse=True):
-        node_id = f"Technologiekompetenz:{tech.name}"
+    lines.append("## IT-Know-How")
+    for wg in sorted(profil.wissensgebiete, key=lambda w: w.reihenfolge):
+        node_id = f"Wissensgebiet:{wg.name}"
         node_data = psm.nodes.get(node_id, {})
         marker = " ✓" if node_data.get("matched") else ""
-        lines.append(
-            f"- **{tech.name}**{marker} — {tech.proficiency}, {tech.years} Jahre ({tech.category})"
-        )
+        stil = f" — *{wg.architekturstil}*" if wg.architekturstil else ""
+        lines.append(f"\n### {wg.reihenfolge}. {wg.titel}{marker}{stil}")
+        for kat in wg.kategorien:
+            lines.append(f"- **{kat.typ}:** {', '.join(kat.items)}")
     lines.append("")
 
     lines.append("## Projekterfahrung")
@@ -49,8 +50,8 @@ def generate_markdown(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) 
         lines.append(f"**Auftraggeber:** {projekt.auftraggeber.label or projekt.auftraggeber.name}")
         lines.append(f"**Rolle:** {projekt.rolle}")
         if projekt.uses:
-            tech_str = ", ".join(t.name for t in projekt.uses)
-            lines.append(f"**Technologien:** {tech_str}")
+            wg_str = ", ".join(w.titel for w in projekt.uses)
+            lines.append(f"**Wissensgebiete:** {wg_str}")
         if projekt.description:
             lines.append(f"\n{projekt.description}")
         if projekt.achievements:

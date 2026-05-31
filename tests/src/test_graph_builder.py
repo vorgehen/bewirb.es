@@ -32,18 +32,21 @@ def test_graph_has_projekt_nodes() -> None:
     assert len(projekt_nodes) >= 1
 
 
-def test_graph_has_technologie_nodes() -> None:
+def test_graph_has_wissensgebiet_nodes() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     g = build_graph(profil)
-    tech_nodes = [n for n, d in g.nodes(data=True) if d.get("type") == "Technologiekompetenz"]
-    assert len(tech_nodes) >= 1
+    wg_nodes = [n for n, d in g.nodes(data=True) if d.get("type") == "Wissensgebiet"]
+    assert len(wg_nodes) >= 1
 
 
-def test_graph_projekt_uses_technologie_edge() -> None:
+def test_graph_projekt_uses_wissensgebiet_edge() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     g = build_graph(profil)
     uses_edges = [(u, v) for u, v, d in g.edges(data=True) if d.get("rel") == "uses"]
     assert len(uses_edges) >= 1
+    # Ziele der uses-Edges sind Wissensgebiet-Knoten
+    for _, target in uses_edges:
+        assert g.nodes[target].get("type") == "Wissensgebiet"
 
 
 def test_graph_person_hat_projekt_edge() -> None:

@@ -10,16 +10,30 @@
   **LinkedIn:** linkedin.com/in/beispiel
   
   ## Schluessel-Kompetenzen (Treffer)
-  - Java
-  - REST
-  - Microservices
+  - Enterprise Java
+  - Microservices & Cloud
   
-  ## Technologiekompetenz
-  - **Java** ✓ — Experte, 15 Jahre (Programmiersprache)
-  - **REST** ✓ — Experte, 10 Jahre (Protokoll)
-  - **ARC42** — Experte, 8 Jahre (Methodik)
-  - **Microservices** ✓ — Fortgeschritten, 7 Jahre (Methodik)
-  - **Python** — Fortgeschritten, 5 Jahre (Programmiersprache)
+  ## IT-Know-How
+  
+  ### 1. Enterprise Java ✓ — *N-Tier / Java EE*
+  - **Sprache:** Java (8–17)
+  - **Framework:** Spring, Spring Boot
+  - **Persistenz:** JPA / Hibernate
+  - **Schnittstellen:** REST, OpenAPI
+  - **Plattform:** Linux
+  - **Test:** JUnit, Mockito
+  
+  ### 2. Microservices & Cloud ✓ — *Microservices / Container*
+  - **Plattform:** Docker, Kubernetes
+  - **Schnittstellen:** REST, gRPC
+  - **Werkzeug:** Git, GitHub Actions
+  
+  ### 3. Python & MDD — *Modellgetrieben*
+  - **Sprache:** Python
+  - **Framework:** FastAPI
+  - **Grammatik:** TextX
+  - **Test:** pytest
+  - **Dokumentation:** ARC42, C4
   
   ## Projekterfahrung
   
@@ -27,7 +41,7 @@
   **Zeitraum:** 2022-01 – 2024-06
   **Auftraggeber:** Grossbank AG
   **Rolle:** Senior Java Architekt
-  **Technologien:** Java, REST, Microservices, ARC42
+  **Wissensgebiete:** Enterprise Java, Microservices & Cloud
   
   Migration einer monolithischen Kernbankanwendung auf eine Microservices-Architektur.
   
@@ -39,7 +53,7 @@
   **Zeitraum:** 2020-03 – 2021-12
   **Auftraggeber:** Logistik GmbH
   **Rolle:** Lead Developer und Architekt
-  **Technologien:** Java, REST
+  **Wissensgebiete:** Enterprise Java
   
   Entwicklung einer zentralen Integrationsplattform fuer die Lieferkette.
   
@@ -47,7 +61,7 @@
   **Zeitraum:** 2019-06 – 2020-02
   **Auftraggeber:** IT-Beratung AG
   **Rolle:** Architekt
-  **Technologien:** ARC42, REST
+  **Wissensgebiete:** Enterprise Java
   
   Durchfuehrung eines Architektur-Reviews und Erstellung vollstaendiger ARC42-Dokumentation.
   

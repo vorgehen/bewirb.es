@@ -38,7 +38,7 @@ def test_build_context_has_required_keys() -> None:
     ctx = _build_context(psm, profil, anf)
     expected = (
         "person_title",
-        "technologien",
+        "wissensgebiete",
         "projekte",
         "ausbildungen",
         "schluesselkompetenzen_kategorien",
@@ -97,11 +97,7 @@ def test_build_context_auftraggeber_extern_hat_vorrang(tmp_path: Path) -> None:
         label: "Echte Firma AG"
         extern: "Bundesoberbehörde"
     }
-    technology Java {
-        category: Programmiersprache
-        proficiency: Experte
-        years: 5
-    }
+    wissensgebiet wg_java { titel: "Java" reihenfolge: 1 Sprache: ["Java"] }
     person P { title: "Dev" contact { email: "x@x.de" } }
     projekt Proj {
         title: "Test"
@@ -134,14 +130,14 @@ def test_build_context_persoenliche_daten_label_value() -> None:
     assert "label" in pd and "value" in pd
 
 
-def test_build_context_technologien_sorted_by_years() -> None:
+def test_build_context_wissensgebiete_sorted_by_reihenfolge() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     anf = Anforderungen()
     g = build_graph(profil)
     psm = transform(g, anf)
     ctx = _build_context(psm, profil, anf)
-    years = [int(t["years"]) for t in ctx["technologien"]]
-    assert years == sorted(years, reverse=True)
+    reihenfolgen = [int(w["reihenfolge"]) for w in ctx["wissensgebiete"]]
+    assert reihenfolgen == sorted(reihenfolgen)
 
 
 def test_build_context_projekte_have_required_fields() -> None:

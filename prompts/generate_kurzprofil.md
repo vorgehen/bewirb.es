@@ -57,8 +57,8 @@ ohne Erklärungen, ohne Code-Fences, ohne Headlines.
 **Bisheriges Kurzprofil (falls vorhanden, als Ausgangspunkt):**
 {{kurzprofil_alt}}
 
-**Top-Technologien (nach Erfahrung):**
-{{top_technologien}}
+**IT-Know-How (Wissensgebiete in Reihenfolge der Aneignung):**
+{{wissensgebiete}}
 
 **Projekte (Auswahl der letzten Jahre):**
 {{projekte}}
