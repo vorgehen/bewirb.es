@@ -102,8 +102,9 @@ def test_psm_reihenfolge_haengt_von_zielgruppe_ab(tmp_path: Path) -> None:
     startup_first = _person_data(psm_startup)["schluesselkompetenzen_ordered"][0]
     behoerde_first = _person_data(psm_behoerde)["schluesselkompetenzen_ordered"][0]
 
-    assert startup_first["key"] == "technologie"
-    assert startup_first["label"] == "Tech Stack"
+    # StartUp und Behoerde haben unterschiedliche Erst-Kategorien
+    assert startup_first["key"] == "methodenkompetenz"
+    assert startup_first["label"] == "Agile / DevOps"
     assert behoerde_first["key"] == "fachkompetenz"
 
 
@@ -134,8 +135,8 @@ def test_psm_leere_kategorien_werden_uebersprungen(tmp_path: Path) -> None:
     technology Java { category: Programmiersprache proficiency: Experte years: 5 }
     person P { title: "Dev" contact { email: "x@x.de" } }
     schluesselkompetenzen {
-        technologie: ["Java", "Spring"]
         fuehrungkompetenz: ["Mentoring"]
+        programmierparadigmen: ["Objektorientierung"]
     }
     """
     f = tmp_path / "p.profile"
@@ -148,4 +149,4 @@ def test_psm_leere_kategorien_werden_uebersprungen(tmp_path: Path) -> None:
     p = _person_data(psm)
     ordered = p["schluesselkompetenzen_ordered"]
     keys = {entry["key"] for entry in ordered}
-    assert keys == {"technologie", "fuehrungkompetenz"}
+    assert keys == {"programmierparadigmen", "fuehrungkompetenz"}

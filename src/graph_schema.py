@@ -15,6 +15,8 @@ NODE_TYPES: list[str] = [
     "Werdegang",
     "Schluesselkompetenzen",
     "WissenschaftlichesInteresse",
+    "Wissensgebiet",
+    "Subkategorie",
     "Technology",
     "SfiaLevel",
     "TechnologyRelation",
@@ -111,14 +113,23 @@ WERDEGANG_ATTRS: list[str] = [
 SCHLUESSELKOMPETENZEN_ATTRS: list[str] = [
     "methodenkompetenz",
     "fachkompetenz",
-    "technologie",
-    "spezialgebiet",
     "fuehrungkompetenz",
     "programmierparadigmen",
 ]
 WISSENSCHAFTLICHESINTERESSE_ATTRS: list[str] = [
     "name",
     "stichwort",
+]
+WISSENSGEBIET_ATTRS: list[str] = [
+    "name",
+    "titel",
+    "reihenfolge",
+    "architekturstil",
+    "kategorien",
+]
+SUBKATEGORIE_ATTRS: list[str] = [
+    "typ",
+    "items",
 ]
 TECHNOLOGY_ATTRS: list[str] = [
     "name",

@@ -311,14 +311,14 @@ def test_werdegang_parses(profile_mm: Any, tmp_path: Path) -> None:
     assert wd[0].end == "today"
 
 
-def test_schluesselkompetenzen_all_five_categories(profile_mm: Any, tmp_path: Path) -> None:
+def test_schluesselkompetenzen_all_four_categories(profile_mm: Any, tmp_path: Path) -> None:
+    """G3 Migration (Phase 8b): vier Kategorien, technologie+spezialgebiet raus."""
     content = """
     schluesselkompetenzen {
         methodenkompetenz: ["MDD", "TDD"]
         fachkompetenz: ["Finanzaufsicht"]
-        technologie: ["Java", "Xtext"]
-        spezialgebiet: ["DSL-Design"]
         fuehrungkompetenz: ["Stakeholder-Management"]
+        programmierparadigmen: ["Objektorientierung", "Funktional"]
     }
     """
     f = tmp_path / "sk.profile"
@@ -326,7 +326,7 @@ def test_schluesselkompetenzen_all_five_categories(profile_mm: Any, tmp_path: Pa
     model = profile_mm.model_from_file(str(f))
     sk = next(e for e in model.elements if e.__class__.__name__ == "Schluesselkompetenzen")
     assert "MDD" in sk.methodenkompetenz
-    assert "Xtext" in sk.technologie
+    assert "Funktional" in sk.programmierparadigmen
     assert "Stakeholder-Management" in sk.fuehrungkompetenz
 
 
@@ -364,4 +364,6 @@ def test_schluesselkompetenzen_all_categories_optional(profile_mm: Any, tmp_path
     model = profile_mm.model_from_file(str(f))
     sk = next(e for e in model.elements if e.__class__.__name__ == "Schluesselkompetenzen")
     assert sk.methodenkompetenz == []
-    assert sk.technologie == []
+    assert sk.fachkompetenz == []
+    assert sk.fuehrungkompetenz == []
+    assert sk.programmierparadigmen == []

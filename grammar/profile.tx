@@ -9,7 +9,7 @@ Profil:
 ProfilElement:
     Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung |
     Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen |
-    WissenschaftlichesInteresse
+    WissenschaftlichesInteresse | Wissensgebiet
 ;
 
 Person:
@@ -142,16 +142,14 @@ Werdegang:
     '}'
 ;
 
-// Schluesselkompetenzen: sechs Kategorien, alle optional.
+// Schluesselkompetenzen: vier Kategorien (Phase 8b G3 Migration —
+// `technologie` und `spezialgebiet` raus, da redundant zur neuen
+// Wissensgebiet-Struktur). Alle Kategorien optional.
 // pim_to_psm wählt aus, gewichtet, benennt je Zielgruppe (Phase 8 Pipeline).
-// `programmierparadigmen` (G2 in Phase 8b): Programmier-Paradigmen wie
-// OOP, FP-Stilelemente, AOP, deklarativ, generativ.
 Schluesselkompetenzen:
     'schluesselkompetenzen' '{'
         ('methodenkompetenz:'       '[' methodenkompetenz+=STRING[','] ']')?
         ('fachkompetenz:'           '[' fachkompetenz+=STRING[','] ']')?
-        ('technologie:'             '[' technologie+=STRING[','] ']')?
-        ('spezialgebiet:'           '[' spezialgebiet+=STRING[','] ']')?
         ('fuehrungkompetenz:'       '[' fuehrungkompetenz+=STRING[','] ']')?
         ('programmierparadigmen:'   '[' programmierparadigmen+=STRING[','] ']')?
     '}'
@@ -165,4 +163,28 @@ WissenschaftlichesInteresse:
     'interesse' name=ID '{'
         'stichwort:' stichwort=STRING
     '}'
+;
+
+// Wissensgebiet (G3 in Phase 8b): IT-Know-How strukturiert als kumulativ
+// aufgebaute Wissens-Cluster mit Subkategorien (Sprache, Framework, …) und
+// Architekturstil-Halbsatz pro Gebiet. Reihenfolge = chronologische
+// Aneignung. Ersetzt die flache Technologiekompetenz-Liste in Sektion 3
+// und das alte Schluesselkompetenzen.technologie/spezialgebiet.
+Wissensgebiet:
+    'wissensgebiet' name=ID '{'
+        'titel:'            titel=STRING
+        'reihenfolge:'      reihenfolge=INT
+        ('architekturstil:' architekturstil=STRING)?
+        kategorien+=Subkategorie
+    '}'
+;
+
+Subkategorie:
+    typ=SubkategorieTyp ':' '[' items+=STRING[','] ']'
+;
+
+SubkategorieTyp:
+    'Sprache' | 'Grammatik' | 'Framework' | 'Persistenz' | 'Schnittstellen' |
+    'Web-UI' | 'Datenbank' | 'Plattform' | 'Modellierung' | 'Dokumentation' |
+    'Test' | 'Werkzeug' | 'Agent' | 'Computer-Algebra' | 'Laufzeitumgebung'
 ;

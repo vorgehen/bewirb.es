@@ -256,9 +256,8 @@ def _profile_text_index(profil: Profil) -> str:
         for cat in (
             sk.methodenkompetenz,
             sk.fachkompetenz,
-            sk.technologie,
-            sk.spezialgebiet,
             sk.fuehrungkompetenz,
+            sk.programmierparadigmen,
         ):
             parts.extend(cat)
     return " ".join(p for p in parts if p).lower()

@@ -101,8 +101,6 @@ class WerdegangResponse(BaseModel):
 class SchluesselkompetenzenResponse(BaseModel):
     methodenkompetenz: list[str] = []
     fachkompetenz: list[str] = []
-    technologie: list[str] = []
-    spezialgebiet: list[str] = []
     fuehrungkompetenz: list[str] = []
     programmierparadigmen: list[str] = []
 
@@ -110,6 +108,19 @@ class SchluesselkompetenzenResponse(BaseModel):
 class WissenschaftlichesInteresseResponse(BaseModel):
     name: str = ""
     stichwort: str = ""
+
+
+class WissensgebietResponse(BaseModel):
+    name: str = ""
+    titel: str = ""
+    reihenfolge: int
+    architekturstil: str = ""
+    kategorien: list[SubkategorieResponse] = []
+
+
+class SubkategorieResponse(BaseModel):
+    typ: str = ""
+    items: list[str] = []
 
 
 class TechnologyResponse(BaseModel):

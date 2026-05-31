@@ -156,7 +156,38 @@ werdegang anstellung_b {
 schluesselkompetenzen {
     methodenkompetenz: ["Modellgetriebene Entwicklung", "TDD", "Domain-Driven Design"]
     fachkompetenz: ["Finanzsektor", "Logistik"]
-    technologie: ["Java", "Spring", "REST"]
-    spezialgebiet: ["DSL-Design", "Legacy-Modernisierung"]
     fuehrungkompetenz: ["Mentoring", "Stakeholder-Management"]
+    programmierparadigmen: ["Objektorientierung", "Funktional", "Deklarativ (DSL)"]
+}
+
+wissensgebiet wg_enterprise_java {
+    titel: "Enterprise Java"
+    reihenfolge: 1
+    architekturstil: "N-Tier / Java EE"
+    Sprache: ["Java (8–17)"]
+    Framework: ["Spring", "Spring Boot"]
+    Persistenz: ["JPA / Hibernate"]
+    Schnittstellen: ["REST", "OpenAPI"]
+    Plattform: ["Linux"]
+    Test: ["JUnit", "Mockito"]
+}
+
+wissensgebiet wg_microservices {
+    titel: "Microservices & Cloud"
+    reihenfolge: 2
+    architekturstil: "Microservices / Container"
+    Plattform: ["Docker", "Kubernetes"]
+    Schnittstellen: ["REST", "gRPC"]
+    Werkzeug: ["Git", "GitHub Actions"]
+}
+
+wissensgebiet wg_python_mdd {
+    titel: "Python & MDD"
+    reihenfolge: 3
+    architekturstil: "Modellgetrieben"
+    Sprache: ["Python"]
+    Framework: ["FastAPI"]
+    Grammatik: ["TextX"]
+    Test: ["pytest"]
+    Dokumentation: ["ARC42", "C4"]
 }

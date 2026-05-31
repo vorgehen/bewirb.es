@@ -1,11 +1,14 @@
 """Zielgruppen-Mapping für Schlüsselkompetenzen.
 
 Eine Zielgruppe (Angebotsstil) bestimmt:
-- die Benennung der fünf Kompetenz-Kategorien (LABEL_MAP)
+- die Benennung der vier Kompetenz-Kategorien (LABEL_MAP)
 - die Prominenz-Reihenfolge in der Ausgabe (PROMINENZ)
 
 Wird von src/pim_to_psm.py konsumiert. Keine Abhängigkeit auf andere src/-Module
 — pure Datenstruktur + Lookup-Funktionen.
+
+Phase 8b G3 Migration (2026-05-31): `technologie` und `spezialgebiet` raus —
+ersetzt durch eigenständige `Wissensgebiet`-Sektion (IT-Know-How).
 """
 
 from __future__ import annotations
@@ -13,8 +16,6 @@ from __future__ import annotations
 KATEGORIEN: tuple[str, ...] = (
     "methodenkompetenz",
     "fachkompetenz",
-    "technologie",
-    "spezialgebiet",
     "fuehrungkompetenz",
     "programmierparadigmen",
 )
@@ -23,48 +24,36 @@ LABEL_MAP: dict[str, dict[str, str]] = {
     "Behoerde": {
         "methodenkompetenz": "Methoden- & Prozesskompetenz",
         "fachkompetenz": "Fachkompetenz",
-        "technologie": "IT-Know-How",
-        "spezialgebiet": "Besondere IT-Kenntnisse",
         "fuehrungkompetenz": "Führungs- & Leitungskompetenz",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Consultant": {
         "methodenkompetenz": "Beratungsansatz & Methodik",
         "fachkompetenz": "Branchenexpertise",
-        "technologie": "Technologiestack",
-        "spezialgebiet": "Spezialgebiete",
         "fuehrungkompetenz": "Stakeholder-Management",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
     "StartUp": {
         "methodenkompetenz": "Agile / DevOps",
         "fachkompetenz": "Domänenwissen",
-        "technologie": "Tech Stack",
-        "spezialgebiet": "Spezialgebiete",
         "fuehrungkompetenz": "Leadership",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Wissenschaftlich": {
         "methodenkompetenz": "Forschungsmethodik",
         "fachkompetenz": "Fachgebiet",
-        "technologie": "Technologiebasis",
-        "spezialgebiet": "Forschungsschwerpunkte",
         "fuehrungkompetenz": "Kooperation & Betreuung",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Standard": {
         "methodenkompetenz": "Methodenkompetenz",
         "fachkompetenz": "Fachkompetenz",
-        "technologie": "Technologiekompetenz",
-        "spezialgebiet": "Spezielle IT-Kenntnisse",
         "fuehrungkompetenz": "Führungskompetenz",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
     "AIGovernance": {
         "methodenkompetenz": "Governance-Frameworks & Risk Management",
         "fachkompetenz": "AI Act, DORA, ISO 42001, NIST AI RMF",
-        "technologie": "AI-Stack (governance-relevant)",
-        "spezialgebiet": "Responsible AI Patterns",
         "fuehrungkompetenz": "AI-Oversight & Board-Advisory",
         "programmierparadigmen": "Programmier-Paradigmen",
     },
@@ -78,39 +67,29 @@ PROMINENZ: dict[str, list[str]] = {
         "fachkompetenz",
         "methodenkompetenz",
         "fuehrungkompetenz",
-        "technologie",
-        "spezialgebiet",
         "programmierparadigmen",
     ],
     "Consultant": [
         "methodenkompetenz",
         "fachkompetenz",
         "fuehrungkompetenz",
-        "technologie",
-        "spezialgebiet",
         "programmierparadigmen",
     ],
     "StartUp": [
-        "technologie",
         "methodenkompetenz",
-        "spezialgebiet",
-        "fuehrungkompetenz",
         "fachkompetenz",
+        "fuehrungkompetenz",
         "programmierparadigmen",
     ],
     "Wissenschaftlich": [
         "methodenkompetenz",
-        "spezialgebiet",
         "fachkompetenz",
-        "technologie",
         "fuehrungkompetenz",
         "programmierparadigmen",
     ],
     "Standard": [
         "methodenkompetenz",
         "fachkompetenz",
-        "technologie",
-        "spezialgebiet",
         "fuehrungkompetenz",
         "programmierparadigmen",
     ],
@@ -118,8 +97,6 @@ PROMINENZ: dict[str, list[str]] = {
         "fachkompetenz",
         "methodenkompetenz",
         "fuehrungkompetenz",
-        "spezialgebiet",
-        "technologie",
         "programmierparadigmen",
     ],
 }

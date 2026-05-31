@@ -18,15 +18,13 @@ def test_kategorien_konstant() -> None:
     assert set(KATEGORIEN) == {
         "methodenkompetenz",
         "fachkompetenz",
-        "technologie",
-        "spezialgebiet",
         "fuehrungkompetenz",
         "programmierparadigmen",
     }
 
 
 def test_label_map_vollstaendig() -> None:
-    """Jede Zielgruppe hat ein Label für jede der sechs Kategorien."""
+    """Jede Zielgruppe hat ein Label für jede der vier Kategorien."""
     for stil, labels in LABEL_MAP.items():
         assert set(labels.keys()) == set(KATEGORIEN), f"{stil} hat unvollständiges Mapping"
         for kat, label in labels.items():
@@ -34,10 +32,10 @@ def test_label_map_vollstaendig() -> None:
 
 
 def test_prominenz_vollstaendig() -> None:
-    """Jede Zielgruppe ordnet alle sechs Kategorien (keine fehlt, keine doppelt)."""
+    """Jede Zielgruppe ordnet alle vier Kategorien (keine fehlt, keine doppelt)."""
     for stil, order in PROMINENZ.items():
         assert set(order) == set(KATEGORIEN), f"{stil} Prominenz unvollständig"
-        assert len(order) == 6
+        assert len(order) == 4
 
 
 def test_label_map_und_prominenz_haben_gleiche_zielgruppen() -> None:
@@ -59,14 +57,9 @@ def test_resolve_stil_fallback_bei_leer_oder_unbekannt() -> None:
 
 def test_kategorien_fuer_zielgruppe_returns_labelled_pairs() -> None:
     pairs = kategorien_fuer_zielgruppe("Behoerde")
-    assert len(pairs) == 6
+    assert len(pairs) == 4
     # Erste Kategorie laut Plan: fachkompetenz
     assert pairs[0] == ("fachkompetenz", "Fachkompetenz")
-
-
-def test_kategorien_startup_priorisiert_technologie() -> None:
-    pairs = kategorien_fuer_zielgruppe("StartUp")
-    assert pairs[0] == ("technologie", "Tech Stack")
 
 
 def test_kategorien_behoerde_priorisiert_fachkompetenz() -> None:
@@ -88,8 +81,7 @@ def test_kategorien_fallback_standard_wenn_leer() -> None:
     assert standard == fallback
 
 
-def test_label_unterscheiden_sich_je_zielgruppe() -> None:
-    """Mindestens für 'technologie' haben die Stile unterschiedliche Labels."""
-    labels = {stil: LABEL_MAP[stil]["technologie"] for stil in LABEL_MAP}
-    # Die meisten Stile sollten unterschiedliche Labels haben
-    assert len(set(labels.values())) >= 5
+def test_programmierparadigmen_immer_am_ende() -> None:
+    """Senior-Geste — in allen Stilen rangieren Paradigmen zuletzt."""
+    for stil, order in PROMINENZ.items():
+        assert order[-1] == "programmierparadigmen", f"{stil} hat Paradigmen nicht am Ende"

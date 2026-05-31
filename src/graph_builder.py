@@ -20,9 +20,8 @@ def build_graph(profil: Profil) -> nx.DiGraph[str]:
         person_attrs["schluesselkompetenzen"] = {
             "methodenkompetenz": list(sk.methodenkompetenz),
             "fachkompetenz": list(sk.fachkompetenz),
-            "technologie": list(sk.technologie),
-            "spezialgebiet": list(sk.spezialgebiet),
             "fuehrungkompetenz": list(sk.fuehrungkompetenz),
+            "programmierparadigmen": list(sk.programmierparadigmen),
         }
     g.add_node(person_id, **person_attrs)
 

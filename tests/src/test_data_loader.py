@@ -93,9 +93,21 @@ def test_load_profile_schluesselkompetenzen() -> None:
     profil = load_profile(EXAMPLE_PROFILE)
     sk = profil.schluesselkompetenzen
     assert sk is not None
-    assert "Java" in sk.technologie
     assert len(sk.methodenkompetenz) >= 1
     assert len(sk.fuehrungkompetenz) >= 1
+    assert "Objektorientierung" in sk.programmierparadigmen
+
+
+def test_load_profile_wissensgebiete() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    assert len(profil.wissensgebiete) >= 1
+    wg = profil.wissensgebiete[0]
+    assert wg.reihenfolge == 1
+    assert wg.titel
+    assert len(wg.kategorien) >= 1
+    sprachen = next((k for k in wg.kategorien if k.typ == "Sprache"), None)
+    assert sprachen is not None
+    assert any("Java" in item for item in sprachen.items)
 
 
 def test_load_requirements_zielgruppe_default_leer() -> None:
