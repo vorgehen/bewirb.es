@@ -18,6 +18,7 @@ from src.models import (
     Sprache,
     Technologiekompetenz,
     Werdegang,
+    WissenschaftlichesInteresse,
     Zertifikat,
 )
 
@@ -35,6 +36,7 @@ class Profil(BaseModel):
     zertifikate: list[Zertifikat] = []
     werdegang: list[Werdegang] = []
     schluesselkompetenzen: Schluesselkompetenzen | None = None
+    wissenschaftliche_interessen: list[WissenschaftlichesInteresse] = []
 
 
 class Anforderungen(BaseModel):
@@ -67,6 +69,7 @@ def _to_person(obj: Any) -> Person:
         contact=Kontakt(
             email=c.email or "",
             phone=c.phone or "",
+            festnetz=c.festnetz or "",
             location=c.location or "",
             website=c.website or "",
             linkedin=c.linkedin or "",
@@ -113,6 +116,14 @@ def _to_schluesselkompetenzen(obj: Any) -> Schluesselkompetenzen:
         technologie=list(obj.technologie),
         spezialgebiet=list(obj.spezialgebiet),
         fuehrungkompetenz=list(obj.fuehrungkompetenz),
+        programmierparadigmen=list(obj.programmierparadigmen),
+    )
+
+
+def _to_wissenschaftliches_interesse(obj: Any) -> WissenschaftlichesInteresse:
+    return WissenschaftlichesInteresse(
+        name=obj.name or "",
+        stichwort=obj.stichwort or "",
     )
 
 
@@ -136,6 +147,7 @@ def _to_auftraggeber(obj: Any) -> Auftraggeber:
         label=obj.label or "",
         location=obj.location or "",
         extern=obj.extern or "",
+        interna=obj.interna or "",
     )
 
 
@@ -187,6 +199,7 @@ def load_profile(path: Path) -> Profil:
     zertifikate: list[Zertifikat] = []
     werdegang: list[Werdegang] = []
     schluesselkompetenzen: Schluesselkompetenzen | None = None
+    wissenschaftliche_interessen: list[WissenschaftlichesInteresse] = []
 
     for elem in model.elements:
         cls_name = elem.__class__.__name__
@@ -211,6 +224,8 @@ def load_profile(path: Path) -> Profil:
             werdegang.append(_to_werdegang(elem))
         elif cls_name == "Schluesselkompetenzen":
             schluesselkompetenzen = _to_schluesselkompetenzen(elem)
+        elif cls_name == "WissenschaftlichesInteresse":
+            wissenschaftliche_interessen.append(_to_wissenschaftliches_interesse(elem))
 
     projekte: list[Projekterfahrung] = [
         _to_projekterfahrung(elem, branchen_map, auftraggeber_map, tech_map)
@@ -232,6 +247,7 @@ def load_profile(path: Path) -> Profil:
         zertifikate=zertifikate,
         werdegang=werdegang,
         schluesselkompetenzen=schluesselkompetenzen,
+        wissenschaftliche_interessen=wissenschaftliche_interessen,
     )
 
 

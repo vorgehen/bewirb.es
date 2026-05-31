@@ -24,6 +24,7 @@ class PersoenlicheDatenResponse(BaseModel):
 class KontaktResponse(BaseModel):
     email: str = ""
     phone: str = ""
+    festnetz: str = ""
     location: str = ""
     website: str = ""
     linkedin: str = ""
@@ -48,6 +49,7 @@ class AuftraggeberResponse(BaseModel):
     label: str = ""
     location: str = ""
     extern: str = ""
+    interna: str = ""
 
 
 class ProjekterfahrungResponse(BaseModel):
@@ -102,6 +104,12 @@ class SchluesselkompetenzenResponse(BaseModel):
     technologie: list[str] = []
     spezialgebiet: list[str] = []
     fuehrungkompetenz: list[str] = []
+    programmierparadigmen: list[str] = []
+
+
+class WissenschaftlichesInteresseResponse(BaseModel):
+    name: str = ""
+    stichwort: str = ""
 
 
 class TechnologyResponse(BaseModel):

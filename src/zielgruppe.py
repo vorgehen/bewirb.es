@@ -16,6 +16,7 @@ KATEGORIEN: tuple[str, ...] = (
     "technologie",
     "spezialgebiet",
     "fuehrungkompetenz",
+    "programmierparadigmen",
 )
 
 LABEL_MAP: dict[str, dict[str, str]] = {
@@ -25,6 +26,7 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "IT-Know-How",
         "spezialgebiet": "Besondere IT-Kenntnisse",
         "fuehrungkompetenz": "Führungs- & Leitungskompetenz",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Consultant": {
         "methodenkompetenz": "Beratungsansatz & Methodik",
@@ -32,6 +34,7 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "Technologiestack",
         "spezialgebiet": "Spezialgebiete",
         "fuehrungkompetenz": "Stakeholder-Management",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
     "StartUp": {
         "methodenkompetenz": "Agile / DevOps",
@@ -39,6 +42,7 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "Tech Stack",
         "spezialgebiet": "Spezialgebiete",
         "fuehrungkompetenz": "Leadership",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Wissenschaftlich": {
         "methodenkompetenz": "Forschungsmethodik",
@@ -46,6 +50,7 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "Technologiebasis",
         "spezialgebiet": "Forschungsschwerpunkte",
         "fuehrungkompetenz": "Kooperation & Betreuung",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
     "Standard": {
         "methodenkompetenz": "Methodenkompetenz",
@@ -53,6 +58,7 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "Technologiekompetenz",
         "spezialgebiet": "Spezielle IT-Kenntnisse",
         "fuehrungkompetenz": "Führungskompetenz",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
     "AIGovernance": {
         "methodenkompetenz": "Governance-Frameworks & Risk Management",
@@ -60,10 +66,13 @@ LABEL_MAP: dict[str, dict[str, str]] = {
         "technologie": "AI-Stack (governance-relevant)",
         "spezialgebiet": "Responsible AI Patterns",
         "fuehrungkompetenz": "AI-Oversight & Board-Advisory",
+        "programmierparadigmen": "Programmier-Paradigmen",
     },
 }
 
 # Prominenz: Reihenfolge in der die Kategorien je Stil dargestellt werden.
+# „programmierparadigmen" rangiert in allen Stilen am Ende (Senior-relevant,
+# aber kein primärer Verkaufsanker).
 PROMINENZ: dict[str, list[str]] = {
     "Behoerde": [
         "fachkompetenz",
@@ -71,6 +80,7 @@ PROMINENZ: dict[str, list[str]] = {
         "fuehrungkompetenz",
         "technologie",
         "spezialgebiet",
+        "programmierparadigmen",
     ],
     "Consultant": [
         "methodenkompetenz",
@@ -78,6 +88,7 @@ PROMINENZ: dict[str, list[str]] = {
         "fuehrungkompetenz",
         "technologie",
         "spezialgebiet",
+        "programmierparadigmen",
     ],
     "StartUp": [
         "technologie",
@@ -85,6 +96,7 @@ PROMINENZ: dict[str, list[str]] = {
         "spezialgebiet",
         "fuehrungkompetenz",
         "fachkompetenz",
+        "programmierparadigmen",
     ],
     "Wissenschaftlich": [
         "methodenkompetenz",
@@ -92,6 +104,7 @@ PROMINENZ: dict[str, list[str]] = {
         "fachkompetenz",
         "technologie",
         "fuehrungkompetenz",
+        "programmierparadigmen",
     ],
     "Standard": [
         "methodenkompetenz",
@@ -99,6 +112,7 @@ PROMINENZ: dict[str, list[str]] = {
         "technologie",
         "spezialgebiet",
         "fuehrungkompetenz",
+        "programmierparadigmen",
     ],
     "AIGovernance": [
         "fachkompetenz",
@@ -106,6 +120,7 @@ PROMINENZ: dict[str, list[str]] = {
         "fuehrungkompetenz",
         "spezialgebiet",
         "technologie",
+        "programmierparadigmen",
     ],
 }
 

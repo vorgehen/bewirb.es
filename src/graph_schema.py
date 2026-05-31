@@ -14,6 +14,7 @@ NODE_TYPES: list[str] = [
     "Zertifikat",
     "Werdegang",
     "Schluesselkompetenzen",
+    "WissenschaftlichesInteresse",
     "Technology",
     "SfiaLevel",
     "TechnologyRelation",
@@ -42,6 +43,7 @@ PERSOENLICHEDATEN_ATTRS: list[str] = [
 KONTAKT_ATTRS: list[str] = [
     "email",
     "phone",
+    "festnetz",
     "location",
     "website",
     "linkedin",
@@ -63,6 +65,7 @@ AUFTRAGGEBER_ATTRS: list[str] = [
     "label",
     "location",
     "extern",
+    "interna",
 ]
 PROJEKTERFAHRUNG_ATTRS: list[str] = [
     "name",
@@ -111,6 +114,11 @@ SCHLUESSELKOMPETENZEN_ATTRS: list[str] = [
     "technologie",
     "spezialgebiet",
     "fuehrungkompetenz",
+    "programmierparadigmen",
+]
+WISSENSCHAFTLICHESINTERESSE_ATTRS: list[str] = [
+    "name",
+    "stichwort",
 ]
 TECHNOLOGY_ATTRS: list[str] = [
     "name",

@@ -8,7 +8,8 @@ Profil:
 
 ProfilElement:
     Person | Technologiekompetenz | Branche | Auftraggeber | Projekterfahrung |
-    Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen
+    Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen |
+    WissenschaftlichesInteresse
 ;
 
 Person:
@@ -34,6 +35,7 @@ Kontakt:
     'contact' '{'
         'email:' email=STRING
         ('phone:' phone=STRING)?
+        ('festnetz:' festnetz=STRING)?
         ('location:' location=STRING)?
         ('website:' website=STRING)?
         ('linkedin:' linkedin=STRING)?
@@ -76,6 +78,7 @@ Auftraggeber:
         'label:' label=STRING
         ('location:' location=STRING)?
         ('extern:'   extern=STRING)?
+        ('interna:'  interna=STRING)?
     '}'
 ;
 
@@ -139,14 +142,27 @@ Werdegang:
     '}'
 ;
 
-// Schluesselkompetenzen: fünf Kategorien, alle optional.
+// Schluesselkompetenzen: sechs Kategorien, alle optional.
 // pim_to_psm wählt aus, gewichtet, benennt je Zielgruppe (Phase 8 Pipeline).
+// `programmierparadigmen` (G2 in Phase 8b): Programmier-Paradigmen wie
+// OOP, FP-Stilelemente, AOP, deklarativ, generativ.
 Schluesselkompetenzen:
     'schluesselkompetenzen' '{'
-        ('methodenkompetenz:'  '[' methodenkompetenz+=STRING[','] ']')?
-        ('fachkompetenz:'      '[' fachkompetenz+=STRING[','] ']')?
-        ('technologie:'        '[' technologie+=STRING[','] ']')?
-        ('spezialgebiet:'      '[' spezialgebiet+=STRING[','] ']')?
-        ('fuehrungkompetenz:'  '[' fuehrungkompetenz+=STRING[','] ']')?
+        ('methodenkompetenz:'       '[' methodenkompetenz+=STRING[','] ']')?
+        ('fachkompetenz:'           '[' fachkompetenz+=STRING[','] ']')?
+        ('technologie:'             '[' technologie+=STRING[','] ']')?
+        ('spezialgebiet:'           '[' spezialgebiet+=STRING[','] ']')?
+        ('fuehrungkompetenz:'       '[' fuehrungkompetenz+=STRING[','] ']')?
+        ('programmierparadigmen:'   '[' programmierparadigmen+=STRING[','] ']')?
+    '}'
+;
+
+// WissenschaftlichesInteresse (G4 in Phase 8b): Sektion „Wissenschaftliche
+// Interessen" — Senior-Geste, zeigt intellektuelle Tiefe / aktuelles Lernen
+// ohne Belege zu erfordern. Migrierbar zu „Publikationen" (Phase 13)
+// sobald Vorträge/Blog dazukommen.
+WissenschaftlichesInteresse:
+    'interesse' name=ID '{'
+        'stichwort:' stichwort=STRING
     '}'
 ;

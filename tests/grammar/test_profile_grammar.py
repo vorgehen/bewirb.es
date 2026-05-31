@@ -145,6 +145,106 @@ def test_person_with_kurzprofil_and_persoenliche_daten(profile_mm: Any, tmp_path
     assert p.persoenlicheDaten.staatsangehoerigkeit == "Deutsch"
 
 
+def test_wissenschaftliches_interesse_parses(profile_mm: Any, tmp_path: Path) -> None:
+    """WissenschaftlichesInteresse als eigenstaendige Entitaet (G4)."""
+    content = """
+    interesse llm_stat_physik {
+        stichwort: "Statistical Physics of LLMs"
+    }
+    interesse quantum {
+        stichwort: "Quantum Computer Science"
+    }
+    interesse cat {
+        stichwort: "Category Theory"
+    }
+    """
+    f = tmp_path / "wi.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    interessen = [
+        e for e in model.elements if e.__class__.__name__ == "WissenschaftlichesInteresse"
+    ]
+    assert len(interessen) == 3
+    stichworte = {i.stichwort for i in interessen}
+    assert "Statistical Physics of LLMs" in stichworte
+    assert "Quantum Computer Science" in stichworte
+    assert "Category Theory" in stichworte
+
+
+def test_schluesselkompetenzen_programmierparadigmen(profile_mm: Any, tmp_path: Path) -> None:
+    """Schluesselkompetenzen.programmierparadigmen ist eine optionale 6. Kategorie."""
+    content = """
+    schluesselkompetenzen {
+        methodenkompetenz: ["DDD", "MDD"]
+        programmierparadigmen: [
+            "Imperative Programmierung",
+            "Objektorientierte Programmierung",
+            "Aspect-Oriented Programming",
+            "Funktionale Stilelemente",
+            "Deklarative Programmierung",
+            "Generative Programmierung"
+        ]
+    }
+    """
+    f = tmp_path / "pp.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    sk = next(e for e in model.elements if e.__class__.__name__ == "Schluesselkompetenzen")
+    assert "Imperative Programmierung" in sk.programmierparadigmen
+    assert "Generative Programmierung" in sk.programmierparadigmen
+    assert len(sk.programmierparadigmen) == 6
+
+
+def test_auftraggeber_interna_optional(profile_mm: Any, tmp_path: Path) -> None:
+    """Auftraggeber kann optional ein internes interna-Feld tragen.
+
+    Wird im extern-Output nicht gerendert.
+    """
+    content = """
+    auftraggeber Mit {
+        label: "Firma X"
+        interna: "Vorsicht: schwieriger Stakeholder Y, Politik Z"
+    }
+    auftraggeber Ohne {
+        label: "Firma Y"
+    }
+    """
+    f = tmp_path / "i.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    auftraggeber = [e for e in model.elements if e.__class__.__name__ == "Auftraggeber"]
+    a1 = next(a for a in auftraggeber if a.name == "Mit")
+    a2 = next(a for a in auftraggeber if a.name == "Ohne")
+    assert a1.interna.startswith("Vorsicht")
+    assert not a2.interna
+
+
+def test_kontakt_festnetz_optional(profile_mm: Any, tmp_path: Path) -> None:
+    """Kontakt kann optional ein zusaetzliches Festnetz-Feld neben phone tragen."""
+    content = """
+    person Mit {
+        title: "Dev"
+        contact {
+            email: "x@x.de"
+            phone: "0151/...."
+            festnetz: "0221/..."
+        }
+    }
+    person Ohne {
+        title: "Dev"
+        contact { email: "y@y.de" }
+    }
+    """
+    f = tmp_path / "k.profile"
+    f.write_text(content, encoding="utf-8")
+    model = profile_mm.model_from_file(str(f))
+    persons = [e for e in model.elements if e.__class__.__name__ == "Person"]
+    p1 = next(p for p in persons if p.name == "Mit")
+    p2 = next(p for p in persons if p.name == "Ohne")
+    assert p1.contact.festnetz == "0221/..."
+    assert not p2.contact.festnetz
+
+
 def test_sprache_parses_and_level_enum_enforced(profile_mm: Any, tmp_path: Path) -> None:
     content = """
     sprache deutsch {

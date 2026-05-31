@@ -65,7 +65,11 @@ def create_default_template(output: Path) -> None:
     doc.add_paragraph("{{ contact_email }}  |  {{ contact_location }}")
 
     doc.add_paragraph("{%p if contact_phone %}")
-    doc.add_paragraph("Tel.: {{ contact_phone }}")
+    doc.add_paragraph("Mobil: {{ contact_phone }}")
+    doc.add_paragraph("{%p endif %}")
+
+    doc.add_paragraph("{%p if contact_festnetz %}")
+    doc.add_paragraph("Festnetz: {{ contact_festnetz }}")
     doc.add_paragraph("{%p endif %}")
 
     # ─── 2. Kurzprofil ─────────────────────────────────────────────────────
@@ -195,7 +199,17 @@ def create_default_template(output: Path) -> None:
     _clear_and_set(spr_table.rows[3].cells[0], "{%tr endfor %}")
     doc.add_paragraph("{%p endif %}")
 
-    # ─── 11. Persönliche Daten ─────────────────────────────────────────────
+    # ─── 11. Wissenschaftliche Interessen ──────────────────────────────────
+    doc.add_paragraph("{%p if wissenschaftliche_interessen %}")
+    doc.add_heading("Wissenschaftliche Interessen", level=2)
+    wi_table = doc.add_table(rows=3, cols=1)
+    wi_table.style = "Table Grid"
+    _clear_and_set(wi_table.rows[0].cells[0], "{%tr for wi in wissenschaftliche_interessen %}")
+    _clear_and_set(wi_table.rows[1].cells[0], "{{ wi.stichwort }}")
+    _clear_and_set(wi_table.rows[2].cells[0], "{%tr endfor %}")
+    doc.add_paragraph("{%p endif %}")
+
+    # ─── 12. Persönliche Daten ─────────────────────────────────────────────
     doc.add_paragraph("{%p if persoenliche_daten %}")
     doc.add_heading("Persönliche Daten", level=2)
     pd_table = doc.add_table(rows=1, cols=2)
@@ -325,6 +339,7 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
         "person_title": profil.person.title,
         "contact_email": c.email if c else "",
         "contact_phone": c.phone if c else "",
+        "contact_festnetz": c.festnetz if c else "",
         "contact_location": c.location if c else "",
         "kurzprofil": profil.person.kurzprofil,
         "zielrolle": anf.rolle,
@@ -335,6 +350,9 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
         "ausbildungen": ausbildungen,
         "zertifikate": zertifikate,
         "sprachen": sprachen,
+        "wissenschaftliche_interessen": [
+            {"stichwort": wi.stichwort} for wi in profil.wissenschaftliche_interessen
+        ],
         "persoenliche_daten": persoenliche_daten,
     }
 
