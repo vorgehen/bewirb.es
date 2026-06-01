@@ -5,6 +5,9 @@ from typing import Any
 
 import networkx as nx
 from docx import Document
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm
 from docxtpl import DocxTemplate, Listing
 
 from src.data_loader import Anforderungen, Profil
@@ -40,6 +43,75 @@ def _add_table_loop(
     for i, expr in enumerate(cell_templates):
         _clear_and_set(table.rows[2].cells[i], expr)
     _clear_and_set(table.rows[3].cells[0], "{%tr endfor %}")
+
+
+def _add_spiegelstrich_numbering(doc: Document) -> int:
+    """Fügt eine Numbering-Definition mit – als Bullet hinzu. Gibt numId zurück."""
+    try:
+        numbering_part = doc.part.numbering_part
+    except (KeyError, AttributeError):
+        tmp = doc.add_paragraph("x")
+        tmp.style = doc.styles["List Bullet"]
+        numbering_part = doc.part.numbering_part
+        tmp._element.getparent().remove(tmp._element)
+
+    numbering_el = numbering_part._element
+
+    abstracts = numbering_el.findall(qn("w:abstractNum"))
+    next_abstract_id = (
+        max((int(a.get(qn("w:abstractNumId"), -1)) for a in abstracts), default=-1) + 1
+    )
+    nums = numbering_el.findall(qn("w:num"))
+    next_num_id = max((int(n.get(qn("w:numId"), 0)) for n in nums), default=0) + 1
+
+    abstract_num = OxmlElement("w:abstractNum")
+    abstract_num.set(qn("w:abstractNumId"), str(next_abstract_id))
+
+    lvl = OxmlElement("w:lvl")
+    lvl.set(qn("w:ilvl"), "0")
+    for tag, val in [("w:start", "1"), ("w:numFmt", "bullet")]:
+        e = OxmlElement(tag)
+        e.set(qn("w:val"), val)
+        lvl.append(e)
+    lvl_text = OxmlElement("w:lvlText")
+    lvl_text.set(qn("w:val"), "–")
+    lvl.append(lvl_text)
+    lvl_jc = OxmlElement("w:lvlJc")
+    lvl_jc.set(qn("w:val"), "left")
+    lvl.append(lvl_jc)
+    ppr = OxmlElement("w:pPr")
+    ind = OxmlElement("w:ind")
+    ind.set(qn("w:left"), "360")
+    ind.set(qn("w:hanging"), "180")
+    ppr.append(ind)
+    lvl.append(ppr)
+    abstract_num.append(lvl)
+
+    first_num = numbering_el.find(qn("w:num"))
+    if first_num is not None:
+        first_num.addprevious(abstract_num)
+    else:
+        numbering_el.append(abstract_num)
+
+    num = OxmlElement("w:num")
+    num.set(qn("w:numId"), str(next_num_id))
+    abs_id = OxmlElement("w:abstractNumId")
+    abs_id.set(qn("w:val"), str(next_abstract_id))
+    num.append(abs_id)
+    numbering_el.append(num)
+    return next_num_id
+
+
+def _apply_list_numbering(paragraph: Any, num_id: int) -> None:
+    """Wendet eine Numbering-Definition auf einen Absatz an."""
+    ppr = paragraph._p.get_or_add_pPr()
+    num_pr = OxmlElement("w:numPr")
+    ilvl = OxmlElement("w:ilvl")
+    ilvl.set(qn("w:val"), "0")
+    num_id_el = OxmlElement("w:numId")
+    num_id_el.set(qn("w:val"), str(num_id))
+    num_pr.extend([ilvl, num_id_el])
+    ppr.append(num_pr)
 
 
 def create_default_template(output: Path) -> None:
@@ -84,7 +156,8 @@ def create_default_template(output: Path) -> None:
     doc.add_paragraph("{%p endif %}")
 
     # ─── 4. Schlüsselkompetenzen (Kategorie + Items) ───────────────────────
-    # Tabelle: Kategorie-Label (links) | Aufzählung der Items (rechts)
+    # Tabelle: Kategorie-Label (links, 1/3) | Bullet-Liste der Items (rechts, 2/3)
+    sk_num_id = _add_spiegelstrich_numbering(doc)
     doc.add_paragraph("{%p if schluesselkompetenzen_kategorien %}")
     doc.add_heading("Schlüsselkompetenzen", level=2)
     sk_table = doc.add_table(rows=3, cols=2)
@@ -94,8 +167,16 @@ def create_default_template(output: Path) -> None:
         "{%tr for kat in schluesselkompetenzen_kategorien %}",
     )
     _clear_and_set(sk_table.rows[1].cells[0], "{{ kat.label }}")
-    _clear_and_set(sk_table.rows[1].cells[1], "{{ kat.items_str }}")
+    right_cell = sk_table.rows[1].cells[1]
+    _clear_and_set(right_cell, "{%p for item in kat.eintraege %}")
+    item_para = right_cell.add_paragraph("{{ item }}")
+    _apply_list_numbering(item_para, sk_num_id)
+    right_cell.add_paragraph("{%p endfor %}")
     _clear_and_set(sk_table.rows[2].cells[0], "{%tr endfor %}")
+    # Spaltenbreiten 1/3 : 2/3
+    for row in sk_table.rows:
+        row.cells[0].width = Cm(5.5)
+        row.cells[1].width = Cm(11.0)
     doc.add_paragraph("{%p endif %}")
 
     # ─── 5. IT-Know-How ────────────────────────────────────────────────────
@@ -105,9 +186,7 @@ def create_default_template(output: Path) -> None:
     doc.add_heading("IT-Know-How", level=2)
     doc.add_paragraph("{%p for wg in wissensgebiete %}")
     doc.add_heading("{{ wg.reihenfolge }}. {{ wg.titel }}", level=3)
-    doc.add_paragraph("{%p if wg.architekturstil %}")
-    doc.add_paragraph("Architekturstil: {{ wg.architekturstil }}")
-    doc.add_paragraph("{%p endif %}")
+
     wg_table = doc.add_table(rows=3, cols=2)
     wg_table.style = "Table Grid"
     _clear_and_set(wg_table.rows[0].cells[0], "{%tr for kat in wg.kategorien %}")
@@ -241,8 +320,7 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
         {
             "key": entry["key"],
             "label": entry["label"],
-            "items": entry["items"],
-            "items_str": ", ".join(entry["items"]),
+            "eintraege": [item.replace(" — ", ": ", 1) for item in entry["items"]],
         }
         for entry in sk_ordered
     ]

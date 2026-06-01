@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from pydantic import BaseModel
 
 from src.data_loader import Anforderungen, Profil
@@ -32,9 +34,51 @@ def _profile_tech_corpus(profil: Profil) -> list[str]:
     return corpus
 
 
-def _matches(term: str, corpus: list[str]) -> bool:
+def _term_variants(term: str) -> list[str]:
+    """Zerlegt zusammengesetzte Anforderungen in Einzel-Terme.
+
+    'Java oder TypeScript'          → ['java oder typescript', 'java', 'typescript']
+    'Spring Boot oder React/Vue'    → ['spring boot oder react/vue', 'spring boot', 'react', 'vue']
+    """
     needle = term.lower()
-    return any(needle in c for c in corpus)
+    parts = [
+        p.strip() for p in needle.replace("/", " oder ").split(" oder ") if len(p.strip()) >= 3
+    ]
+    if len(parts) > 1:
+        return [needle] + parts
+    return [needle]
+
+
+def _corpus_tokens(corpus: list[str]) -> set[str]:
+    """Einzelne Tokens (≥3 Zeichen) aus allen Corpus-Items.
+
+    Trennt an Leerzeichen, Sonderzeichen und Klammern, damit z. B.
+    'n-tier · soa · portal · microservices' den Token 'microservices'
+    liefert, der dann in 'microservices-architektur' gefunden wird.
+    """
+    tokens: set[str] = set()
+    for item in corpus:
+        for tok in re.split(r"[\s·()\[\]/,;:]+", item):
+            if len(tok) >= 4:
+                tokens.add(tok)
+    return tokens
+
+
+def _matches(term: str, corpus: list[str]) -> bool:
+    """Prüft ob ein Anforderungs-Term im Profil-Corpus vorkommt.
+
+    Drei Strategien (OR-verknüpft), jeweils für alle Compound-Varianten:
+    1. Direkt:    Variant steckt als Substring in einem Corpus-Item
+    2. Token:     ein Corpus-Token (≥3 Zeichen) steckt als Substring in der Variant
+    3. Compound:  'oder'/'/' zerlegen und jede Alternative einzeln prüfen
+    """
+    tokens = _corpus_tokens(corpus)
+    for variant in _term_variants(term):
+        if any(variant in c for c in corpus):
+            return True
+        if any(tok in variant for tok in tokens):
+            return True
+    return False
 
 
 def match_profile_to_requirements(profil: Profil, anf: Anforderungen) -> MatchResult:
