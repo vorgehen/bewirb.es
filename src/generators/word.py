@@ -150,11 +150,6 @@ def create_default_template(output: Path) -> None:
     doc.add_paragraph("{{ kurzprofil }}")
     doc.add_paragraph("{%p endif %}")
 
-    # ─── 3. Zielrolle ──────────────────────────────────────────────────────
-    doc.add_paragraph("{%p if zielrolle %}")
-    doc.add_paragraph("Zielrolle: {{ zielrolle }}")
-    doc.add_paragraph("{%p endif %}")
-
     # ─── 4. Schlüsselkompetenzen (Kategorie + Items) ───────────────────────
     # Tabelle: Kategorie-Label (links, 1/3) | Bullet-Liste der Items (rechts, 2/3)
     sk_num_id = _add_spiegelstrich_numbering(doc)
@@ -323,6 +318,7 @@ def _build_context(psm: nx.DiGraph[str], profil: Profil, anf: Anforderungen) -> 
             "eintraege": [item.replace(" — ", ": ", 1) for item in entry["items"]],
         }
         for entry in sk_ordered
+        if entry["key"] != "fuehrungkompetenz"
     ]
 
     wissensgebiete: list[dict[str, Any]] = []
