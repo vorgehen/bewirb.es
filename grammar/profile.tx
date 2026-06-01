@@ -175,3 +175,10 @@ SubkategorieTyp:
     'Web-UI' | 'Datenbank' | 'Plattform' | 'Modellierung' | 'Dokumentation' |
     'Test' | 'Werkzeug' | 'Agent' | 'Computer-Algebra' | 'Laufzeitumgebung'
 ;
+
+// Zeilen-Kommentare (analog grammar/knowledge.tx). Erlaubt es, .profile-
+// Dateien mit Quellen-Verweisen oder Migrations-Hinweisen zu annotieren,
+// ohne die Inhalte zu verfälschen.
+Comment:
+    /\/\/.*$/
+;

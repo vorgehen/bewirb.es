@@ -13,14 +13,20 @@ class MatchResult(BaseModel):
 
 
 def _profile_tech_corpus(profil: Profil) -> list[str]:
-    """Lower-case-Strings aus Wissensgebiet-Titeln und Subkategorie-Items.
+    """Lower-case-Strings aus Wissensgebiet-Titeln, Architekturstil und
+    Subkategorie-Items.
 
     Versionsangaben wie „Java (8–17)" bleiben erhalten — der Match nutzt
     Substring-Vergleich, sodass „Java" auch in „Java (8–17)" gefunden wird.
+    Architekturstil ist als Halbsatz formuliert (z. B. „N-Tier · SOA ·
+    Portal · Microservices") und trägt damit Stil-Begriffe in den Corpus,
+    die in den Subkategorie-Items nicht vorkommen.
     """
     corpus: list[str] = []
     for wg in profil.wissensgebiete:
         corpus.append(wg.titel.lower())
+        if wg.architekturstil:
+            corpus.append(wg.architekturstil.lower())
         for kat in wg.kategorien:
             corpus.extend(item.lower() for item in kat.items)
     return corpus
