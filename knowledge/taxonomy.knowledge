@@ -61,6 +61,16 @@ technology JMS {
     sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
 }
 
+technology Jenkins {
+    category: "Werkzeuge"
+    aliases: [
+        "Jenkins CI",
+        "Jenkins Pipeline",
+        "CI/CD Jenkins"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3]
+}
+
 technology Maven {
     category: "Werkzeuge"
     aliases: [

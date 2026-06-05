@@ -66,7 +66,7 @@ def _remove_borders(table: Any) -> None:
     tblPr.append(tblBorders)
 
 
-def _set_cell_padding(table: Any, dxa: int = 80) -> None:
+def _set_cell_padding(table: Any, dxa: int = 40) -> None:
     tbl = table._tbl
     tblPr = tbl.find(qn("w:tblPr"))
     if tblPr is None:
@@ -306,7 +306,11 @@ def create_default_template(output: Path) -> None:
     # Subkategorien (Sprache, Framework, Persistenz, …).
     doc.add_heading("IT-Know-How", level=2)
     doc.add_paragraph("{%p for wg in wissensgebiete %}")
-    doc.add_heading("{{ wg.titel }}", level=3)
+    wg_heading = doc.add_heading("{{ wg.titel }}", level=3)
+    run_as = wg_heading.add_run(
+        "{% if wg.architekturstil %}  –  {{ wg.architekturstil }}{% endif %}"
+    )
+    run_as.bold = False
 
     wg_table = doc.add_table(rows=3, cols=2)
     wg_table.style = "Table Grid"
