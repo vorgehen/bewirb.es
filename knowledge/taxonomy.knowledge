@@ -1,6 +1,117 @@
 // taxonomy.knowledge -- Technology-Taxonomie und Kompetenzgraph
 // Migriert aus knowledge/technology_taxonomy.yaml + competency_graph.yaml
 
+technology JAXP {
+    category: "XML-Verarbeitung"
+    aliases: [
+        "Java API for XML Processing",
+        "DOM",
+        "SAX",
+        "StAX",
+        "XPath",
+        "javax.xml"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology XSLT {
+    category: "XML-Verarbeitung"
+    aliases: [
+        "Extensible Stylesheet Language Transformations",
+        "XSL-T",
+        "XSL-FO",
+        "javax.xml.transform"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology EJB {
+    category: "Container-Dienste"
+    aliases: [
+        "Enterprise JavaBeans",
+        "EJB 3.x",
+        "EJB 3",
+        "Session Bean",
+        "javax.ejb",
+        "Jakarta EJB"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology JSF {
+    category: "Web-UI"
+    aliases: [
+        "JavaServer Faces",
+        "Jakarta Faces",
+        "PrimeFaces",
+        "Oracle ADF",
+        "Facelets",
+        "JSF 2.x"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology JMS {
+    category: "Messaging-Schnittstellen"
+    aliases: [
+        "Java Message Service",
+        "Jakarta Messaging",
+        "JMS 2.0"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Maven {
+    category: "Werkzeuge"
+    aliases: [
+        "Ant/Maven",
+        "Maven Build",
+        "Apache Maven"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology Jira {
+    category: "Werkzeuge"
+    aliases: [
+        "Jira/Redmine",
+        "Atlassian Jira",
+        "Redmine"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3]
+}
+
+technology JAXB {
+    category: "Frameworks"
+    aliases: [
+        "Java Architecture for XML Binding",
+        "Jakarta XML Binding"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
+technology JMX {
+    category: "Frameworks"
+    aliases: [
+        "Java Management Extensions"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3]
+}
+
+technology CDI {
+    category: "Frameworks"
+    aliases: [
+        "Contexts and Dependency Injection",
+        "Weld",
+        "CDI (Weld)",
+        "Jakarta CDI",
+        "Spring DI",
+        "Spring IoC",
+        "Spring Container"
+    ]
+    sfia_levels: [1 -> 2, 3 -> 3, 6 -> 4]
+}
+
 technology Java {
     category: "Programmiersprachen"
     aliases: [

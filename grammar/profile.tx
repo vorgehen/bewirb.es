@@ -176,7 +176,8 @@ Subkategorie:
 SubkategorieTyp:
     'Sprache' | 'Grammatik' | 'Framework' | 'Persistenz' | 'Schnittstellen' |
     'Web-UI' | 'Datenbank' | 'Plattform' | 'Modellierung' | 'Dokumentation' |
-    'Test' | 'Werkzeug' | 'Agent' | 'Computer-Algebra' | 'Laufzeitumgebung'
+    'Test' | 'Werkzeug' | 'Agent' | 'Computer-Algebra' | 'Laufzeitumgebung' |
+    'Container-Dienste'
 ;
 
 Publikation:
