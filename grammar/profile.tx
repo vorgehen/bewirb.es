@@ -9,12 +9,13 @@ Profil:
 ProfilElement:
     Person | Branche | Auftraggeber | Projekterfahrung |
     Ausbildung | Sprache | Zertifikat | Werdegang | Schluesselkompetenzen |
-    WissenschaftlichesInteresse | Wissensgebiet
+    WissenschaftlichesInteresse | Wissensgebiet | Publikation
 ;
 
 Person:
     'person' name=ID '{'
         'title:' title=STRING
+        ('qualifikation:' qualifikation=STRING)?
         contact=Kontakt
         ('kurzprofil:' kurzprofil=STRING)?
         (persoenlicheDaten=PersoenlicheDaten)?
@@ -36,6 +37,8 @@ Kontakt:
         'email:' email=STRING
         ('phone:' phone=STRING)?
         ('festnetz:' festnetz=STRING)?
+        ('strasse:' strasse=STRING)?
+        ('plz_ort:' plz_ort=STRING)?
         ('location:' location=STRING)?
         ('website:' website=STRING)?
         ('linkedin:' linkedin=STRING)?
@@ -174,6 +177,16 @@ SubkategorieTyp:
     'Sprache' | 'Grammatik' | 'Framework' | 'Persistenz' | 'Schnittstellen' |
     'Web-UI' | 'Datenbank' | 'Plattform' | 'Modellierung' | 'Dokumentation' |
     'Test' | 'Werkzeug' | 'Agent' | 'Computer-Algebra' | 'Laufzeitumgebung'
+;
+
+Publikation:
+    'publikation' name=ID '{'
+        'titel:'  titel=STRING
+        'jahr:'   jahr=INT
+        ('typ:'          typ=STRING)?
+        ('beschreibung:' beschreibung=STRING)?
+        ('url:'          url=STRING)?
+    '}'
 ;
 
 // Zeilen-Kommentare (analog grammar/knowledge.tx). Erlaubt es, .profile-

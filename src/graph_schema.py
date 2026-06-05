@@ -16,6 +16,7 @@ NODE_TYPES: list[str] = [
     "WissenschaftlichesInteresse",
     "Wissensgebiet",
     "Subkategorie",
+    "Publikation",
     "Technology",
     "SfiaLevel",
     "TechnologyRelation",
@@ -30,6 +31,7 @@ NODE_TYPES: list[str] = [
 PERSON_ATTRS: list[str] = [
     "name",
     "title",
+    "qualifikation",
     "contact",
     "kurzprofil",
     "persoenlicheDaten",
@@ -45,6 +47,8 @@ KONTAKT_ATTRS: list[str] = [
     "email",
     "phone",
     "festnetz",
+    "strasse",
+    "plz_ort",
     "location",
     "website",
     "linkedin",
@@ -122,6 +126,14 @@ WISSENSGEBIET_ATTRS: list[str] = [
 SUBKATEGORIE_ATTRS: list[str] = [
     "typ",
     "items",
+]
+PUBLIKATION_ATTRS: list[str] = [
+    "name",
+    "titel",
+    "jahr",
+    "typ",
+    "beschreibung",
+    "url",
 ]
 TECHNOLOGY_ATTRS: list[str] = [
     "name",

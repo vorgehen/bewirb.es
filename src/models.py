@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class Person(BaseModel):
     name: str = ""
     title: str = ""
+    qualifikation: str = ""
     contact: Kontakt
     kurzprofil: str = ""
     persoenlicheDaten: PersoenlicheDaten | None = None
@@ -25,6 +26,8 @@ class Kontakt(BaseModel):
     email: str = ""
     phone: str = ""
     festnetz: str = ""
+    strasse: str = ""
+    plz_ort: str = ""
     location: str = ""
     website: str = ""
     linkedin: str = ""
@@ -113,6 +116,15 @@ class Wissensgebiet(BaseModel):
 class Subkategorie(BaseModel):
     typ: str = ""
     items: list[str] = []
+
+
+class Publikation(BaseModel):
+    name: str = ""
+    titel: str = ""
+    jahr: int
+    typ: str = ""
+    beschreibung: str = ""
+    url: str = ""
 
 
 class Technology(BaseModel):

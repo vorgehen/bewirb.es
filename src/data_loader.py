@@ -14,6 +14,7 @@ from src.models import (
     PersoenlicheDaten,
     Person,
     Projekterfahrung,
+    Publikation,
     Schluesselkompetenzen,
     Sprache,
     Subkategorie,
@@ -38,6 +39,7 @@ class Profil(BaseModel):
     schluesselkompetenzen: Schluesselkompetenzen | None = None
     wissenschaftliche_interessen: list[WissenschaftlichesInteresse] = []
     wissensgebiete: list[Wissensgebiet] = []
+    publikationen: list[Publikation] = []
 
 
 class Anforderungen(BaseModel):
@@ -67,10 +69,13 @@ def _to_person(obj: Any) -> Person:
     return Person(
         name=obj.name or "",
         title=obj.title or "",
+        qualifikation=obj.qualifikation or "",
         contact=Kontakt(
             email=c.email or "",
             phone=c.phone or "",
             festnetz=c.festnetz or "",
+            strasse=c.strasse or "",
+            plz_ort=c.plz_ort or "",
             location=c.location or "",
             website=c.website or "",
             linkedin=c.linkedin or "",
@@ -86,6 +91,17 @@ def _to_sprache(obj: Any) -> Sprache:
         name=obj.name or "",
         bezeichnung=obj.bezeichnung or "",
         level=obj.level or "",
+    )
+
+
+def _to_publikation(obj: Any) -> Publikation:
+    return Publikation(
+        name=obj.name or "",
+        titel=obj.titel or "",
+        jahr=obj.jahr or 0,
+        typ=obj.typ or "",
+        beschreibung=obj.beschreibung or "",
+        url=obj.url or "",
     )
 
 
@@ -206,6 +222,7 @@ def load_profile(path: Path) -> Profil:
     werdegang: list[Werdegang] = []
     schluesselkompetenzen: Schluesselkompetenzen | None = None
     wissenschaftliche_interessen: list[WissenschaftlichesInteresse] = []
+    publikationen: list[Publikation] = []
 
     for elem in model.elements:
         cls_name = elem.__class__.__name__
@@ -229,6 +246,8 @@ def load_profile(path: Path) -> Profil:
             schluesselkompetenzen = _to_schluesselkompetenzen(elem)
         elif cls_name == "WissenschaftlichesInteresse":
             wissenschaftliche_interessen.append(_to_wissenschaftliches_interesse(elem))
+        elif cls_name == "Publikation":
+            publikationen.append(_to_publikation(elem))
         elif cls_name == "Wissensgebiet":
             wg = _to_wissensgebiet(elem)
             wg_map[wg.name] = wg
@@ -256,6 +275,7 @@ def load_profile(path: Path) -> Profil:
         schluesselkompetenzen=schluesselkompetenzen,
         wissenschaftliche_interessen=wissenschaftliche_interessen,
         wissensgebiete=wissensgebiete,
+        publikationen=publikationen,
     )
 
 
