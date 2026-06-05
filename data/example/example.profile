@@ -1,7 +1,11 @@
 person Profil_Inhaber {
     title: "Senior Software Ingenieur & Architekt"
+    qualifikation: "Diplom-Informatiker"
     contact {
         email: "profil@beispiel.de"
+        phone: "0151 / 00 00 00 00"
+        strasse: "Musterstraße 1"
+        plz_ort: "12345 Musterstadt"
         location: "Deutschland"
         linkedin: "linkedin.com/in/beispiel"
         github: "github.com/beispiel"
@@ -144,6 +148,13 @@ wissensgebiet wg_microservices {
     Plattform: ["Docker", "Kubernetes"]
     Schnittstellen: ["REST", "gRPC"]
     Werkzeug: ["Git", "GitHub Actions"]
+}
+
+publikation beispiel_artikel {
+    titel: "Beispiel-Publikation zur modellgetriebenen Entwicklung"
+    jahr: 2015
+    beschreibung: "Software Engineering Journal, Vol. 12"
+    url: "https://example.org/artikel"
 }
 
 wissensgebiet wg_python_mdd {

@@ -116,6 +116,32 @@ def test_load_requirements_zielgruppe_default_leer() -> None:
     assert anf.zielgruppe == ""
 
 
+# ─── Neue Grammatik-Entitäten (Publikation, qualifikation, Adresse) ────────────
+
+
+def test_load_profile_person_qualifikation() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    assert profil.person.qualifikation == "Diplom-Informatiker"
+
+
+def test_load_profile_contact_adresse() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    c = profil.person.contact
+    assert c is not None
+    assert c.strasse == "Musterstraße 1"
+    assert c.plz_ort == "12345 Musterstadt"
+
+
+def test_load_profile_publikationen() -> None:
+    profil = load_profile(EXAMPLE_PROFILE)
+    assert len(profil.publikationen) >= 1
+    pub = profil.publikationen[0]
+    assert pub.titel != ""
+    assert pub.jahr == 2015
+    assert pub.beschreibung != ""
+    assert pub.url != ""
+
+
 def test_load_requirements_zielgruppe_geladen(tmp_path: Path) -> None:
     content = """
     requirements R {

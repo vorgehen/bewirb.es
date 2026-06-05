@@ -38,6 +38,8 @@ def test_build_context_has_required_keys() -> None:
     ctx = _build_context(psm, profil, anf)
     expected = (
         "person_title",
+        "person_name",
+        "person_qualifikation",
         "wissensgebiete",
         "projekte",
         "ausbildungen",
@@ -45,8 +47,9 @@ def test_build_context_has_required_keys() -> None:
         "werdegang",
         "zertifikate",
         "sprachen",
-        "persoenliche_daten",
-        "kurzprofil",
+        "publikationen",
+        "persoenliche_daten_liste",
+        "kurzprofil_saetze",
         "contact_email",
         "zielrolle",
     )
@@ -60,7 +63,8 @@ def test_build_context_kurzprofil_aus_profil() -> None:
     g = build_graph(profil)
     psm = transform(g, anf)
     ctx = _build_context(psm, profil, anf)
-    assert ctx["kurzprofil"] != ""
+    assert len(ctx["kurzprofil_saetze"]) >= 1
+    assert all(s != "" for s in ctx["kurzprofil_saetze"])
 
 
 def test_build_context_schluesselkompetenzen_kategorien_geordnet() -> None:
@@ -73,8 +77,8 @@ def test_build_context_schluesselkompetenzen_kategorien_geordnet() -> None:
     kats = ctx["schluesselkompetenzen_kategorien"]
     assert len(kats) >= 1
     for kat in kats:
-        assert "key" in kat and "label" in kat and "items" in kat and "items_str" in kat
-        assert kat["items_str"]  # nicht leer
+        assert "key" in kat and "label" in kat and "eintraege" in kat
+        assert len(kat["eintraege"]) >= 1
 
 
 def test_build_context_werdegang_und_zertifikate() -> None:
@@ -125,9 +129,10 @@ def test_build_context_persoenliche_daten_label_value() -> None:
     g = build_graph(profil)
     psm = transform(g, anf)
     ctx = _build_context(psm, profil, anf)
-    pd = ctx["persoenliche_daten"]
-    assert pd is not None
-    assert "label" in pd and "value" in pd
+    pd_liste = ctx["persoenliche_daten_liste"]
+    assert len(pd_liste) >= 1
+    for pd in pd_liste:
+        assert "label" in pd and "value" in pd
 
 
 def test_build_context_wissensgebiete_sorted_by_reihenfolge() -> None:
